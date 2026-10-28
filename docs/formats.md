@@ -147,8 +147,9 @@ It does not verify a declared test receipt against a source document.
 
 ## Aggregate report
 
-The appraisal JSON output uses format `traceatlas-aggregate-v1`.
+The appraisal JSON output uses format `ithildin-aggregate-v1`.
 It records the model version, input SHA-256, counts, rights, prices, policy settings, and limits.
 It removes raw observations, actions, asset names, deal identifiers, and source references.
-It retains the synthetic marker when the scriptraisal uses synthetic evidence.
+It retains the synthetic marker when the appraisal uses synthetic evidence.
+Inspection output uses format `ithildin-inspection-v1`.
 Keep this report private.

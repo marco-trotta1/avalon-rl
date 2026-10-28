@@ -1,8 +1,11 @@
-# TraceAtlas
+# Ithildin
 
-TraceAtlas is a local command-line script for RL environments and data traces.
+Ithildin is a local command-line script for RL environments and data traces.
 It inspects data and estimates licensing or sale prices from documented comparable transactions.
-The repository is private. The software license is proprietary.
+The repository is public. The software license is proprietary.
+Keep actual data and reports private.
+
+Repository: [marco-trotta1/ithildin](https://github.com/marco-trotta1/ithildin).
 
 The script has no web interface, server, external AI service, or telemetry.
 The synthetic demonstration uses invented assets, transactions, and prices.

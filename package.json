@@ -1,10 +1,10 @@
 {
-  "name": "traceatlas",
+  "name": "ithildin",
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Private command-line appraisal of RL environments and data traces.",
-  "bin": { "traceatlas": "dist/cli.js" },
+  "description": "Local command-line appraisal of RL environments and data traces.",
+  "bin": { "ithildin": "dist/cli.js" },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "analyze": "node dist/cli.js",

@@ -55,7 +55,7 @@ These quantities remain unmeasured.
 
 Minari documents episode observations, actions, rewards, terminations, and truncations.
 It also documents source metadata and optional reset seeds.
-TraceAtlas uses a JSON export with analogous arrays.
+Ithildin uses a JSON export with analogous arrays.
 It does not claim native Minari compatibility.
 The structural checks do not establish policy performance or a dollar value.
 
@@ -64,7 +64,7 @@ The structural checks do not establish policy performance or a dollar value.
 [Farama Foundation: Handling Time Limits](https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/)
 
 Gymnasium distinguishes termination from truncation because they affect learning targets differently.
-TraceAtlas preserves both flags and accepts either as an episode ending.
+Ithildin preserves both flags and accepts either as an episode ending.
 Neither flag proves task success.
 The script does not reject useful failure episodes because they have low rewards.
 
@@ -74,7 +74,7 @@ The script does not reject useful failure episodes because they have low rewards
 
 D4RL evaluates offline RL with varied collection policies and task compositions.
 It supports examining dataset composition instead of treating volume as training utility.
-TraceAtlas does not convert these research results into price premiums.
+Ithildin does not convert these research results into price premiums.
 Task identifiers remain declarations, not verified task diversity.
 
 ### Task-dependent data value
@@ -83,7 +83,7 @@ Task identifiers remain declarations, not verified task diversity.
 
 Data Shapley measures contribution to a specified learning algorithm and performance metric.
 It does not supply universal market prices.
-TraceAtlas does not compute these values or claim a training contribution from static file checks.
+Ithildin does not compute these values or claim a training contribution from static file checks.
 
 ## Evidence needed next
 
