@@ -1,0 +1,32 @@
+{
+  "name": "traceatlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Private local appraisal of RL environments and data traces.",
+  "scripts": {
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev --hostname 127.0.0.1 --port 4317",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "start": "node scripts/serve.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:engine": "vitest run tests/engine.test.ts",
+    "test:browser": "playwright test",
+    "check:privacy": "node scripts/check-privacy.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  },
+  "engines": { "node": ">=22.12.0" }
+}
