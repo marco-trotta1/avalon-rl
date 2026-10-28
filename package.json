@@ -1,10 +1,11 @@
 {
-  "name": "ithildin",
+  "name": "avalon-rl",
   "version": "0.2.0",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "description": "Local command-line appraisal of RL environments and data traces.",
-  "bin": { "ithildin": "dist/cli.js" },
+  "bin": { "avalon-rl": "dist/cli.js" },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "analyze": "node dist/cli.js",

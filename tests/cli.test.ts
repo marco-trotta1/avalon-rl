@@ -25,7 +25,7 @@ function run(args: string[], blockNetwork = false) {
 }
 
 beforeAll(async () => {
-  directory = await mkdtemp(join(tmpdir(), "ithildin-cli-"));
+  directory = await mkdtemp(join(tmpdir(), "avalon-rl-cli-"));
   for (const kind of ["traces", "environment"] as const) {
     await writeFile(join(directory, `${kind}-case.json`), JSON.stringify(demoCase(kind)), { mode: 0o600 });
     await writeFile(join(directory, `${kind}-data`), demoData(kind), { mode: 0o600 });
@@ -38,7 +38,7 @@ describe("command-line workflow", () => {
   it("prints help without starting a server", () => {
     const result = run(["--help"], true);
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Ithildin:");
+    expect(result.stdout).toContain("Avalon RL:");
     expect(result.stdout).toContain("appraise");
     expect(result.stderr).toBe("");
   });
@@ -51,7 +51,7 @@ describe("command-line workflow", () => {
     expect(result.status).toBe(0);
     expect(result.stderr).toBe("");
     const report: Report = JSON.parse(result.stdout);
-    expect(report.format).toBe("ithildin-aggregate-v1");
+    expect(report.format).toBe("avalon-rl-aggregate-v1");
     expect(report.comparableDecisions.map(decision => decision.record)).toEqual([5, 4, 3, 2, 1]);
     expect(report.estimate.status).toBe("estimated");
     if (report.estimate.status === "estimated") expect(report.estimate.medianUsd).toBeCloseTo(expectedPrice, 6);

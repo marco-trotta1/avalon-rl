@@ -289,7 +289,7 @@ export function aggregateReport(input: { appraisal: AppraisalCase; analysis: Ana
   const { diagnostics: _diagnostics, ...counts } = analysis;
   const { decisions: _decisions, ...summary } = estimate;
   return {
-    format: "ithildin-aggregate-v1",
+    format: "avalon-rl-aggregate-v1",
     sensitivity: "Private. This report contains aggregate counts, terms, and prices.",
     scope: {
       kind: appraisal.asset.kind, modality: appraisal.asset.modality,

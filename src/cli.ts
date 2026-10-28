@@ -17,7 +17,7 @@ type Command =
 class UsageError extends Error {}
 class FileError extends Error {}
 
-const help = `Ithildin: private appraisal of RL environments and data traces.
+const help = `Avalon RL: private appraisal of RL environments and data traces.
 
 Usage:
   node dist/cli.js appraise --case appraisal.json --data asset-file [--out report.json]
@@ -137,7 +137,7 @@ async function main(args: string[]): Promise<number> {
         const text = await readInput({ path: command.dataPath, label: "data" });
         const analysis = await analyzeData({ text, kind: command.kind });
         await writeOutput({ output: command.output, value: {
-          format: "ithildin-inspection-v1", analysis,
+          format: "avalon-rl-inspection-v1", analysis,
           sensitivity: "Private. This report contains aggregate counts and a source fingerprint.",
           limits: command.kind === "environment"
             ? "Static task inspection only. Declared test receipts are not verified. Environment code does not run."
