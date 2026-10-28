@@ -32,7 +32,7 @@ Linear pricing can misstate the value of large bundles or rare capabilities.
 
 ## Diagnostic validation
 
-The app leaves each accepted deal out once.
+The script leaves each accepted deal out once.
 It predicts that deal's unit price using the median of the remaining deals.
 It reports the median absolute percentage error across these held-out deals.
 The sample size appears beside the error.
@@ -44,7 +44,7 @@ No real transaction dataset is included in the repository.
 No accuracy claim against real sale prices is supported yet.
 
 The calculation uses local CPU work. It calls no paid model service.
-The app does not meter electricity, device cost, or elapsed analysis time.
+The script does not meter electricity, device cost, or elapsed analysis time.
 These quantities remain unmeasured.
 
 ## Research sources
@@ -66,7 +66,7 @@ The structural checks do not establish policy performance or a dollar value.
 Gymnasium distinguishes termination from truncation because they affect learning targets differently.
 TraceAtlas preserves both flags and accepts either as an episode ending.
 Neither flag proves task success.
-The app does not reject useful failure episodes because they have low rewards.
+The script does not reject useful failure episodes because they have low rewards.
 
 ### Offline RL dataset composition
 

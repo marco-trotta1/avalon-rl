@@ -1,38 +1,41 @@
 # Security and data handling
 
-Keep real data and source contracts outside the repository.
+Keep real data, deal ledgers, reports, and source contracts outside the repository.
 Do not include private payloads in issues, commit messages, screenshots, or test fixtures.
-Use only synthetic fixtures for development and verification.
+Use synthetic fixtures for development and verification.
 
-The production server binds to the loopback address.
-Do not expose this server through a proxy, tunnel, or public deployment without a separate security design.
-The app has no authentication for remote access.
-
-The app reads JSON and JSONL as data.
-It does not execute imported code or follow imported source references.
+The CLI reads local JSON and JSONL as data.
+It has no web interface, server, telemetry, external AI service, or runtime network client.
+It does not execute imported code or follow source references.
 Its schemas reject unsupported fields.
-Each input file has a 10 MiB limit.
+Each input read stops after 10 MiB plus one overflow detection byte.
 Each asset file has a 20,000-record limit.
-Diagnostic output contains record positions and fixed reason codes.
-It does not contain rejected payload text.
+The reader rejects invalid UTF-8 and non-regular input files.
 
-The production Content Security Policy blocks browser connections.
-The server uses script hashes for Next.js bootstrap scripts.
-The server permits inline styles for layout compatibility.
-Do not weaken the script or connection policy to resolve a runtime error.
+The script writes JSON to stdout unless an output path is supplied.
+Terminal capture and shell redirection can retain stdout.
+Use `--out` to create report files with mode `0600`.
+The output directory must exist.
+The script uses exclusive file creation and never replaces an existing output path.
+This also rejects an output symlink or an output path that names an input file.
+File error messages omit input paths and rejected payloads.
 
-The app does not persist appraisals in browser storage.
-Browser memory release is not secure erasure.
-Exports are explicit and remain sensitive.
-The aggregate report includes a source SHA-256 for reproducibility.
-This fingerprint can reveal a match to a known input file.
+Reports omit raw observations, actions, asset names, deal identifiers, and contract references.
+They retain sensitive counts, a source fingerprint, terms, prices, and transaction decisions.
+Transaction record numbers map to the supplied ledger.
+The SHA-256 can reveal a match to a known source file.
+Keep reports private.
+
+The script keeps input contents in process memory until the run ends.
+Memory release does not guarantee secure erasure.
+Device administrators, malware, and terminal capture remain outside this protection.
 
 The Git ignore rules exclude common data, report, database, archive, and key paths.
-The privacy check scans tracked paths and app network and storage APIs.
-These controls do not detect every secret or every possible disclosure.
+The privacy check scans tracked paths, runtime source APIs, and package dependencies.
+The CLI tests block Node network APIs during the main workflows.
+These checks do not replace an operating system sandbox or a security audit.
 Review the exact staged files before each commit.
 
-No hosted deployment, CI upload, third-party analytics, or external AI service is configured.
-Next.js telemetry is disabled in the build and development commands.
+No hosted deployment, CI upload, analytics, or external AI service is configured.
 Dependency installation and GitHub synchronization use network access.
 They do not require real asset data.

@@ -1,141 +1,158 @@
 # TraceAtlas
 
-TraceAtlas estimates the licensing or sale price of RL environments and data traces.
-It runs locally and processes files inside the browser.
+TraceAtlas is a local command-line script for RL environments and data traces.
+It inspects data and estimates licensing or sale prices from documented comparable transactions.
 The repository is private. The software license is proprietary.
 
-The estimate uses documented comparable transactions supplied by the user.
-The app does not contain a real transaction database.
+The script has no web interface, server, external AI service, or telemetry.
 The synthetic demonstration uses invented assets, transactions, and prices.
+The repository does not contain a real transaction database.
 
-## Run locally
+## Setup
 
 Use Node.js 22.12 or later.
-Package installation requires network access. Asset analysis does not require network access.
+Package installation requires network access. Analysis uses local files.
 
 ```sh
 npm ci --ignore-scripts
 npm run build
-npm start
+node dist/cli.js --help
 ```
 
-Open [the local workspace](http://127.0.0.1:4317).
-Use the production server for the restrictive network policy.
-The development command is `npm run dev`.
-The development server supports local development connections.
+## Inspect data
 
-## Create an appraisal
+Use inspection when you do not have a deal ledger.
+The report contains structural checks and counts. It does not contain a price.
 
-1. Select Data traces or RL environment.
-2. Download the appraisal template.
-3. Enter the asset scope, provenance evidence, transfer rights, and comparable deals.
-4. Import the appraisal JSON.
-5. Import the trace JSONL or environment JSON.
-6. Inspect the estimate, excluded deals, and data diagnostics.
-7. Download the private aggregate report if required.
-8. Clear the session when the work is complete.
+```sh
+node dist/cli.js inspect --kind traces --data /private/path/traces.jsonl
+node dist/cli.js inspect --kind environment --data /private/path/environment.json
+```
 
-Keep real datasets, deal ledgers, and contracts outside this repository.
-The exported report contains sensitive counts, a source fingerprint, terms, and prices.
-It omits raw observations, actions, names, deal identifiers, and contract references.
+## Estimate a license or sale price
 
+Generate a blank appraisal file. Enter the asset scope, provenance evidence, transfer rights, and comparable transactions.
+Store actual files outside this repository.
+
+```sh
+node dist/cli.js template --kind traces --out /private/path/appraisal.json
+node dist/cli.js appraise --case /private/path/appraisal.json --data /private/path/traces.jsonl
+```
+
+The appraisal file selects the asset type.
+For an environment, use an environment appraisal file and a task manifest.
+The same command handles non-exclusive licenses, exclusive licenses, and ownership sales.
 See [the input formats](docs/formats.md) for the complete contract.
 
-## What the estimate means
+## Save a private report
 
-The model calculates a median transaction price per eligible unit.
-It multiplies this price by the inspected asset volume.
-The unit is a complete trace episode or a documented environment task specification.
-Comparable unit counts must use the same eligibility definition.
+Shell redirection uses the shell's file permissions. Use `--out` for an owner-only report file.
+The output directory must exist. The script never replaces an existing file or follows an existing output symlink.
 
-The observed minimum and maximum comparable prices define the displayed range.
-The range is not a confidence interval.
-No coverage probability is claimed.
-Every result remains provisional.
+```sh
+node dist/cli.js appraise --case /private/path/appraisal.json --data /private/path/traces.jsonl --out /private/path/report.json
+```
+
+Without `--out`, the script writes JSON to stdout.
+With `--out`, it creates a file with mode `0600` and writes a fixed confirmation to stderr.
+The report omits raw observations, actions, asset names, deal identifiers, and contract references.
+It includes counts, a source SHA-256, terms, prices, and transaction inclusion decisions.
+Transaction record numbers refer to the original comparable array, starting at 1.
+Keep reports private.
+
+## Try synthetic data
+
+```sh
+node dist/cli.js demo --kind traces
+node dist/cli.js demo --kind environment
+```
+
+These commands do not require input files. Their prices are invented and remain marked as synthetic.
+The `npm run analyze --` command also accepts these subcommands.
+Use `node dist/cli.js` directly when you need JSON without npm status messages.
+
+## Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Inspection, appraisal, template generation, or demonstration completes |
+| `1` | A file, encoding, output, or data error prevents completion |
+| `2` | The command arguments are invalid |
+| `3` | Inspection completes, but the evidence does not support a price |
+
+Exit code `3` still produces a structured report with the evidence gaps.
+Invalid individual records appear as inspection exclusions.
+They do not cause a file error when the remaining input can be inspected.
+
+## Method
+
+The named simple baseline is the median of matching transaction unit prices.
+The estimate multiplies that median by the inspected eligible volume.
+The observed minimum and maximum unit prices produce the reported range.
+This range is not a confidence interval. Every result remains provisional.
 
 The model requires:
 
-- At least 3 matching transactions from distinct counterparty groups.
-- A closed contract or paid invoice with an attested document review.
+- At least 3 completed transactions from distinct counterparty groups.
 - Matching asset type, domain, modality, intended use, rights, and license term.
-- A transaction date within 365 days of the appraisal date.
+- A closed contract or paid invoice with an attested document review.
+- Transaction dates within 365 days of the appraisal date.
 - Comparable volumes between 0.25 and 4 times the inspected subject volume.
 - Documented provenance and transfer rights for the requested transaction.
 
-The date, volume, and evidence thresholds are product policies.
-They are not statistically calibrated.
+These thresholds are product policies. They are not statistically calibrated.
 The model assumes linear unit pricing.
 It does not infer bundle discounts, scarcity premiums, exclusivity premiums, or training value.
-It never converts an asking price or quote into a completed transaction.
-It does not mix ownership sales with licenses.
+Quotes and asking prices do not enter the estimate.
+The script does not verify contracts, source documents, rights, or counterparty independence.
+See [the method and sources](docs/method.md) and [the validation record](docs/validation.md).
 
-The ledger author attests to the transaction evidence and counterparty grouping.
-The app does not verify contracts, source documents, rights, or counterparty independence.
-The document hash identifies the declared source. It does not prove the source is authentic.
-Missing evidence withholds a price.
-
-See [the method and sources](docs/method.md) for the evidence boundaries.
-
-## Inspection scope
+## Inspection limits
 
 Trace inspection checks aligned arrays, finite rewards, final episode flags, and exact duplicate content.
+Conflicting identifiers and incomplete episodes do not enter the priced volume.
 Termination and truncation remain distinct. Neither proves task success.
-Conflicting identifiers exclude the affected records.
-Invalid and incomplete records do not enter the priced volume.
 
 Environment inspection checks task specifications and declared passing test receipts.
-The analyzer does not execute environment code or verify the receipts.
+The script does not execute environment code or verify the receipts.
 It does not prove reset correctness, reward integrity, runtime performance, or reproducibility.
 
-Native Minari HDF5, Arrow, Parquet, video, and arbitrary agent log formats require a separate JSON export.
-The app does not detect semantic duplicates, hidden personal data, or benchmark contamination.
-It does not train models or compute Data Shapley values.
+Each input file has a 10 MiB limit. Each asset file has a 20,000-record limit.
+Native HDF5, Arrow, Parquet, video, and arbitrary agent logs require a separate JSON export.
+The script does not measure semantic novelty, benchmark contamination, downstream training improvement, or real market accuracy.
 
 ## Privacy
 
-The app has no upload endpoint, account, database, external model API, or analytics.
-It does not use browser storage.
-Appraisal state remains in session memory.
-Clear session releases app references. It does not guarantee secure memory erasure.
-
-The production server:
-
-- Binds to `127.0.0.1:4317`.
-- Rejects unexpected Host headers and upload methods.
-- Blocks browser network connections with `connect-src 'none'`.
-- Allows only local scripts and approved inline script hashes.
-- Disables framing, forms, device permissions, and response caching.
-
-External research links open only when selected.
-They receive no referrer from the app.
-Device administrators, browser extensions, malware, and screen capture remain outside this protection.
-No hosted deployment is configured.
+Input contents remain in process memory. Only stdout or an explicit `--out` receives a report.
+The script does not call external services, run imported code, start a server, or write automatic logs.
+It rejects invalid UTF-8 and bounds each input read.
+File errors do not print input paths or rejected payloads.
+Process exit releases memory. It does not guarantee secure memory erasure.
+See [the security notes](SECURITY.md).
 
 ## Verify changes
 
 ```sh
+npm run test:cli
 npm run test:engine
 npm run typecheck
 npm run check:privacy
-npm run build
-npm run test:browser
 ```
 
-Install Chromium with `npx playwright install chromium` if Playwright cannot find it.
-The browser tests use the production server and synthetic fixtures.
-They check file imports, both asset types, report export, responsive layout, and blocked network access.
+Run `npm test` before a commit. It builds the script and runs all engine and CLI tests.
+The CLI tests use synthetic fixtures and disable Node network APIs during the main workflows.
 The privacy source check is a guard. It is not a complete security audit.
 
 ## Repository layout
 
 | Path | Purpose |
 | --- | --- |
-| `src/lib/schema.ts` | Validated boundary formats |
-| `src/lib/engine.ts` | Asset inspection, transaction selection, pricing, and aggregate export |
+| `src/cli.ts` | Commands, bounded file reads, private output, and exit codes |
+| `src/lib/schema.ts` | Validated input formats |
+| `src/lib/engine.ts` | Inspection, transaction selection, pricing, and aggregate reports |
 | `src/lib/demo.ts` | Deterministic synthetic fixtures |
-| `src/app/` | Local browser interface |
-| `scripts/serve.mjs` | Restricted local production server |
-| `tests/` | Engine and browser checks |
-| `docs/` | Formats, sources, limits, and validation record |
+| `tests/` | Engine and CLI checks |
+| `docs/` | Formats, sources, limits, and validation |
+| `dist/` | Generated script output, excluded from Git |
 
-The first model version is `comparable-median-v1`.
+The model version remains `comparable-median-v1`.

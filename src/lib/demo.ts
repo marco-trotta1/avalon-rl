@@ -1,4 +1,4 @@
-import { parseCase, type AppraisalCase, type Episode } from "./schema";
+import { parseCase, type AppraisalCase, type Episode } from "./schema.js";
 
 export function demoCase(kind: "traces" | "environment"): AppraisalCase {
   const prices = kind === "traces" ? [42, 55, 62.5, 75, 91] : [650, 850, 1100, 1400, 1600];
@@ -20,7 +20,7 @@ export function demoCase(kind: "traces" | "environment"): AppraisalCase {
       counterpartyGroup: `Synthetic buyer ${index + 1}`,
       evidence: {
         type: index % 2 ? "paid-invoice" : "closed-contract",
-        reference: "Invented transaction for interface testing.",
+        reference: "Invented transaction for script testing.",
         documentSha256: String(index + 1).repeat(64),
         reviewer: "Synthetic reviewer", reviewedOn: "2026-10-20",
       },

@@ -1,7 +1,7 @@
 # Validation record
 
 Date: 2026-10-28.
-Scope: local implementation with synthetic fixtures.
+Scope: command-line implementation with synthetic fixtures.
 No real datasets, contracts, or completed transactions are used.
 
 ## Environment
@@ -10,12 +10,9 @@ No real datasets, contracts, or completed transactions are used.
 | --- | --- |
 | Node.js | 22.22.3 |
 | npm | 10.9.8 |
-| Next.js | 16.4.3 |
-| React | 19.3.1 |
 | TypeScript | 7.0.2 |
 | Zod | 4.6.7 |
 | Vitest | 5.0.5 |
-| Playwright | 1.64.1 |
 
 The package lock records the dependency graph.
 The fixtures use deterministic integer indexes. They do not use a random seed.
@@ -26,20 +23,23 @@ The trace fixture SHA-256 is `f83f400516d76e73601b32c6a0fc32a653aa6c7e65cb650f1b
 
 | Check | Result |
 | --- | --- |
-| Full Vitest suite | 16 tests pass |
-| Playwright production suite | 7 tests pass |
+| Full Vitest suite | 30 tests pass |
+| Engine suite | 16 tests pass |
+| CLI integration suite | 14 tests pass |
 | TypeScript check | Passes |
-| Production static build | Passes |
+| CLI build | Passes |
 | Privacy source check | Passes |
-| Desktop visual inspection | Reviewed at a 1440 by 1100 CSS pixel viewport |
-| Mobile visual inspection | Reviewed at a 390 by 844 CSS pixel viewport |
 
-The browser checks cover file import, report export, session clearing, and both asset types.
-They cover matching ownership sale transactions and withholding prices when evidence is missing.
-The tests observe no network requests during the synthetic import, analysis, and export workflows.
-The production policy blocks a test outbound request.
-The server rejects upload methods and an unexpected Host header.
-The mobile check finds no document overflow at the tested viewport.
+The CLI checks cover both asset types, ownership sales, inspection without a ledger, templates, and synthetic demonstrations.
+They verify that redacted transaction decisions preserve the original ledger record positions.
+They check structured exit code 3 when pricing evidence is missing.
+The tests verify mode `0600`, refusal to replace existing files, and input file preservation.
+They reject missing files, oversized inputs, invalid UTF-8, and invalid arguments.
+The tests verify that file errors omit input paths.
+
+The main workflows run with HTTP, TCP, UDP, TLS, fetch, and server creation APIs replaced by throwing stubs.
+The workflows complete with these stubs.
+This test guard is not an operating system sandbox.
 
 ## Synthetic baseline
 
@@ -73,13 +73,13 @@ Language collation gives distinct object keys the same ordering rank.
 The canonical serializer changes to deterministic code-unit ordering.
 The regression then counts 1 eligible episode and 1 duplicate.
 
-The initial browser runner cannot bind the local test server inside the sandbox.
-The authorized local test run uses the required host permissions.
+The initial CLI help regression returns exit code 1 before the entry point exists.
+The implemented command returns exit code 0.
+An initial shared command tag prevents TypeScript from narrowing file arguments.
+Separate command variants resolve the compile errors.
 
-The visual review finds a missing icon asset.
-A regression request returns HTTP 404 before the repair.
-The app adds a local SVG icon and metadata reference.
-The production check then returns HTTP 200.
+The earlier interface validation remains in commit `9ae313d`.
+Those browser checks do not verify the current command-line implementation.
 
 ## Unverified work
 

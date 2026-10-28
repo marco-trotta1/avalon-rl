@@ -7,14 +7,15 @@ Store actual inputs outside the repository.
 
 ## Appraisal JSON
 
-Download the blank template from the app.
+Generate a blank template with `node dist/cli.js template --kind traces`.
+Use `--kind environment` for an environment appraisal.
 Use `schemaVersion: 1` and `evidenceMode: "user-supplied"` for actual appraisals.
 Keep synthetic examples in `synthetic` mode.
 
 | Field | Meaning |
 | --- | --- |
 | `asOfDate` | Appraisal date in `YYYY-MM-DD` format |
-| `asset.name` | Private display name |
+| `asset.name` | Private asset label |
 | `asset.kind` | `traces` or `environment` |
 | `asset.domain` | Lowercase category slug, such as `software-operations` |
 | `asset.modality` | `tool-use`, `text`, `robotics`, `simulation`, or `browser` |
@@ -26,7 +27,7 @@ Keep synthetic examples in `synthetic` mode.
 
 A documented evidence object is `{"status":"documented","reference":"private-source-reference"}`.
 Other statuses are `{"status":"unknown"}` and `{"status":"restricted"}`.
-A documented status is an author assertion. The app does not verify the reference.
+A documented status is an author assertion. The script does not verify the reference.
 Transfer documentation must cover the exact requested rights and any existing license restrictions.
 
 Use one rights object:
@@ -70,7 +71,7 @@ Use completed prices for equivalent rights and eligible units.
 Do not use a whole environment bundle price as a task price.
 Separate hardware, consulting, support, and compute services from the asset price.
 Use the same inspection definition for the comparable volume and subject volume.
-The app cannot verify this normalization.
+The script cannot verify this normalization.
 
 Only completed transactions enter the estimate.
 Quotes and asking prices appear as excluded evidence.
@@ -142,12 +143,12 @@ The total test count must be positive.
 The analyzer hashes the task instruction, initial state, reset definition, and verifier.
 It ignores the task identifier and test receipt when detecting duplicate definitions.
 It does not execute the verifier, reset code, or environment.
-It does not verify a declared test receipt against an uploaded source document.
+It does not verify a declared test receipt against a source document.
 
 ## Aggregate report
 
-The exported JSON uses format `traceatlas-aggregate-v1`.
+The appraisal JSON output uses format `traceatlas-aggregate-v1`.
 It records the model version, input SHA-256, counts, rights, prices, policy settings, and limits.
 It removes raw observations, actions, asset names, deal identifiers, and source references.
-It retains the synthetic marker when the appraisal uses synthetic evidence.
+It retains the synthetic marker when the scriptraisal uses synthetic evidence.
 Keep this report private.

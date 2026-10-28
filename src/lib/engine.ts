@@ -2,7 +2,7 @@ import {
   assertNever, environmentSchema, episodeSchema, MAX_FILE_BYTES, MAX_RECORDS,
   MODEL_VERSION, taskSchema,
   type AppraisalCase, type Comparable, type Episode, type Task, type Usd,
-} from "./schema";
+} from "./schema.js";
 
 export interface Diagnostic {
   record: number;
@@ -35,6 +35,7 @@ type Candidate = {
 } & ({ kind: "traces"; value: Episode } | { kind: "environment"; value: Task });
 
 export interface ComparableDecision {
+  record: number;
   id: string;
   included: boolean;
   reason: string;
@@ -219,7 +220,7 @@ export function estimateValue(input: { appraisal: AppraisalCase; analysis: Analy
   const reasons: string[] = [];
   const warnings = [
     "The observed deal range is a sensitivity range. It is not a confidence interval.",
-    "The ledger author attests to document review. The app does not verify contracts, rights, or independence.",
+    "The ledger author attests to document review. The script does not verify contracts, rights, or independence.",
     "The model assumes a linear price per eligible unit. Negotiated bundle discounts can change the price.",
     "Training utility and semantic novelty are not measured. No quality premium is added.",
   ];
@@ -229,7 +230,9 @@ export function estimateValue(input: { appraisal: AppraisalCase; analysis: Analy
   }
 
   const asOf = Date.parse(`${appraisal.asOfDate}T00:00:00Z`);
-  for (const deal of [...appraisal.comparables].sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id))) {
+  const deals = appraisal.comparables.map((deal, index) => ({ deal, record: index + 1 }))
+    .sort(({ deal: a }, { deal: b }) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
+  for (const { deal, record } of deals) {
     const ageDays = (asOf - Date.parse(`${deal.date}T00:00:00Z`)) / 86_400_000;
     const volumeRatio = analysis.eligibleUnits / deal.units;
     let reason = "Included: matching, reviewed transaction.";
@@ -247,7 +250,7 @@ export function estimateValue(input: { appraisal: AppraisalCase; analysis: Analy
     else if (counterparties.has(deal.counterpartyGroup.toLowerCase())) exclude("The counterparty group is already included.");
 
     const unitUsd = (deal.totalUsd / deal.units) as Usd;
-    decisions.push({ id: deal.id, included, reason, unitUsd, date: deal.date, evidenceType: deal.evidence.type });
+    decisions.push({ record, id: deal.id, included, reason, unitUsd, date: deal.date, evidenceType: deal.evidence.type });
     if (included) {
       counterparties.add(deal.counterpartyGroup.toLowerCase());
       documents.add(deal.evidence.documentSha256);
@@ -294,6 +297,7 @@ export function aggregateReport(input: { appraisal: AppraisalCase; analysis: Ana
     },
     analysis: counts,
     estimate: summary,
+    comparableDecisions: estimate.decisions.map(({ id: _id, ...decision }) => decision),
     method: "Median price per eligible unit from matching, author-attested transactions. Observed minimum and maximum define the range.",
     policy: { maximumDealAgeDays: 365, minimumTransactions: 3, minimumVolumeRatio: 0.25, maximumVolumeRatio: 4 },
   };

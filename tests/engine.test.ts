@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { aggregateReport, analyzeData, estimateValue } from "../src/lib/engine";
-import { demoCase, demoData, syntheticEpisode } from "../src/lib/demo";
-import { MAX_FILE_BYTES, parseCase, type AppraisalCase } from "../src/lib/schema";
+import { aggregateReport, analyzeData, estimateValue } from "../src/lib/engine.js";
+import { demoCase, demoData, syntheticEpisode } from "../src/lib/demo.js";
+import { MAX_FILE_BYTES, parseCase, type AppraisalCase } from "../src/lib/schema.js";
 
 const inspect = (episodes: unknown[]) => analyzeData({ kind: "traces", text: episodes.map(value => JSON.stringify(value)).join("\n") });
 
