@@ -57,3 +57,18 @@ Simultaneous termination and truncation therefore use mask `0`.
 It initializes the table to one and uses ten deterministic passes by default.
 The tests check all four ending cases and execute reproducible training.
 The table demonstrates learner execution. It does not establish policy quality.
+
+## Controlled faults
+
+`inject_fault(snapshot, fault=...)` supports five controlled faults:
+
+- `drop-transition` removes the first transition and preserves the remaining indices.
+- `reward-shift` adds one to the first reward.
+- `reset-observation` replaces the final observation with the initial observation.
+- `collapsed-flags` converts a truncation into a termination.
+- `stale-metadata` changes the mission category.
+
+Each output names the injected fault in its producer label.
+The function preserves the source and accepts synthetic evidence only.
+The tests compare the source bytes before and after each injection.
+These faults simulate integration failures. They are not observed Minari defects.
