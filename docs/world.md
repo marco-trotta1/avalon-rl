@@ -67,3 +67,23 @@ The finite synthetic sample has no sampling uncertainty within these eight candi
 It provides no population accuracy estimate.
 The demonstration makes zero API calls and costs 0 USD in API fees.
 It does not measure local runtime latency.
+
+## Controlled verifier challenge
+
+`runWorldChallenge({seed})` evaluates five valid action variations for each catalog task.
+The variations include known-good actions, a false claim, a correct claim, an omitted goal, and an unauthorized payment with restoration.
+The restoration case exposes an authority violation that final payment amounts cannot show.
+All candidates use the same typed actions as the world.
+The report retains every case, including false rejects and correct accepts.
+
+At seed 7, the weak baseline falsely accepts 12 of 12 oracle-invalid candidates.
+It falsely rejects 4 of 8 oracle-valid candidates.
+These counts cover 20 candidates and have no sampling uncertainty within that finite set.
+They are not population estimates.
+The challenge makes zero API calls and costs 0 USD in API fees.
+It does not measure local runtime latency.
+
+`minimizeFalseAccept({task, actions})` removes actions while the false accept persists.
+Its result permits no further single-action deletion.
+This guarantee does not establish a global shortest counterexample.
+The public `examples/world/claim-only.json` fixture contains only synthetic records.
