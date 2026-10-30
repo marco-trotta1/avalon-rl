@@ -76,3 +76,19 @@ A budget can stop within an episode.
 The record then has no terminal outcome and adds no invented transition.
 All training artifacts must be distinct and carry the training split.
 Cross-table feature aliases must preserve the same transition and reward rules.
+
+## Training disagreements
+
+Use `schedule="disagreement"` for the candidate task schedule.
+It visits each training table once before it uses outcome scores.
+It then selects the largest smoothed disagreement rate: `(disagreements + 1) / (attempts + 2)`.
+A disagreement means positive proxy return and invalid outcome, or nonpositive proxy return and valid outcome.
+The independent outcome check runs only after a training episode ends.
+A partial episode does not update the score.
+The schedule records each selection reason and score.
+The candidate never receives an evaluation table or an evaluation result.
+
+The method is a simple task-selection heuristic.
+Existing curriculum methods precede this experiment.
+A comparison can show no gain over fixed or random selection.
+Keep that result in the experiment report.

@@ -52,3 +52,23 @@ def test_shared_feature_aliases_cannot_hide_different_reward_rules():
                 edge["rewards"]["history"] = 0
     with pytest.raises(ValueError, match="aliases"):
         train_schedule((parse_mdp(first), parse_mdp(second)), seed=7, interactions=10)
+
+
+def test_disagreement_schedule_uses_training_outcomes_after_coverage():
+    import random
+    from avalon_lab.policy_mdp import Count
+    from avalon_lab.policy_schedule import TrainingScore, choose_training_index
+    scores = (TrainingScore(Count(5), Count(0)), TrainingScore(Count(5), Count(4)))
+    assert choose_training_index(scores=scores, schedule="disagreement", episode=10, rng=random.Random(7))[:2] == (1, "training-disagreement")
+    scores = (TrainingScore(), TrainingScore(Count(5), Count(4)))
+    assert choose_training_index(scores=scores, schedule="disagreement", episode=5, rng=random.Random(7))[:2] == (0, "coverage")
+
+
+def test_disagreement_training_has_a_deterministic_prefix_and_no_future_scores():
+    short = train_schedule(catalog(), seed=19, interactions=41, arm="claim", schedule="disagreement")
+    long = train_schedule(catalog(), seed=19, interactions=101, arm="claim", schedule="disagreement")
+    assert short.training.updates == long.training.updates[:41]
+    assert [episode.selection_reason for episode in long.episodes[:2]] == ["coverage", "coverage"]
+    assert all(episode.selection_reason == "training-disagreement" for episode in long.episodes[2:])
+    assert all(episode.selection_score is None or 0 < episode.selection_score < 1 for episode in long.episodes)
+    assert sum(len(episode.actions) for episode in long.episodes) == 101
