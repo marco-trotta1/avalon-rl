@@ -40,3 +40,13 @@ it("does not resume an episode from a truncated final state", () => {
   expect(resumed.transitions).toHaveLength(0);
   expect(resumed.final).toEqual(stopped.final);
 });
+
+it("detects changed receipt summaries and stored state hashes", () => {
+  const task = worldTasks()[0]!;
+  const expected = replayWorld({ initial: task.initial, actions: task.knownGood });
+  for (const actual of [
+    { ...expected, final: { ...expected.final, claimedDone: true } },
+    { ...expected, stop: "actions-exhausted" as const },
+    { ...expected, stateHashes: [] },
+  ]) expect(compareReplay({ expected, actual }).matches).toBe(false);
+});
