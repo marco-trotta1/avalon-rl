@@ -17,6 +17,8 @@ File or data errors return `1`.
 Usage errors return `2`.
 Inputs must be regular UTF-8 files.
 The CLI rejects named pipes without waiting for a writer.
+Snapshot inputs have a 10 MiB limit.
+Saved audit reports have a 256 MiB limit and can contain at most 500,000 findings.
 Use `snapshot --data snapshot.json` for a format summary.
 That summary does not compare pipeline stages.
 
@@ -72,6 +74,7 @@ Hash links bind supplied artifacts. They do not prove that a process runs.
 Witnesses contain raw selected evidence. Keep them private.
 Witness extraction requires a new output path.
 Use `--finding` to select a zero-based finding index.
+The index must be between `0` and `499999` and must identify an existing finding.
 The reduction preserves the selected finding within a bounded search.
 It does not prove global minimality.
 

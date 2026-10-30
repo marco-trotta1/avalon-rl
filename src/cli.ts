@@ -43,7 +43,8 @@ Output is JSON. Without --out, output goes to stdout.
 Template and demo use traces unless --kind selects environment.
 Existing output files are never replaced. New files use owner-only permissions.
 The script reads local files. It does not start a server or call external services.
-Inputs use the formats in docs/formats.md. Each file must not exceed 10 MiB.
+Inputs use the formats in docs/formats.md.
+Saved audit reports must not exceed 256 MiB or 500,000 findings. Other inputs must not exceed 10 MiB.
 Real estimates require documented comparable transactions. Demo prices are invented.
 
 Exit codes: 0 complete, 1 file or data error, 2 usage error, 3 price withheld, 4 audit fails, 5 audit inconclusive.

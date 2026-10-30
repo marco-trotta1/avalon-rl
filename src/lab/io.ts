@@ -4,23 +4,27 @@ import { MAX_SNAPSHOT_BYTES } from "./contract.js";
 
 export type OutputDestination = { type: "stdout" } | { type: "file"; path: string };
 
-export async function readLocalText(path: string): Promise<string> {
+export async function readLocalText(path: string, { maxBytes = MAX_SNAPSHOT_BYTES }: { maxBytes?: number } = {}): Promise<string> {
   try {
     const file = await open(path, constants.O_RDONLY | constants.O_NONBLOCK);
     try {
-      if (!(await file.stat()).isFile()) throw new Error("The input must be a regular file.");
-      const buffer = Buffer.alloc(MAX_SNAPSHOT_BYTES + 1);
+      const info = await file.stat();
+      if (!info.isFile()) throw new Error("The input must be a regular file.");
+      if (info.size > maxBytes) throw new Error("The input exceeds the byte limit.");
+      const chunks: Buffer[] = [];
       let length = 0;
-      while (length < buffer.length) {
-        const { bytesRead } = await file.read(buffer, length, buffer.length - length, null);
+      while (length <= maxBytes) {
+        const chunk = Buffer.alloc(Math.min(64 * 1024, maxBytes - length + 1));
+        const { bytesRead } = await file.read(chunk, 0, chunk.length, null);
         if (bytesRead === 0) break;
         length += bytesRead;
+        if (length > maxBytes) throw new Error("The input exceeds the byte limit.");
+        chunks.push(chunk.subarray(0, bytesRead));
       }
-      if (length > MAX_SNAPSHOT_BYTES) throw new Error("The input exceeds 10 MiB.");
-      return new TextDecoder("utf-8", { fatal: true }).decode(buffer.subarray(0, length));
+      return new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks, length));
     } finally { await file.close(); }
   } catch {
-    throw new Error("Cannot read the input. Use a regular UTF-8 file of at most 10 MiB.");
+    throw new Error("Cannot read the input. Use a regular UTF-8 file within the documented byte limit.");
   }
 }
 

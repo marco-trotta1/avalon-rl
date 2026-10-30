@@ -59,6 +59,12 @@ describe("laboratory commands", () => {
     expect(sarif.status).toBe(0);
     expect(JSON.parse(sarif.stdout)).toHaveProperty("version", "2.1.0");
   });
+  it("accepts witness indices within the report limit and rejects larger indices", () => {
+    const args = ["witness", "--source", join(directory, "source.json"), "--target", join(directory, "target.json"),
+      "--out", join(directory, "absent-finding.json"), "--finding"];
+    expect(run([...args, "499999"]).status).toBe(1);
+    expect(run([...args, "500000"]).status).toBe(2);
+  });
   it("renders an offline HTML report through the CLI", () => {
     const result = run(["lab-demo", "--format", "html"]);
     expect(result.status).toBe(0);
