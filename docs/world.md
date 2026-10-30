@@ -116,8 +116,9 @@ No search result establishes absence of other counterexamples.
 The types prevent selecting another task from a pending or exhausted state.
 The state retains failures and verifier disagreements.
 
-The selector gives unseen tasks priority.
-It then gives failed tasks and verifier disagreements priority.
+The selector always gives unseen eligible tasks priority over previously attempted tasks.
+It compares failure and disagreement scores only after it compares unseen status.
+Among previously attempted tasks, it gives failed tasks and verifier disagreements priority.
 Task identifiers break equal scores.
 Two successful training outcomes unlock difficulty 2.
 A rewarded false claim does not unlock difficulty.
