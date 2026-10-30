@@ -17,6 +17,8 @@ Duplicate episode keys and transition indices fail the audit.
 The audit skips ambiguous matches.
 Reordered episodes produce a warning because their keys still identify the same experience.
 Reordered transitions fail because their sequence changes.
+Reordering compares the relative order of unambiguous shared keys.
+An omission does not create a reorder finding for the remaining keys.
 
 The report format is `avalon.audit/v1`.
 Findings identify a source episode by its one-based position.

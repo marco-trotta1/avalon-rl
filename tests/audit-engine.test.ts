@@ -298,3 +298,24 @@ describe("pipeline finding coordinates", () => {
     }
   });
 });
+
+describe("coverage without false reordering", () => {
+  it("does not call a missing predecessor a transition reorder", () => {
+    const base = fixture();
+    const source = parseSnapshot({ ...base, episodes: [{ ...base.episodes[0], steps: [
+      { ...base.episodes[0]!.steps[0], terminated: false },
+      { ...base.episodes[0]!.steps[0], index: 1, observation: { counter: 1 }, next_observation: { counter: 2 } },
+    ] }] });
+    const target = parseSnapshot({ ...source, stage: "recorded", episodes: [{ ...source.episodes[0], steps: [source.episodes[0]!.steps[1]] }] });
+    const codes = auditSnapshots({ source, target }).findings.map(item => item.code);
+    expect(codes).toContain("step.missing");
+    expect(codes).not.toContain("step.reordered");
+  });
+  it("does not call an omitted episode a reorder of the remaining episodes", () => {
+    const source = parseSnapshot({ ...fixture(), episodes: [fixture().episodes[0], { ...fixture().episodes[0], id: "second" }] });
+    const target = parseSnapshot({ ...source, episodes: [source.episodes[1]] });
+    const codes = auditSnapshots({ source, target }).findings.map(item => item.code);
+    expect(codes).toContain("episode.missing");
+    expect(codes).not.toContain("episode.reordered");
+  });
+});

@@ -146,6 +146,8 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
       } });
     });
   }
+  const sourceEpisodePositions = new Map([...sourceEpisodes.keys()].filter(id => targetEpisodes.has(id)).map((id, index) => [id, index]));
+  const targetEpisodePositions = new Map([...targetEpisodes.keys()].filter(id => sourceEpisodes.has(id)).map((id, index) => [id, index]));
   for (const [id, { value: episode, offset }] of sourceEpisodes) {
     const matched = targetEpisodes.get(id);
     if (!matched) {
@@ -158,17 +160,19 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
       const actualHash = contentHash({ present: other[field] !== undefined, value: other[field] ?? null });
       if (expectedHash !== actualHash) findings.push({ code: `episode.${field}.changed`, severity: "error", episode: offset + 1, field, message: "The target changes the episode context.", expectedHash, actualHash });
     }
-    if (offset !== matched.offset) findings.push({ code: "episode.reordered", severity: "warning", episode: offset + 1, message: "The target changes the episode position." });
+    if (sourceEpisodePositions.get(id) !== targetEpisodePositions.get(id)) findings.push({ code: "episode.reordered", severity: "warning", episode: offset + 1, message: "The target changes the episode position." });
     const sourceSteps = uniqueByKey({ items: episode.steps, key: step => step.index, duplicate: () => {} });
     const targetSteps = uniqueByKey({ items: other.steps, key: step => step.index, duplicate: () => {} });
-    for (const [index, { value: step, offset: stepOffset }] of sourceSteps) {
+    const sourceStepPositions = new Map([...sourceSteps.keys()].filter(index => targetSteps.has(index)).map((index, offset) => [index, offset]));
+    const targetStepPositions = new Map([...targetSteps.keys()].filter(index => sourceSteps.has(index)).map((index, offset) => [index, offset]));
+    for (const [index, { value: step }] of sourceSteps) {
       const matchedStep = targetSteps.get(index);
       if (!matchedStep) {
         findings.push({ code: "step.missing", severity: "error", episode: offset + 1, step: index, message: "The target omits an unambiguous source transition." });
         continue;
       }
       const candidate = matchedStep.value;
-      if (stepOffset !== matchedStep.offset) findings.push({ code: "step.reordered", severity: "error", episode: offset + 1, step: index, message: "The target changes the transition position." });
+      if (sourceStepPositions.get(index) !== targetStepPositions.get(index)) findings.push({ code: "step.reordered", severity: "error", episode: offset + 1, step: index, message: "The target changes the transition position." });
       comparedSteps += 1;
       if (step.bootstrap_mask !== undefined && candidate.bootstrap_mask === undefined) {
         findings.push({ code: "bootstrap.removed", severity: "error", episode: offset + 1, step: index, field: "bootstrap_mask", message: "The target removes a supplied bootstrap mask.", expectedHash: contentHash({ present: true, value: step.bootstrap_mask }), actualHash: contentHash({ present: false }) });
