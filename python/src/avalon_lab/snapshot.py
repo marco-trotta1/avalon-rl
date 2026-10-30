@@ -84,17 +84,17 @@ def encode(snapshot: Snapshot) -> bytes:
         raise ValueError("Use a uint32 seed.")
     if snapshot.stage not in ("source", "recorded", "learner") or snapshot.evidence not in ("synthetic", "user-supplied"):
         raise ValueError("Use a documented stage and evidence label.")
-    if set(snapshot.producer) != {"name", "version"} or not all(isinstance(value, str) and 1 <= len(value.strip()) <= 240 for value in snapshot.producer.values()):
+    if not isinstance(snapshot.producer, dict) or set(snapshot.producer) != {"name", "version"} or not all(isinstance(value, str) and 1 <= len(value.strip()) <= 240 for value in snapshot.producer.values()):
         raise ValueError("Use valid producer labels.")
     if not snapshot.episodes or sum(len(episode.steps) for episode in snapshot.episodes) > MAX_STEPS:
         raise ValueError("Use 1 to 20,000 transitions.")
     for episode in snapshot.episodes:
-        if not episode.steps or not 1 <= len(episode.id.strip()) <= 240 or not 1 <= len(episode.task.strip()) <= 240:
+        if not episode.steps or not all(isinstance(label, str) and 1 <= len(label.strip()) <= 240 for label in (episode.id, episode.task)):
             raise ValueError("Use nonempty episode labels and steps.")
         for step in episode.steps:
             if type(step.index) is not int or not 0 <= step.index <= MAX_STEPS:
                 raise ValueError("Use a valid step index.")
-            if not math.isfinite(step.reward):
+            if type(step.reward) not in (float, int) or not math.isfinite(step.reward):
                 raise ValueError("Use a finite reward.")
             if type(step.terminated) is not bool or type(step.truncated) is not bool:
                 raise ValueError("Use boolean ending signals.")
@@ -121,3 +121,23 @@ def write_json(path: Path, value: object) -> None:
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(descriptor, "wb") as output:
         output.write(payload)
+
+
+def read_snapshot(path: Path) -> Snapshot:
+    if path.stat().st_size > MAX_BYTES:
+        raise ValueError("The snapshot exceeds 10 MiB.")
+    value = json.loads(path.read_bytes())
+    expected = {"format", "stage", "producer", "seed", "evidence", "episodes"}
+    if not isinstance(value, dict) or set(value) != expected or value["format"] != "avalon.snapshot/v1":
+        raise ValueError("Use the documented Avalon snapshot format.")
+    try:
+        episodes = tuple(Episode(
+            id=episode["id"], task=episode["task"],
+            steps=tuple(Step(**step) for step in episode["steps"]),
+            **{key: item for key, item in episode.items() if key not in ("id", "task", "steps")},
+        ) for episode in value["episodes"])
+        snapshot = Snapshot(value["stage"], value["producer"], value["seed"], value["evidence"], episodes)
+        encode(snapshot)
+        return snapshot
+    except (TypeError, KeyError, AttributeError) as error:
+        raise ValueError("Use the documented Avalon snapshot format.") from error
