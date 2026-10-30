@@ -60,3 +60,13 @@ def test_nonpolicy_rows_cannot_disappear_at_a_pipeline_boundary():
     audit = audit_sampling_receipts(source=parse_sampling_receipt(value), target=parse_sampling_receipt(receipt_value()))
     assert audit.status == "fail"
     assert any(finding.rule == "coverage" and finding.key == ("sample-1", 1) for finding in audit.findings)
+
+
+def test_inactive_policy_tokens_do_not_require_fabricated_probability_evidence():
+    value = receipt_value()
+    row = value["samples"][0]
+    row["loss_mask"] = False
+    for field in ("raw_logits", "selected_logprob", "support"):
+        row[field] = {"kind": "unavailable", "reason": "This policy token does not contribute to the update."}
+    parsed = parse_sampling_receipt(value)
+    assert audit_sampling_receipts(source=parsed, target=parsed).status == "pass"

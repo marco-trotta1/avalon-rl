@@ -88,9 +88,17 @@ class SamplingFinding:
 
 
 @dataclass(frozen=True)
+class SamplingDiagnostic:
+    code: str
+    key: tuple[str, int]
+    detail: str
+
+
+@dataclass(frozen=True)
 class SamplingAudit:
     status: AuditStatus
     findings: tuple[SamplingFinding, ...]
+    diagnostics: tuple[SamplingDiagnostic, ...] = ()
 
 
 def audit_status(findings: tuple[SamplingFinding, ...]) -> AuditStatus:
@@ -106,9 +114,11 @@ def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt,
     from .sampling_math import replay_sampling_sample
     from .sampling_processors import SUPPORTED_PROCESSORS
 
-    if type(tolerance) not in (int, float) or not math.isfinite(tolerance) or tolerance < 0:
+    tolerance = _number(tolerance, path="tolerance")
+    if tolerance < 0:
         raise ValueError("Use a finite nonnegative log-probability tolerance.")
     findings = []
+    diagnostics = []
     if source.context_hash != target.context_hash:
         finding = SamplingFinding("context", None, "mismatch", "The receipts declare different contexts.")
         return SamplingAudit("fail", (finding,))
@@ -133,34 +143,52 @@ def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt,
             findings.append(SamplingFinding(f"loss-role-{label}", key, role_mask_status, "Tool, context, and padding tokens must have a false loss mask."))
         if before.role != "policy" or after.role != "policy":
             continue
+        active = before.loss_mask or after.loss_mask
+        before_replay, after_replay = replay_sampling_sample(before), replay_sampling_sample(after)
+        replay_available = not isinstance(before_replay, Unavailable) and not isinstance(after_replay, Unavailable)
+        same_distribution = replay_available and len(before_replay.probabilities) == len(after_replay.probabilities) and all(
+            abs(left - right) <= tolerance for left, right in zip(before_replay.probabilities, after_replay.probabilities)
+        )
+        if replay_available:
+            distribution_status = "match" if same_distribution else "mismatch"
+            findings.append(SamplingFinding("replayed-distribution", key, distribution_status, "Compare every replayed vocabulary probability with the declared absolute tolerance."))
+        elif active:
+            findings.append(SamplingFinding("replayed-distribution", key, "unknown", "The active token lacks a complete replayed distribution."))
+        if before.processors != after.processors:
+            diagnostics.append(SamplingDiagnostic("processor-declaration-change", key, "The transformation declarations differ. Semantic findings use their replayed effects."))
         if any(processor.name not in SUPPORTED_PROCESSORS for row in (before, after) for processor in row.processors):
             processor_status = "unknown"
+        elif before.processors == after.processors:
+            processor_status = "match"
+        elif replay_available:
+            processor_status = "match" if same_distribution else "mismatch"
         else:
-            processor_status = "match" if before.processors == after.processors else "mismatch"
-        findings.append(SamplingFinding("processors", key, processor_status, "Compare the declared effective transformations and their order."))
+            processor_status = "unknown"
+        if processor_status != "unknown" or active:
+            findings.append(SamplingFinding("processors", key, processor_status, "A declaration change alone does not prove a different effective update."))
         if isinstance(before.support, CapturedSupport) and isinstance(after.support, CapturedSupport):
             support_status = "match" if set(before.support.token_ids) == set(after.support.token_ids) else "mismatch"
             findings.append(SamplingFinding("support", key, support_status, "Compare the complete captured token supports."))
             for label, row in (("source", before), ("target", after)):
                 membership = "match" if row.sampled_token_id in row.support.token_ids else "mismatch"
                 findings.append(SamplingFinding(f"support-membership-{label}", key, membership, "The sampled token must belong to its support."))
-        else:
+        elif active:
             findings.append(SamplingFinding("support", key, "unknown", "A complete captured support is unavailable."))
         if isinstance(before.selected_logprob, Known) and isinstance(after.selected_logprob, Known):
             distance = abs(before.selected_logprob.value - after.selected_logprob.value)
             probability_status = "match" if distance <= tolerance else "mismatch"
             findings.append(SamplingFinding("selected-logprob", key, probability_status, "Compare selected log probabilities with the declared absolute tolerance."))
-        else:
+        elif active:
             findings.append(SamplingFinding("selected-logprob", key, "unknown", "A selected log probability is unavailable."))
-        for label, row in (("source", before), ("target", after)):
-            replay = replay_sampling_sample(row)
+        for label, row, replay in (("source", before, before_replay), ("target", after, after_replay)):
             if isinstance(replay, Unavailable) or not isinstance(row.selected_logprob, Known):
                 replay_status = "unknown"
             else:
                 replay_status = "match" if abs(replay.selected_logprob - row.selected_logprob.value) <= tolerance else "mismatch"
-            findings.append(SamplingFinding(f"probability-replay-{label}", key, replay_status, "Compare the declared selected probability with the finite reference."))
+            if replay_status != "unknown" or active:
+                findings.append(SamplingFinding(f"probability-replay-{label}", key, replay_status, "Compare the declared selected probability with the finite reference."))
     frozen = tuple(findings)
-    return SamplingAudit(audit_status(frozen), frozen)
+    return SamplingAudit(audit_status(frozen), frozen, tuple(diagnostics))
 
 
 def _object(value: object, *, keys: set[str], path: str) -> dict[str, object]:
