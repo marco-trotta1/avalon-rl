@@ -15,7 +15,7 @@ export function renderAuditHtml(report: AuditReport): string {
     ${finding.expectedHash || finding.actualHash ? `<details><summary>Compare field fingerprints</summary>
     <p>Source <code>${escapeHtml(finding.expectedHash ?? "absent")}</code></p>
     <p>Target <code>${escapeHtml(finding.actualHash ?? "absent")}</code></p></details>` : ""}</td>
-    <td>${finding.episode ?? "All"}</td><td>${finding.step ?? "All"}</td>
+    <td>${finding.episode ?? "All"}</td><td>${finding.targetEpisode ?? "All"}</td><td>${finding.step ?? "All"}</td>
     <td><code>${escapeHtml(finding.field ?? "record")}</code></td></tr>`).join("");
   const stages = [report.source, report.target].map((stage, index) => `<div class="stage">
     <span>${index === 0 ? "Source evidence" : "Target evidence"}</span>
@@ -51,11 +51,11 @@ code{font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;overflow-wra
 <section aria-labelledby="findings-title"><div class="section-head"><div><h2 id="findings-title">Boundary findings</h2><span id="visible-count" class="muted" aria-live="polite">${report.findings.length} findings</span></div>
 <div class="filters"><label>Filter findings<input id="query" type="search" placeholder="Code, field, or message"></label>
 <label>Severity<select id="severity"><option value="all">All findings</option><option value="error">Errors</option><option value="warning">Warnings</option><option value="unknown">Unknowns</option></select></label></div></div>
-${rows ? `<div class="table-wrap"><table><thead><tr><th>Severity</th><th>Finding</th><th>Episode</th><th>Step</th><th>Field</th></tr></thead><tbody id="findings">${rows}</tbody></table></div>` : '<p class="empty">No differences are recorded. A pass applies only to these snapshots and this comparison policy.</p>'}
+${rows ? `<div class="table-wrap"><table><thead><tr><th>Severity</th><th>Finding</th><th>Source episode</th><th>Target episode</th><th>Step</th><th>Field</th></tr></thead><tbody id="findings">${rows}</tbody></table></div>` : '<p class="empty">No differences are recorded. A pass applies only to these snapshots and this comparison policy.</p>'}
 </section><section class="notes" aria-label="Interpretation"><div><h2>Read the evidence</h2>
 <p>Termination means the task reaches a terminal state. Truncation means an external condition stops the episode. Neither proves success.</p>
 <p>A bootstrap mask controls whether the learner includes estimated future value. The audit uses the declared task convention.</p>
-<p>Episode numbers refer to the source order. Step numbers use the recorded transition index. Hashes identify values without displaying them.</p></div>
+<p>Episode numbers refer to each snapshot order. Step numbers use the recorded transition index. Hashes identify values without displaying them.</p></div>
 <div><h2>Policy and limits</h2><p>Absolute tolerance ${report.policy.absoluteTolerance}. Relative tolerance ${report.policy.relativeTolerance}.</p>
 <ul>${report.limits.map(limit => `<li>${escapeHtml(limit)}</li>`).join("")}</ul><p>Keep this report private. Producer labels and fingerprints can identify an asset.</p></div></section>
 <footer>Avalon · ${escapeHtml(report.format)} · This file uses no external resources.</footer></main>

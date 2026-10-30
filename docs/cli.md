@@ -53,6 +53,57 @@ The CLI does not upload the SARIF file.
 Markdown escapes supplied labels and messages.
 All exports retain the synthetic or user-supplied evidence marker.
 
+## Complete pipeline
+
+```sh
+node dist/cli.js pipeline --source source.json --recorded recorded.json --target learner.json
+node dist/cli.js contamination --source train.json --target eval.json
+node dist/cli.js witness --source source.json --target learner.json --out witness.json
+```
+
+The pipeline compares each adjacent stage and each later stage with the original source.
+Without explicit lineage links, the result remains inconclusive.
+Use `--lineage links.json` to supply two objects with `parentSha256` and `childSha256` fields.
+The links use canonical snapshot hashes from the audit reports.
+Hash links bind supplied artifacts. They do not prove that a process runs.
+
+Witnesses contain raw selected evidence. Keep them private.
+Witness extraction requires a new output path.
+Use `--finding` to select a zero-based finding index.
+The reduction preserves the selected finding within a bounded search.
+It does not prove global minimality.
+
+Use `--absolute-tolerance` and `--relative-tolerance` to declare numeric tolerance.
+Both defaults are `0` for exact preservation.
+The report retains these policy values.
+
+## Operations world
+
+```sh
+node dist/cli.js world-demo
+node dist/cli.js world-challenge
+node dist/cli.js world-search --budget 1000 --depth 3
+node dist/cli.js world-benchmark --repetitions 25
+node dist/cli.js world-curriculum --budget 8
+node dist/cli.js world-export --out world.json
+node dist/cli.js world-run --data action-plan.json
+```
+
+All world records are synthetic.
+The commands return `0` when an experiment completes, including expected verifier failures.
+The world never transfers money or changes an external record.
+The curriculum uses a known-good script. It does not train a model.
+The search covers only its declared action alphabet and depth.
+
+An action plan selects a task and a finite action sequence:
+
+```json
+{"seed":7,"task":"settle-a","actions":[{"type":"claim-done"},{"type":"finish"}]}
+```
+
+This plan receives a weak reward while the independent outcome check rejects it.
+See the [world contract](world.md) for permitted actions and task rules.
+
 A passing audit establishes agreement under the reported policy.
 It does not establish task success, training improvement, or market value.
 The original inspection, template, demo, and appraisal commands remain available.

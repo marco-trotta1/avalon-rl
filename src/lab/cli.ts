@@ -1,13 +1,44 @@
 import { parseArgs } from "node:util";
-import { auditSnapshots, contentHash, type AuditReport } from "../audit/engine.js";
+import { auditSnapshots, auditPipeline, buildWitness, contentHash, type AuditReport } from "../audit/engine.js";
+import { auditContamination } from "../audit/contamination.js";
+import { z } from "zod";
 import { parseSnapshotText } from "./contract.js";
 import { demoPair, type DemoFault } from "./demo.js";
 import { readLocalText, writeLocalText, type OutputDestination } from "./io.js";
 import { renderAuditHtml } from "./html.js";
 import { parseAuditReport, renderAuditMarkdown, renderAuditSarif } from "./report.js";
+import { runWorldCommand } from "./world-command.js";
 
-export const LAB_COMMANDS = ["audit", "snapshot", "lab-demo", "report"];
+const allowedOptions = {
+  audit: ["source", "target", "out", "format", "absolute-tolerance", "relative-tolerance"],
+  pipeline: ["source", "recorded", "target", "lineage", "out", "absolute-tolerance", "relative-tolerance"],
+  witness: ["source", "target", "finding", "out", "absolute-tolerance", "relative-tolerance"],
+  contamination: ["source", "target", "out"],
+  snapshot: ["data", "out"], "lab-demo": ["fault", "out", "format"], report: ["data", "out", "format"],
+  "world-demo": ["seed", "out"], "world-challenge": ["seed", "out"],
+  "world-search": ["seed", "budget", "depth", "out"], "world-benchmark": ["seed", "repetitions", "out"],
+  "world-curriculum": ["seed", "budget", "out"], "world-export": ["seed", "out"], "world-run": ["data", "out"],
+} as const;
+export const LAB_COMMANDS = Object.keys(allowedOptions);
+type LabCommand = keyof typeof allowedOptions;
 class LabUsageError extends Error {}
+
+function numeric({ value, fallback, max, integer = true }: { value?: string; fallback: number; max: number; integer?: boolean }): number {
+  if (value === undefined) return fallback;
+  const result = Number(value);
+  if (!value.trim() || !Number.isFinite(result) || result < 0 || result > max || (integer && !Number.isInteger(result))) {
+    throw new LabUsageError("Use a finite number within the documented command limits.");
+  }
+  return result;
+}
+function auditCode(status: "pass" | "fail" | "inconclusive"): number {
+  switch (status) {
+    case "pass": return 0;
+    case "fail": return 4;
+    case "inconclusive": return 5;
+    default: { const impossible: never = status; return impossible; }
+  }
+}
 
 export async function runLab(args: string[]): Promise<number> {
   try {
@@ -16,6 +47,9 @@ export async function runLab(args: string[]): Promise<number> {
       parsed = parseArgs({ args, allowPositionals: true, strict: true, tokens: true, options: {
         source: { type: "string" }, target: { type: "string" }, data: { type: "string" },
         out: { type: "string" }, fault: { type: "string" }, format: { type: "string" },
+        recorded: { type: "string" }, lineage: { type: "string" }, finding: { type: "string" },
+        seed: { type: "string" }, budget: { type: "string" }, depth: { type: "string" }, repetitions: { type: "string" },
+        "absolute-tolerance": { type: "string" }, "relative-tolerance": { type: "string" },
       } });
     } catch { throw new LabUsageError("Check the command options and values."); }
     const seen = new Set<string>();
@@ -25,9 +59,9 @@ export async function runLab(args: string[]): Promise<number> {
       seen.add(token.name);
     }
     if (parsed.positionals.length !== 1) throw new LabUsageError("Supply one command.");
-    const command = parsed.positionals[0];
-    const allowed = command === "audit" ? ["source", "target", "out", "format"]
-      : command === "snapshot" ? ["data", "out"] : command === "report" ? ["data", "out", "format"] : ["fault", "out", "format"];
+    if (!LAB_COMMANDS.includes(parsed.positionals[0] ?? "")) throw new LabUsageError("Select a documented laboratory command.");
+    const command = parsed.positionals[0] as LabCommand;
+    const allowed: readonly string[] = allowedOptions[command];
     if ([...seen].some(name => !allowed.includes(name))) throw new LabUsageError("The command does not support this option.");
     const path = parsed.values.out;
     if (path !== undefined && !path.trim()) throw new LabUsageError("Supply an output path.");
@@ -37,16 +71,46 @@ export async function runLab(args: string[]): Promise<number> {
     const format = parsed.values.format ?? "json";
     if (!["json", "html", "markdown", "sarif"].includes(format)) throw new LabUsageError("Select json, html, markdown, or sarif.");
     let exitCode = 0;
+    const policy = {
+      absoluteTolerance: numeric({ value: parsed.values["absolute-tolerance"], fallback: 0, max: Number.MAX_VALUE, integer: false }),
+      relativeTolerance: numeric({ value: parsed.values["relative-tolerance"], fallback: 0, max: Number.MAX_VALUE, integer: false }),
+    };
+    const pair = async () => {
+      if (!parsed.values.source?.trim() || !parsed.values.target?.trim()) throw new LabUsageError("Supply --source and --target.");
+      return {
+        source: parseSnapshotText(await readLocalText(parsed.values.source)),
+        target: parseSnapshotText(await readLocalText(parsed.values.target)),
+      };
+    };
     switch (command) {
       case "audit": {
-        if (!parsed.values.source?.trim() || !parsed.values.target?.trim()) throw new LabUsageError("Audit requires --source and --target.");
-        const source = parseSnapshotText(await readLocalText(parsed.values.source));
-        const target = parseSnapshotText(await readLocalText(parsed.values.target));
-        const report = auditSnapshots({ source, target });
+        const report = auditSnapshots({ ...await pair(), policy });
         result = report;
         audit = report;
-        exitCode = report.status === "fail" ? 4 : report.status === "inconclusive" ? 5 : 0;
+        exitCode = auditCode(report.status);
         break;
+      }
+      case "pipeline": {
+        if (!parsed.values.recorded?.trim()) throw new LabUsageError("Pipeline audit requires --recorded.");
+        const { source, target } = await pair();
+        const recorded = parseSnapshotText(await readLocalText(parsed.values.recorded));
+        const lineage = parsed.values.lineage ? z.array(z.object({
+          parentSha256: z.string().regex(/^[a-f0-9]{64}$/), childSha256: z.string().regex(/^[a-f0-9]{64}$/),
+        }).strict()).length(2).parse(JSON.parse(await readLocalText(parsed.values.lineage)) as unknown) : undefined;
+        const report = auditPipeline({ snapshots: [source, recorded, target], policy, lineage });
+        result = report; exitCode = auditCode(report.status); break;
+      }
+      case "witness": {
+        if (output.type !== "file") throw new LabUsageError("Witness extraction requires --out because it contains raw evidence.");
+        const snapshots = await pair();
+        const report = auditSnapshots({ ...snapshots, policy });
+        result = buildWitness({ ...snapshots, report, findingIndex: numeric({ value: parsed.values.finding, fallback: 0, max: 150_000 }) });
+        break;
+      }
+      case "contamination": {
+        const { source, target } = await pair();
+        const report = auditContamination({ splits: [{ name: "source", snapshot: source }, { name: "target", snapshot: target }] });
+        result = report; exitCode = auditCode(report.status); break;
       }
       case "snapshot": {
         if (!parsed.values.data?.trim()) throw new LabUsageError("Snapshot inspection requires --data.");
@@ -73,7 +137,17 @@ export async function runLab(args: string[]): Promise<number> {
         result = audit;
         break;
       }
-      default: throw new LabUsageError("Select audit, snapshot, lab-demo, or report.");
+      case "world-demo": case "world-challenge": case "world-search": case "world-benchmark":
+      case "world-curriculum": case "world-export": case "world-run": {
+        if (command === "world-run" && !parsed.values.data?.trim()) throw new LabUsageError("World execution requires --data.");
+        const budget = numeric({ value: parsed.values.budget, fallback: command === "world-search" ? 1_000 : 8, max: 10_000 });
+        const depth = numeric({ value: parsed.values.depth, fallback: 3, max: 4 });
+        const repetitions = numeric({ value: parsed.values.repetitions, fallback: 25, max: 1_000 });
+        if (budget < 1 || depth < 1 || repetitions < 1) throw new LabUsageError("Use positive budgets, depths, and repetition counts.");
+        result = await runWorldCommand({ command, seed: numeric({ value: parsed.values.seed, fallback: 7, max: 0xffffffff }), budget, depth, repetitions, data: parsed.values.data });
+        break;
+      }
+      default: { const impossible: never = command; return impossible; }
     }
     const text = format === "html" && audit ? renderAuditHtml(audit)
       : format === "markdown" && audit ? renderAuditMarkdown(audit)

@@ -14,7 +14,7 @@ const reportSchema = z.object({
   policy: z.object({ absoluteTolerance: z.number().finite().nonnegative(), relativeTolerance: z.number().finite().nonnegative() }).strict(),
   findings: z.array(z.object({
     code: z.string().min(1).max(120), severity: z.enum(["error", "warning", "unknown"]),
-    episode: count.optional(), step: count.optional(), field: z.string().max(500).optional(),
+    episode: count.positive().optional(), targetEpisode: count.positive().optional(), step: count.optional(), field: z.string().max(500).optional(),
     message: z.string().max(5000), expectedHash: hash.optional(), actualHash: hash.optional(),
   }).strict()).max(150_000),
   limits: z.array(z.string().max(5000)).max(100),
@@ -43,7 +43,7 @@ function markdown(value: string | number): string {
 }
 
 export function renderAuditMarkdown(report: AuditReport): string {
-  const findings = report.findings.map(finding => `| ${markdown(finding.severity)} | ${markdown(finding.code)} | ${finding.episode ?? "All"} | ${finding.step ?? "All"} | ${markdown(finding.field ?? "record")} | ${markdown(finding.message)} |`).join("\n");
+  const findings = report.findings.map(finding => `| ${markdown(finding.severity)} | ${markdown(finding.code)} | ${finding.episode ?? "All"} | ${finding.targetEpisode ?? "All"} | ${finding.step ?? "All"} | ${markdown(finding.field ?? "record")} | ${markdown(finding.message)} |`).join("\n");
   return `# Avalon experience audit
 
 Status: ${report.status}. Evidence: ${report.evidence}.
@@ -54,9 +54,9 @@ Target: ${markdown(report.target.producer.name)} ${markdown(report.target.produc
 Compared transitions: ${report.summary.comparedSteps}.
 Errors: ${report.summary.errors}. Warnings: ${report.summary.warnings}. Unknowns: ${report.summary.unknowns}.
 
-| Severity | Code | Episode | Step | Field | Finding |
-| --- | --- | --- | --- | --- | --- |
-${findings || "| None | No findings | All | All | All | The supplied evidence agrees. |"}
+| Severity | Code | Source episode | Target episode | Step | Field | Finding |
+| --- | --- | --- | --- | --- | --- | --- |
+${findings || "| None | No findings | All | All | All | All | The supplied evidence agrees. |"}
 
 Absolute tolerance: ${report.policy.absoluteTolerance}. Relative tolerance: ${report.policy.relativeTolerance}.
 
@@ -79,7 +79,7 @@ export function renderAuditSarif(report: AuditReport): object {
         ruleId: finding.code,
         level: finding.severity === "error" ? "error" : finding.severity === "warning" ? "warning" : "note",
         message: { text: finding.message },
-        properties: { episode: finding.episode, step: finding.step, field: finding.field, expectedHash: finding.expectedHash, actualHash: finding.actualHash },
+        properties: { episode: finding.episode, targetEpisode: finding.targetEpisode, step: finding.step, field: finding.field, expectedHash: finding.expectedHash, actualHash: finding.actualHash },
       })),
       properties: { status: report.status, evidence: report.evidence, sourceSha256: report.source.sha256, targetSha256: report.target.sha256, policy: report.policy, limits: report.limits },
     }],
