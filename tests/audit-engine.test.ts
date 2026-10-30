@@ -201,3 +201,38 @@ describe("content contamination", () => {
     expect(() => auditContamination({ splits: [{ name: "same", snapshot: source }, { name: "same", snapshot: source }] })).toThrow("unique name");
   });
 });
+
+describe("pipeline audit", () => {
+  it("localizes the first corrupt edge and binds all declared artifact hashes", async () => {
+    const { auditPipeline } = await import("../src/audit/engine.js");
+    const snapshots = [fixture(), fixture("recorded"), fixture("learner")];
+    const links = () => snapshots.slice(1).map((snapshot, index) => ({ parentSha256: contentHash(snapshots[index]), childSha256: contentHash(snapshot) }));
+    expect(auditPipeline({ snapshots, lineage: links() }).status).toBe("pass");
+    snapshots[2]!.episodes[0]!.steps[0]!.action = "private-corruption";
+    const report = auditPipeline({ snapshots, lineage: links() });
+    expect(report.status).toBe("fail");
+    expect(report.firstDivergence).toEqual({ from: 2, to: 3 });
+    expect(JSON.stringify(report)).not.toContain("private-corruption");
+    expect(auditPipeline({ snapshots }).findings.map(item => item.code)).toContain("lineage.unknown");
+    expect(auditPipeline({ snapshots, lineage: [{ parentSha256: "bad", childSha256: "bad" }] }).findings.map(item => item.code)).toEqual(expect.arrayContaining(["lineage.coverage", "lineage.hash.changed"]));
+  });
+  it("detects cumulative numeric drift that each adjacent tolerance allows", async () => {
+    const { auditPipeline } = await import("../src/audit/engine.js");
+    const snapshots = [fixture(), fixture("recorded"), fixture("learner")];
+    snapshots[1]!.episodes[0]!.steps[0]!.action = 0.009;
+    snapshots[0]!.episodes[0]!.steps[0]!.action = 0;
+    snapshots[2]!.episodes[0]!.steps[0]!.action = 0.018;
+    const lineage = snapshots.slice(1).map((snapshot, index) => ({ parentSha256: contentHash(snapshots[index]), childSha256: contentHash(snapshot) }));
+    const report = auditPipeline({ snapshots, lineage, policy: { absoluteTolerance: 0.01, relativeTolerance: 0 } });
+    expect(report.edges.every(edge => edge.report.status === "pass")).toBe(true);
+    expect(report.status).toBe("fail");
+    expect(report.firstDivergence).toEqual({ from: 2, to: 3 });
+  });
+  it("checks stage order, seed preservation, and evidence relabeling", async () => {
+    const { auditPipeline } = await import("../src/audit/engine.js");
+    const snapshots = [parseSnapshot({ ...fixture(), evidence: "user-supplied" }), fixture("learner"), parseSnapshot({ ...fixture("recorded"), seed: 8 })];
+    const report = auditPipeline({ snapshots });
+    expect(report.findings.map(item => item.code)).toEqual(expect.arrayContaining(["pipeline.stage.order", "lineage.seed.changed", "lineage.evidence.changed", "pipeline.coverage.unknown"]));
+    expect(() => auditPipeline({ snapshots: [fixture()] })).toThrow("at least two");
+  });
+});
