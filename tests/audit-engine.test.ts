@@ -319,3 +319,29 @@ describe("coverage without false reordering", () => {
     expect(codes).not.toContain("episode.reordered");
   });
 });
+
+describe("finite numeric overflow", () => {
+  it("rejects an opposite-sign difference above the relative tolerance near the finite limit", async () => {
+    const { valuesEqual } = await import("../src/audit/engine.js");
+    const policy = { absoluteTolerance: 0, relativeTolerance: 1.9 };
+    expect(valuesEqual({ expected: 1e308, actual: -1e308, policy })).toBe(false);
+    expect(valuesEqual({ expected: -1e308, actual: 1e308, policy })).toBe(false);
+    const source = fixture();
+    const target = fixture("recorded");
+    source.episodes[0]!.steps[0]!.action = 1e308;
+    target.episodes[0]!.steps[0]!.action = -1e308;
+    expect(auditSnapshots({ source, target, policy }).status).toBe("fail");
+    expect(valuesEqual({ expected: 1e308, actual: -1e308, policy: { absoluteTolerance: 0, relativeTolerance: 2 } })).toBe(true);
+  });
+  it("preserves the tolerance rule across power-of-two scales and subnormal values", async () => {
+    const { valuesEqual } = await import("../src/audit/engine.js");
+    for (const exponent of [-1000, 0, 1000]) {
+      const scale = 2 ** exponent;
+      expect(valuesEqual({ expected: 4 * scale, actual: -4 * scale, policy: { absoluteTolerance: scale, relativeTolerance: 1.5 } })).toBe(false);
+      expect(valuesEqual({ expected: 4 * scale, actual: -4 * scale, policy: { absoluteTolerance: 2 * scale, relativeTolerance: 1.5 } })).toBe(true);
+    }
+    expect(valuesEqual({ expected: Number.MIN_VALUE, actual: 0, policy: { absoluteTolerance: 0, relativeTolerance: 0.5 } })).toBe(false);
+    expect(valuesEqual({ expected: Number.MIN_VALUE, actual: 0, policy: { absoluteTolerance: Number.MIN_VALUE, relativeTolerance: 0 } })).toBe(true);
+    expect(valuesEqual({ expected: 0, actual: -0, policy: { absoluteTolerance: 0, relativeTolerance: 0 } })).toBe(true);
+  });
+});
