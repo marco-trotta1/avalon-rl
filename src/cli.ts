@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { open } from "node:fs/promises";
+import { constants } from "node:fs";
 import { parseArgs } from "node:util";
 import { aggregateReport, analyzeData, estimateValue, type Analysis } from "./lib/engine.js";
 import { blankCase, demoCase, demoData } from "./lib/demo.js";
@@ -96,7 +97,7 @@ function parseCommand(args: string[]): Command {
 
 async function readInput(input: { path: string; label: "appraisal" | "data" }): Promise<string> {
   try {
-    const file = await open(input.path, "r");
+    const file = await open(input.path, constants.O_RDONLY | constants.O_NONBLOCK);
     try {
       if (!(await file.stat()).isFile()) throw new FileError(`The ${input.label} input must be a regular file.`);
       const buffer = Buffer.alloc(MAX_FILE_BYTES + 1);

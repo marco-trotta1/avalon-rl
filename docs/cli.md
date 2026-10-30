@@ -15,6 +15,8 @@ node dist/cli.js audit --source source.json --target learner.json --out audit.js
 The audit returns `0` for a pass, `4` for a failure, and `5` for an inconclusive result.
 File or data errors return `1`.
 Usage errors return `2`.
+Inputs must be regular UTF-8 files.
+The CLI rejects named pipes without waiting for a writer.
 Use `snapshot --data snapshot.json` for a format summary.
 That summary does not compare pipeline stages.
 
