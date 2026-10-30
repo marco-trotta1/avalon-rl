@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import math
 
 from .sampling import CapturedSupport, Known, SamplingSample, Unavailable
+from .sampling_processors import replay_processors
 
 
 @dataclass(frozen=True)
@@ -27,12 +28,13 @@ def distribution_from_logits(*, logits: tuple[float, ...], support: tuple[int, .
 
 
 def replay_sampling_sample(sample: SamplingSample) -> TokenDistribution | Unavailable:
-    """Replay an unprocessed captured finite distribution."""
+    """Replay captured logits, ordered processors, and the support."""
     if not isinstance(sample.raw_logits, Known) or not isinstance(sample.support, CapturedSupport):
         return Unavailable("Replay requires raw logits and a complete captured support.")
-    if sample.processors:
-        return Unavailable("This reference does not replay a declared processor.")
+    logits = replay_processors(logits=sample.raw_logits.value, processors=sample.processors)
+    if isinstance(logits, Unavailable):
+        return logits
     return distribution_from_logits(
-        logits=sample.raw_logits.value, support=sample.support.token_ids,
+        logits=logits, support=sample.support.token_ids,
         sampled_token_id=sample.sampled_token_id,
     )
