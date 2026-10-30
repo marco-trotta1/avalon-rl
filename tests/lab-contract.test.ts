@@ -36,4 +36,9 @@ describe("snapshot boundary", () => {
     expect(() => parseSnapshotText('{"secret":"private"')).toThrow("valid JSON");
     expect(() => parseSnapshot({ secret: "private" })).toThrow(/^Use the documented Avalon snapshot format\.$/);
   });
+  it("rejects a JSON property that the schema parser cannot preserve", () => {
+    const data = JSON.parse(JSON.stringify(input)) as typeof input;
+    data.episodes[0]!.steps[0]!.observation = JSON.parse('{"__proto__":{"counter":1}}') as { counter: number };
+    expect(() => parseSnapshotText(JSON.stringify(data))).toThrow("unsupported JSON property");
+  });
 });

@@ -48,6 +48,17 @@ export type Reward = Step["reward"];
 export type StepIndex = Step["index"];
 
 export function parseSnapshot(value: unknown): Snapshot {
+  const pending: unknown[] = [value];
+  const seen = new WeakSet<object>();
+  while (pending.length > 0) {
+    const item = pending.pop();
+    if (typeof item !== "object" || item === null || seen.has(item)) continue;
+    seen.add(item);
+    if (Object.hasOwn(item, "__proto__")) {
+      throw new Error("The input contains an unsupported JSON property.");
+    }
+    for (const child of Object.values(item)) pending.push(child);
+  }
   const result = snapshotSchema.safeParse(value);
   if (!result.success) throw new Error("Use the documented Avalon snapshot format.");
   return result.data;

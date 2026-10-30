@@ -32,6 +32,9 @@ The optional `bootstrap_mask` is `0` or `1`.
 Each episode can include a JSON `metadata` object.
 Metadata can preserve a mission or other categorical context.
 Unknown fields fail parsing.
+The `__proto__` property fails parsing at every depth.
+The underlying JSON schema cannot preserve that property.
+The boundary rejects it instead of silently removing evidence.
 Each file has a 10 MiB limit and a 20,000-transition limit.
 
 Termination identifies a terminal state in the task.
