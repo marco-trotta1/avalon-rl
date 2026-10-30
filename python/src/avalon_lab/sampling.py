@@ -124,6 +124,15 @@ def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt,
             continue
         group_status = "match" if before.group_id == after.group_id else "mismatch"
         findings.append(SamplingFinding("group", key, group_status, "Compare the declared group for this sample."))
+        role_status = "match" if before.role == after.role else "mismatch"
+        findings.append(SamplingFinding("role", key, role_status, "Compare the observed token roles."))
+        mask_status = "match" if before.loss_mask == after.loss_mask else "mismatch"
+        findings.append(SamplingFinding("loss-mask", key, mask_status, "Compare whether the token contributes to the declared loss."))
+        for label, row in (("source", before), ("target", after)):
+            role_mask_status = "mismatch" if row.role != "policy" and row.loss_mask else "match"
+            findings.append(SamplingFinding(f"loss-role-{label}", key, role_mask_status, "Tool, context, and padding tokens must have a false loss mask."))
+        if before.role != "policy" or after.role != "policy":
+            continue
         if any(processor.name not in SUPPORTED_PROCESSORS for row in (before, after) for processor in row.processors):
             processor_status = "unknown"
         else:
