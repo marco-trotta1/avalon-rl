@@ -1,0 +1,524 @@
+{
+  "format": "avalon.mdp/v1",
+  "generator": {
+    "name": "avalon-operations",
+    "version": "1"
+  },
+  "evidence": "synthetic",
+  "seed": 7,
+  "family": "invoice-settlement",
+  "split": "train",
+  "horizon": 2,
+  "initialState": "s0",
+  "knownGood": [
+    "pay-a",
+    "finish"
+  ],
+  "task": {
+    "id": "settle-a",
+    "goal": {
+      "payment": {
+        "invoice": "invoice-a",
+        "amount": 100
+      },
+      "ticket": "open"
+    },
+    "initial": {
+      "invoices": [
+        {
+          "id": "invoice-a",
+          "due": 100,
+          "paid": 0
+        },
+        {
+          "id": "invoice-b",
+          "due": 200,
+          "paid": 0
+        }
+      ],
+      "ticket": "open",
+      "authority": {
+        "actor": "operator",
+        "payable": [
+          "invoice-a"
+        ]
+      }
+    }
+  },
+  "actions": [
+    {
+      "id": "pay-a",
+      "action": {
+        "type": "pay",
+        "invoice": "invoice-a",
+        "amount": 100
+      }
+    },
+    {
+      "id": "claim",
+      "action": {
+        "type": "claim-done"
+      }
+    },
+    {
+      "id": "finish",
+      "action": {
+        "type": "finish"
+      }
+    }
+  ],
+  "states": [
+    {
+      "id": "s0",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":false,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"zero\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":2,\"status\":\"active\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 0
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": false,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 2,
+        "prohibitedActions": 0,
+        "status": "active"
+      },
+      "remaining": 2,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": [
+        {
+          "action": "pay-a",
+          "nextState": "s1",
+          "rewards": {
+            "claim": 0,
+            "final": 0,
+            "history": 0
+          },
+          "terminated": false,
+          "truncated": false,
+          "outcome": null
+        },
+        {
+          "action": "claim",
+          "nextState": "s2",
+          "rewards": {
+            "claim": 0,
+            "final": 0,
+            "history": 0
+          },
+          "terminated": false,
+          "truncated": false,
+          "outcome": null
+        },
+        {
+          "action": "finish",
+          "nextState": "s3",
+          "rewards": {
+            "claim": 0,
+            "final": 0,
+            "history": 0
+          },
+          "terminated": true,
+          "truncated": false,
+          "outcome": {
+            "valid": false,
+            "prohibitedActions": 0,
+            "goalComplete": false,
+            "protectedPreserved": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s1",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":false,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"due\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":1,\"status\":\"active\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 100
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": false,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 1,
+        "prohibitedActions": 0,
+        "status": "active"
+      },
+      "remaining": 1,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": [
+        {
+          "action": "pay-a",
+          "nextState": "s4",
+          "rewards": {
+            "claim": 0,
+            "final": 1,
+            "history": 1
+          },
+          "terminated": false,
+          "truncated": true,
+          "outcome": {
+            "valid": true,
+            "prohibitedActions": 0,
+            "goalComplete": true,
+            "protectedPreserved": true
+          }
+        },
+        {
+          "action": "claim",
+          "nextState": "s5",
+          "rewards": {
+            "claim": 1,
+            "final": 1,
+            "history": 1
+          },
+          "terminated": false,
+          "truncated": true,
+          "outcome": {
+            "valid": true,
+            "prohibitedActions": 0,
+            "goalComplete": true,
+            "protectedPreserved": true
+          }
+        },
+        {
+          "action": "finish",
+          "nextState": "s6",
+          "rewards": {
+            "claim": 0,
+            "final": 1,
+            "history": 1
+          },
+          "terminated": true,
+          "truncated": true,
+          "outcome": {
+            "valid": true,
+            "prohibitedActions": 0,
+            "goalComplete": true,
+            "protectedPreserved": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":true,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"zero\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":1,\"status\":\"active\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 0
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": true,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 1,
+        "prohibitedActions": 0,
+        "status": "active"
+      },
+      "remaining": 1,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": [
+        {
+          "action": "pay-a",
+          "nextState": "s5",
+          "rewards": {
+            "claim": 1,
+            "final": 1,
+            "history": 1
+          },
+          "terminated": false,
+          "truncated": true,
+          "outcome": {
+            "valid": true,
+            "prohibitedActions": 0,
+            "goalComplete": true,
+            "protectedPreserved": true
+          }
+        },
+        {
+          "action": "claim",
+          "nextState": "s8",
+          "rewards": {
+            "claim": 1,
+            "final": 0,
+            "history": 0
+          },
+          "terminated": false,
+          "truncated": true,
+          "outcome": {
+            "valid": false,
+            "prohibitedActions": 0,
+            "goalComplete": false,
+            "protectedPreserved": true
+          }
+        },
+        {
+          "action": "finish",
+          "nextState": "s9",
+          "rewards": {
+            "claim": 1,
+            "final": 0,
+            "history": 0
+          },
+          "terminated": true,
+          "truncated": true,
+          "outcome": {
+            "valid": false,
+            "prohibitedActions": 0,
+            "goalComplete": false,
+            "protectedPreserved": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":false,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"zero\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":1,\"status\":\"terminated\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 0
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": false,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 1,
+        "prohibitedActions": 0,
+        "status": "terminated"
+      },
+      "remaining": 1,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": []
+    },
+    {
+      "id": "s4",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":false,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"due\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":0,\"status\":\"truncated\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 100
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": false,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 0,
+        "prohibitedActions": 0,
+        "status": "truncated"
+      },
+      "remaining": 0,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": []
+    },
+    {
+      "id": "s5",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":true,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"due\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":0,\"status\":\"truncated\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 100
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": true,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 0,
+        "prohibitedActions": 0,
+        "status": "truncated"
+      },
+      "remaining": 0,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": []
+    },
+    {
+      "id": "s6",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":false,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"due\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":0,\"status\":\"terminated-and-truncated\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 100
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": false,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 0,
+        "prohibitedActions": 0,
+        "status": "terminated-and-truncated"
+      },
+      "remaining": 0,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": []
+    },
+    {
+      "id": "s8",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":true,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"zero\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":0,\"status\":\"truncated\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 0
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": true,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 0,
+        "prohibitedActions": 0,
+        "status": "truncated"
+      },
+      "remaining": 0,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": []
+    },
+    {
+      "id": "s9",
+      "observationKey": "{\"canPayA\":true,\"canPayB\":false,\"claimedDone\":true,\"goalPayment\":\"invoice-a\",\"goalTicket\":\"open\",\"paidA\":\"zero\",\"paidB\":\"zero\",\"prohibitedActions\":0,\"remaining\":0,\"status\":\"terminated-and-truncated\",\"ticket\":\"open\"}",
+      "observation": {
+        "invoices": [
+          {
+            "id": "invoice-a",
+            "due": 100,
+            "paid": 0
+          },
+          {
+            "id": "invoice-b",
+            "due": 200,
+            "paid": 0
+          }
+        ],
+        "ticket": "open",
+        "claimedDone": true,
+        "authority": {
+          "actor": "operator",
+          "payable": [
+            "invoice-a"
+          ]
+        },
+        "remaining": 0,
+        "prohibitedActions": 0,
+        "status": "terminated-and-truncated"
+      },
+      "remaining": 0,
+      "history": {
+        "prohibitedActions": 0
+      },
+      "transitions": []
+    }
+  ]
+}
