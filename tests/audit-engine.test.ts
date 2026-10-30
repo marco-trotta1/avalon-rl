@@ -29,3 +29,27 @@ describe("snapshot audit", () => {
     expect(() => auditSnapshots({ source: fixture(), target: fixture(), policy: { absoluteTolerance: -1, relativeTolerance: 0 } })).toThrow("nonnegative");
   });
 });
+
+describe("recursive numeric comparison", () => {
+  it("applies absolute and relative tolerances to nested numbers only", () => {
+    const source = fixture();
+    const target = fixture("learner");
+    source.episodes[0]!.steps[0]!.observation = { nested: [1000, 0] };
+    target.episodes[0]!.steps[0]!.observation = { nested: [1000.5, 0.0001] };
+    const policy = { absoluteTolerance: 0.001, relativeTolerance: 0.001 };
+    expect(auditSnapshots({ source, target, policy }).status).toBe("pass");
+    expect(auditSnapshots({ source, target }).status).toBe("fail");
+    target.episodes[0]!.steps[0]!.observation = { nested: ["1000", 0] };
+    expect(auditSnapshots({ source, target, policy }).status).toBe("fail");
+  });
+  it("preserves array order and object shape within a tolerance", () => {
+    const source = fixture();
+    const target = fixture("learner");
+    source.episodes[0]!.steps[0]!.observation = { values: [1, 2], present: null };
+    target.episodes[0]!.steps[0]!.observation = { values: [2, 1] };
+    expect(auditSnapshots({ source, target, policy: { absoluteTolerance: 10, relativeTolerance: 0 } }).status).toBe("fail");
+    expect(() => contentHash(Number.NaN)).toThrow("finite JSON");
+    expect(() => parseSnapshot({ ...fixture(), seed: Number.POSITIVE_INFINITY })).toThrow("documented Avalon");
+    expect(() => auditSnapshots({ source, target, policy: { absoluteTolerance: 0, relativeTolerance: Number.NaN } })).toThrow("nonnegative");
+  });
+});

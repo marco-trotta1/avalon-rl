@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { Snapshot } from "../lab/contract.js";
+import type { Json, Snapshot } from "../lab/contract.js";
 
 export interface AuditPolicy {
   absoluteTolerance: number;
@@ -52,6 +52,34 @@ export function resolvePolicy(policy?: AuditPolicy): AuditPolicy {
   return { ...resolved };
 }
 
+export function valuesEqual({ expected, actual, policy }: {
+  expected: Json;
+  actual: Json;
+  policy: AuditPolicy;
+}): boolean {
+  if (typeof expected === "number" && typeof actual === "number") {
+    const difference = Math.abs(expected - actual);
+    const scale = Math.max(Math.abs(expected), Math.abs(actual));
+    return difference <= policy.absoluteTolerance + policy.relativeTolerance * scale;
+  }
+  if (Array.isArray(expected)) {
+    return Array.isArray(actual) && expected.length === actual.length && expected.every((value, index) => {
+      const other = actual[index];
+      return other !== undefined && valuesEqual({ expected: value, actual: other, policy });
+    });
+  }
+  if (expected !== null && typeof expected === "object") {
+    if (actual === null || typeof actual !== "object" || Array.isArray(actual)) return false;
+    const keys = Object.keys(expected);
+    return keys.length === Object.keys(actual).length && keys.every(key => {
+      const value = expected[key];
+      const other = actual[key];
+      return value !== undefined && other !== undefined && Object.hasOwn(actual, key) && valuesEqual({ expected: value, actual: other, policy });
+    });
+  }
+  return expected === actual;
+}
+
 export function auditSnapshots({ source, target, policy: inputPolicy }: {
   source: Snapshot;
   target: Snapshot;
@@ -76,7 +104,7 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
       for (const field of ["observation", "action", "reward", "next_observation", "terminated", "truncated", "bootstrap_mask"] as const) {
         const expectedHash = contentHash(step[field] ?? null);
         const actualHash = contentHash(candidate[field] ?? null);
-        if (expectedHash !== actualHash) findings.push({ code: "transition.changed", severity: "error", episode: offset + 1, step: step.index, field, message: "The target changes a transition field.", expectedHash, actualHash });
+        if (!valuesEqual({ expected: step[field] ?? null, actual: candidate[field] ?? null, policy })) findings.push({ code: "transition.changed", severity: "error", episode: offset + 1, step: step.index, field, message: "The target changes a transition field.", expectedHash, actualHash });
       }
     }
   });

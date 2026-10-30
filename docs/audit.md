@@ -16,5 +16,13 @@ The report preserves the producer label from each supplied snapshot.
 Keep producer labels free of private data.
 
 The default absolute and relative tolerances are zero.
+The numeric comparison uses `abs(source - target) <= absoluteTolerance + relativeTolerance * max(abs(source), abs(target))`.
+This rule applies recursively to numeric observations, actions, and rewards.
+The absolute tolerance covers values near zero.
+The relative tolerance scales with the larger magnitude.
+Object keys and nonnumeric values must match exactly.
+Arrays retain their length and position.
+The parser rejects nonfinite JSON numbers.
+The policy rejects negative or nonfinite tolerances.
 The audit compares supplied evidence only.
 A passing report does not establish task success or external validity.
