@@ -1,0 +1,24 @@
+name: Adapter proposal
+description: Propose one data boundary with a runnable preservation check.
+body:
+  - type: input
+    id: boundary
+    attributes:
+      label: Source and learner boundary
+      description: Name both tools and their pinned versions.
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: Preservation contract
+      description: Identify final observations, rewards, ending signals, masks, and context that must survive.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Verification plan
+      description: Include a clean control, controlled faults, a simple assertion baseline, and data rights.
+    validations:
+      required: true
