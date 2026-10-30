@@ -55,6 +55,20 @@ Missing pairs, ambiguous identities, unpaired episodes, and renaming collisions 
 Internally invalid or incomplete pair members also return `unknown`.
 The audit does not treat a declared renaming as proof of a new task family.
 
+## Private witnesses
+
+`buildTraceWitness({snapshot, contract, finding})` selects a zero-based check index.
+Without an index, it selects the first mismatch.
+The selected check must be a mismatch with unambiguous episode evidence.
+The witness retains one complete episode and one rule.
+It binds the episode identity, rule, finding code, step, and evidence hashes.
+`verifyTraceWitness({witness, sourceSnapshot, sourceContract})` checks that binding against the original supplied artifacts.
+Changing the selected episode identity invalidates the binding, even when the replacement fails the same rule.
+
+The witness contains raw evidence. Keep the output private.
+The reduction does not remove individual steps or claim a shortest counterexample.
+The hashes do not authenticate the original recorder.
+
 ## Finite learning tables
 
 `makeWorldMdp({task, horizon})` exports `avalon.mdp/v1` through the existing world reducer.
