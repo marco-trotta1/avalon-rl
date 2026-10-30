@@ -50,3 +50,20 @@ A missing state is a divergence.
 Matching hashes establish repeatability of these records, not outcome correctness.
 A hash is not a signature or a source authenticity claim.
 The receipt keeps both ending flags when the step limit and termination coincide.
+
+## Reward and outcome checks
+
+`weakWorldVerifier(receipt)` intentionally rewards only the completion claim.
+`oracleWorldVerifier({task, receipt})` independently compares final records against the task goals.
+It checks protected invoices and payment authority from the recorded actions.
+It does not use the event authorization label or the completion claim.
+It also checks the initial hash and the final receipt state.
+The oracle does not prove arbitrary trace integrity or a real business outcome.
+
+`runWorldDemo({seed})` returns the `avalon.world/v1` report.
+The demonstration compares two candidates per task: known-good actions and a false completion claim.
+For seed 7, the weak baseline falsely accepts 4 of 8 episodes and falsely rejects 4 of 8 episodes.
+The finite synthetic sample has no sampling uncertainty within these eight candidates.
+It provides no population accuracy estimate.
+The demonstration makes zero API calls and costs 0 USD in API fees.
+It does not measure local runtime latency.
