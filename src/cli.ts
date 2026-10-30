@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { open } from "node:fs/promises";
+import { constants } from "node:fs";
 import { parseArgs } from "node:util";
 import { aggregateReport, analyzeData, estimateValue, type Analysis } from "./lib/engine.js";
 import { blankCase, demoCase, demoData } from "./lib/demo.js";
@@ -21,10 +22,18 @@ class FileError extends Error {}
 const help = `Avalon RL: a local laboratory for agent experience and learning worlds.
 
 Usage:
-  node dist/cli.js audit --source source.json --target learner.json [--format json|html|markdown|sarif] [--out audit.json]
-  node dist/cli.js report --data audit.json [--format json|html|markdown|sarif] [--out report.html]
+  node dist/cli.js audit --source source.json --target learner.json [--format json|markdown|sarif] [--out audit.json]
+  node dist/cli.js report --data audit.json [--format json|markdown|sarif] [--out report.md]
+  node dist/cli.js pipeline --source source.json --recorded recorded.json --target learner.json [--lineage links.json]
+  node dist/cli.js witness --source source.json --target learner.json --out witness.json
+  node dist/cli.js contamination --source train.json --target eval.json
+  node dist/cli.js world-demo|world-challenge|world-export [--seed 7] [--out report.json]
+  node dist/cli.js world-search [--seed 7] [--budget 1000] [--depth 3]
+  node dist/cli.js world-benchmark [--seed 7] [--repetitions 25]
+  node dist/cli.js world-curriculum [--seed 7] [--budget 8]
+  node dist/cli.js world-run --data action-plan.json
   node dist/cli.js snapshot --data snapshot.json [--out summary.json]
-  node dist/cli.js lab-demo [--fault none|reward-shift|collapsed-ending] [--format json|html] [--out audit.json]
+  node dist/cli.js lab-demo [--fault none|reward-shift|collapsed-ending] [--format json|markdown|sarif] [--out audit.json]
   node dist/cli.js appraise --case appraisal.json --data asset-file [--out report.json]
   node dist/cli.js inspect --kind traces|environment --data asset-file [--out report.json]
   node dist/cli.js template [--kind traces|environment] [--out appraisal.json]
@@ -34,7 +43,8 @@ Output is JSON. Without --out, output goes to stdout.
 Template and demo use traces unless --kind selects environment.
 Existing output files are never replaced. New files use owner-only permissions.
 The script reads local files. It does not start a server or call external services.
-Inputs use the formats in docs/formats.md. Each file must not exceed 10 MiB.
+Inputs use the formats in docs/formats.md.
+Saved audit reports must not exceed 256 MiB or 500,000 findings. Other inputs must not exceed 10 MiB.
 Real estimates require documented comparable transactions. Demo prices are invented.
 
 Exit codes: 0 complete, 1 file or data error, 2 usage error, 3 price withheld, 4 audit fails, 5 audit inconclusive.
@@ -88,7 +98,7 @@ function parseCommand(args: string[]): Command {
 
 async function readInput(input: { path: string; label: "appraisal" | "data" }): Promise<string> {
   try {
-    const file = await open(input.path, "r");
+    const file = await open(input.path, constants.O_RDONLY | constants.O_NONBLOCK);
     try {
       if (!(await file.stat()).isFile()) throw new FileError(`The ${input.label} input must be a regular file.`);
       const buffer = Buffer.alloc(MAX_FILE_BYTES + 1);

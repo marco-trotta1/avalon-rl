@@ -1,0 +1,485 @@
+{
+  "assembly_pr": "https://github.com/marco-trotta1/avalon-rl/pull/48",
+  "base_commit": "4f6325d27642b741e0cb3a7f779320430041ab4c",
+  "checks": {
+    "diff_check": "pass",
+    "final_assembly_hosted_ci": {
+      "head": "8cd2e5145c4ae328ab186d6b6896bcee157848d5",
+      "run": "https://github.com/marco-trotta1/avalon-rl/actions/runs/41086488823",
+      "scope": "The implementation matches the recorded source hashes. Later receipt changes affect documentation only.",
+      "status": "success"
+    },
+    "hosted_ci_fix": {
+      "head": "6b5bfaa7357ac91e93f5cee59346c2a9e7c34bb7",
+      "node_tests": 143,
+      "python_tests": 71,
+      "run": "https://github.com/marco-trotta1/avalon-rl/actions/runs/41084218750",
+      "status": "success"
+    },
+    "node_tests": 153,
+    "privacy_source_check": "pass",
+    "python_skips": 0,
+    "python_tests": 71,
+    "typecheck": "pass"
+  },
+  "comparison": {
+    "api_calls": 0,
+    "api_cost_usd": 0,
+    "avalon_modules_sha256": {
+      "audit/contamination.js": "a7891f9b7a4f1a231c331e70ddc23d5ba54ecdab38640fc89e8ce31af1fabcf4",
+      "audit/engine.js": "637c3eeab775ad9716e35f0d77c73a88fe0611fb8e542cd3856e33c32599e55b",
+      "audit/pipeline.js": "93b4300ec4ebb99072480712dd795632f68b192ac500a9d5daead32e5e8db7de",
+      "audit/witness.js": "d1dc1ec5c5fa88d78abea0024267b408ba2f114c8fe31e0edaedbd5495d2254e",
+      "cli.js": "53d5eda6c03a1719ba4d943b87c462132a375c8e94c7cdc3e2db357d7ecf85d0",
+      "index.js": "93ff53c3183ea756bda593ef855090658cc5df912b003f90509be51f413782fe",
+      "lab/cli.js": "a6871cfcdea456ee07db8b382ea706a63433e079b5f82c66d4bb606b0ae82708",
+      "lab/contract.js": "abf7c207c84daae96d1660c311b57d3a918f83e74c914257fe920c62da01c7db",
+      "lab/demo.js": "5883bfab6a233fce4a6d21f7cd9418cbf8894b8f06fa620788152bb8e4895f36",
+      "lab/io.js": "2a0d375bb0f0d17199acb069fd459578fc86ce3d9acc0afde64ae5295df53628",
+      "lab/report.js": "a3c761197c5e12dfca5cae8fceeea7b93afe50c176ecee39ccc45cda1d5f3e9b",
+      "lab/world-command.js": "46c692a86e9c497ff9364e939870e2eed439e03594dfbd3938b1bb6785c52ffa",
+      "lib/demo.js": "0cf1ef7e65c959208a33c761d5da0506e527fbda60f6d63065978bd71c93db11",
+      "lib/engine.js": "750f8a5086f63a851ce184f6ab6e763d1483d29c181bdb6806bf81c9126b358a",
+      "lib/schema.js": "7de2ef81b4650b7095c6ef57241862100ed3226bf04b9f629c139c5b2714f414",
+      "world/benchmark.js": "7ac3e7a847ba4f7b61b947abbf2acffdaad1e44eeaf563b72e9e945cd5bf5204",
+      "world/challenge.js": "047e4e7a9a7efcf82d4f6ce5e1f2f3fa091a7252716bd4e74b7e65cb79a743fe",
+      "world/curriculum.js": "99af6551763626b3944deeb55e4d8945637defc8883041e18a6e8c585a4ca82e",
+      "world/demo.js": "77950924fdd58502f91d1ce54a012974959114d293c1aca1dea65c79fca9e10e",
+      "world/index.js": "b868376850690c8951a022bacb9f9597e0a7ed992fddb12369be5ad1563eb593",
+      "world/replay.js": "1251533b7af3005b852a4035dafe9c51c4c14a324bfad35a705fe23f677282c4",
+      "world/search.js": "1c99fd1e6e6265e752fdef870f96bf834ac7a749d6f0037e45cef857224ffb1d",
+      "world/snapshot.js": "0e92f0347b02b305b03d7be85d5995e35bffba93c9525ceab00006797bd3ae45",
+      "world/state.js": "724fa8df269033dc4c12f5bc7dcf2e78841b6505566932ac856b4452fd6acbc3",
+      "world/tasks.js": "2f1de7852f502d5533d94338e74dc9f7da6bde5bf6788ecb0fa339ee281c42fb",
+      "world/verifiers.js": "21077e5f8b508bce37ded670d16d06a9a7caf1dec486732db15dce5e1e60daf6"
+    },
+    "baseline_implementation_sha256": "1303997cfc2d76055a927c690a5669c2d308ccbc850755485ac2eca5dc937dbe",
+    "cases": [
+      {
+        "avalon": "pass",
+        "avalon_exit_code": 0,
+        "case": "clean",
+        "exact": "pass",
+        "expected_fault": false,
+        "latency_ms": {
+          "avalon_process_ms": 95.40029100026004,
+          "exact_ms": 0.17129199113696814,
+          "structural_ms": 0.08512499334756285
+        },
+        "stage": "recorded",
+        "structural": "pass"
+      },
+      {
+        "avalon": "pass",
+        "avalon_exit_code": 0,
+        "case": "clean",
+        "exact": "pass",
+        "expected_fault": false,
+        "latency_ms": {
+          "avalon_process_ms": 94.36366701265797,
+          "exact_ms": 0.25683299463707954,
+          "structural_ms": 0.20545799634419382
+        },
+        "stage": "learner",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "drop-transition",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 101.98862499964889,
+          "exact_ms": 0.1806660002330318,
+          "structural_ms": 0.08641599561087787
+        },
+        "stage": "recorded",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "drop-transition",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 93.43395900214091,
+          "exact_ms": 0.2760420029517263,
+          "structural_ms": 0.2009590098168701
+        },
+        "stage": "learner",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "reward-shift",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 95.21395800402388,
+          "exact_ms": 0.18433399964123964,
+          "structural_ms": 0.08929200703278184
+        },
+        "stage": "recorded",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "reward-shift",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 98.24866701092105,
+          "exact_ms": 0.27654100267682225,
+          "structural_ms": 0.2004169946303591
+        },
+        "stage": "learner",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "reset-observation",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 98.92675001174212,
+          "exact_ms": 0.18666699179448187,
+          "structural_ms": 0.09020899597089738
+        },
+        "stage": "recorded",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "reset-observation",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 97.79779099335428,
+          "exact_ms": 0.2724999940255657,
+          "structural_ms": 0.1894999877549708
+        },
+        "stage": "learner",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "collapsed-flags",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 95.71237499767449,
+          "exact_ms": 0.18783399718813598,
+          "structural_ms": 0.08979201084002852
+        },
+        "stage": "recorded",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "collapsed-flags",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 95.72458300681319,
+          "exact_ms": 0.28820800071116537,
+          "structural_ms": 0.18887499754782766
+        },
+        "stage": "learner",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "stale-metadata",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 97.27995800494682,
+          "exact_ms": 0.18854098743759096,
+          "structural_ms": 0.09000000136438757
+        },
+        "stage": "recorded",
+        "structural": "pass"
+      },
+      {
+        "avalon": "fail",
+        "avalon_exit_code": 4,
+        "case": "stale-metadata",
+        "exact": "fail",
+        "expected_fault": true,
+        "latency_ms": {
+          "avalon_process_ms": 98.28191599808633,
+          "exact_ms": 0.2759580092970282,
+          "structural_ms": 0.18879200797528028
+        },
+        "stage": "learner",
+        "structural": "pass"
+      }
+    ],
+    "input_sha256": {
+      "fault-collapsed-flags.json": "7f6d349f99ae8905a0d0a09c51286efcd563f23e6eb46ed1f8fc46f956d5de81",
+      "fault-drop-transition.json": "bcee7069fc160720097082298eb364dde261656e242718b2d8df4530fe4d0a2d",
+      "fault-reset-observation.json": "cab8b75889fd1c81099912fc86f75fb215868fca682db942ce0ba0e9f8fa0962",
+      "fault-reward-shift.json": "1b4917127338cf67251e069635dacda1d11cb7eb301b5599e2431c9ba41c47d7",
+      "fault-stale-metadata.json": "0604e463de5714fcd2e27d9bc62c05615c3007cb87bef0faa5c277e1c2a29494",
+      "learner-table.json": "648ebe904fda7e06a51ffa28552cf97cdc0b664dc7fd8c9c4c03bf9c56fbd31b",
+      "learner.json": "b2963fadbeb260f53ea46549dc20b2de18227fd294256f6fca959724cc9e549f",
+      "manifest.json": "87c09bfe632711c9d0022d5f1f32f6aa077535779560bee438f847e82a4b9146",
+      "recorded.json": "20d1f3b9d01bd10cb64849e68564ba573ffe266e7333e198d1722a5c66478d4e",
+      "source.json": "079f5a7119daffc9aa801046b1e80b73741229acf6b6984c18646576fb6d8eba"
+    },
+    "limits": [
+      "Five selected injected faults do not estimate production detection rates.",
+      "The exact assertion can detect the same controlled faults.",
+      "No upstream defect is established."
+    ],
+    "local_compute_cost": "not measured",
+    "measurement": {
+      "avalon_latency_includes_node_startup": true,
+      "samples_per_case_stage": 1,
+      "uncertainty": "not estimated",
+      "unit": "ms"
+    },
+    "methods": {
+      "avalon": {
+        "clean_views": 2,
+        "detected": 10,
+        "false_alarms": 0,
+        "fault_views": 10
+      },
+      "exact": {
+        "clean_views": 2,
+        "detected": 10,
+        "false_alarms": 0,
+        "fault_views": 10
+      },
+      "structural": {
+        "clean_views": 2,
+        "detected": 0,
+        "false_alarms": 0,
+        "fault_views": 10
+      }
+    },
+    "node": "v22.23.4",
+    "python": "3.13.5"
+  },
+  "date": "2026-10-30",
+  "evidence": "synthetic",
+  "format": "avalon.release-evidence/v1",
+  "measurement_limits": [
+    "The fault set is hand-selected and the two views per fault are correlated.",
+    "Each Python latency has one sample per method, case, and stage.",
+    "World latency repeats 20 unique cases 25 times; accuracy sample size remains 20.",
+    "Local compute cost and latency uncertainty are not estimated.",
+    "API calls and model API fees are zero by construction."
+  ],
+  "negative_results": [
+    "The exact assertion matches Avalon on all selected injected views.",
+    "No native Gymnasium or Minari transition defect is established.",
+    "The synthetic counter has one family and cannot supply an independent family holdout.",
+    "No production detection rate, training improvement, customer demand, or market price is validated."
+  ],
+  "product_scope": "CLI and SDK. No UI or site.",
+  "python_experiment": {
+    "api_calls": 0,
+    "api_cost_usd": 0,
+    "episodes": 3,
+    "evidence": "synthetic",
+    "format": "avalon.python-experiment/v1",
+    "injected_faults": [
+      "drop-transition",
+      "reward-shift",
+      "reset-observation",
+      "collapsed-flags",
+      "stale-metadata"
+    ],
+    "latency": {
+      "measurements": {
+        "collect_save_load_ms": 215.49458299705293,
+        "convert_train_ms": 0.29329198878258467
+      },
+      "samples": 1,
+      "uncertainty": "not estimated",
+      "unit": "ms"
+    },
+    "limits": [
+      "Synthetic counter only.",
+      "No policy quality evaluation.",
+      "Minari environment recovery metadata is absent."
+    ],
+    "local_compute_cost": "not measured",
+    "seed": 7,
+    "sha256": {
+      "fault-collapsed-flags.json": "7f6d349f99ae8905a0d0a09c51286efcd563f23e6eb46ed1f8fc46f956d5de81",
+      "fault-drop-transition.json": "bcee7069fc160720097082298eb364dde261656e242718b2d8df4530fe4d0a2d",
+      "fault-reset-observation.json": "cab8b75889fd1c81099912fc86f75fb215868fca682db942ce0ba0e9f8fa0962",
+      "fault-reward-shift.json": "1b4917127338cf67251e069635dacda1d11cb7eb301b5599e2431c9ba41c47d7",
+      "fault-stale-metadata.json": "0604e463de5714fcd2e27d9bc62c05615c3007cb87bef0faa5c277e1c2a29494",
+      "learner-table.json": "648ebe904fda7e06a51ffa28552cf97cdc0b664dc7fd8c9c4c03bf9c56fbd31b",
+      "learner.json": "b2963fadbeb260f53ea46549dc20b2de18227fd294256f6fca959724cc9e549f",
+      "recorded.json": "20d1f3b9d01bd10cb64849e68564ba573ffe266e7333e198d1722a5c66478d4e",
+      "source.json": "079f5a7119daffc9aa801046b1e80b73741229acf6b6984c18646576fb6d8eba"
+    },
+    "transitions": 8,
+    "upstream_defects": [],
+    "versions": {
+      "avalon-rl-lab": "0.1.0",
+      "gymnasium": "1.2.3",
+      "h5py": "3.16.0",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "minari": "0.5.3",
+      "ml_dtypes": "0.6.0",
+      "numpy": "2.4.2",
+      "pillow": "12.1.0",
+      "python": "3.13.5",
+      "scipy": "1.18.1"
+    }
+  },
+  "reproducibility": {
+    "all_snapshot_and_table_hashes_match": true,
+    "complete_runs": 2
+  },
+  "seed": 7,
+  "source_sha256": {
+    "python/src/avalon_lab/__init__.py": "8e2a860c45bf19701e5c9647ad794fe6062e5916bbac6e1485c51944c5192cae",
+    "python/src/avalon_lab/cli.py": "8ea49ab5b0f053e3a27cd64143673d60594e618ae93e4696a9d3d54acf6caab2",
+    "python/src/avalon_lab/comparison.py": "1303997cfc2d76055a927c690a5669c2d308ccbc850755485ac2eca5dc937dbe",
+    "python/src/avalon_lab/counter.py": "522c6a050b7b11b0af9a5a815fea1bbf5ec8c86b0e68b0fa6879ffe202bc3410",
+    "python/src/avalon_lab/experiment.py": "51ddfbe2ef25c6dc0ebca612d5f61c552b5045ab603eb64b42c9fc39efebae25",
+    "python/src/avalon_lab/faults.py": "1e74b26cf228b10cd7b3c081832fbb7efae143aab5490c5286a29baf3cdaa94b",
+    "python/src/avalon_lab/gym_recorder.py": "9c4c415668367577fdfd47b6c2f310a11e05c670491eb3ebb70abf02fbc222ab",
+    "python/src/avalon_lab/learner.py": "38577f83aa4661881e0720f73ec7938da9346dff66ceef1d05b281bb8b7c2425",
+    "python/src/avalon_lab/local_export.py": "ef89e176ab8ade426428ccddb20f9a96d9ce9fa7ec2b5b1ad476621a21ec1cc1",
+    "python/src/avalon_lab/minari_bridge.py": "a97d7ba2cd203ad03e54649cb2215d25ba232f577186ce4003bd44df19ae71fa",
+    "python/src/avalon_lab/snapshot.py": "470f02e8e64f0c682d3783a6a3810232caed0bb8684e5db1911cb53d6e2ea9f5",
+    "python/src/avalon_lab/split.py": "8847972d75540aa8a12755e4bcb793fcb9c679225ad0f2b40946abefd2a483f9",
+    "src/audit/contamination.ts": "9a2f35386a55e7cd140db6974774fc9c9fa3aee75da8529eca8bda9693eeafa6",
+    "src/audit/engine.ts": "024970fea7d7e31be4d61723bc1692391ce450d44f0c2c3932ed8fff2887e149",
+    "src/audit/pipeline.ts": "054e6bb64e5fc5ed0dea087c7c40f888ca62423d6ef9bdd26f83e52a8b2b5933",
+    "src/audit/witness.ts": "4a970bf3c09dd8b9015607becb1011f6c42ab90a8956f8ac6dd0f7d33b72fabb",
+    "src/cli.ts": "5b60b8aa292513fee3cab344dfa0b851d1fb4c6931d4b07f306044cb213a642e",
+    "src/index.ts": "5e2e99c48096c74dd79491f3b52c4a4a573f484420d0769b5de34c6b228be0ba",
+    "src/lab/cli.ts": "f0ae3061a8a926d3bbffd484c46c27f0f0a24e1f5ca83876c766265b0009175d",
+    "src/lab/contract.ts": "557a155f9dbeb822bdb40acb347606483792a80139f7cfbe6122db4f7c3ce4b5",
+    "src/lab/demo.ts": "92ff6c685c42316964ca986556de80f856e8a81183b994abb8c69b278e5f1a42",
+    "src/lab/io.ts": "152f90bbbb0f77ca0b706e6703d5332d0e61753bcd556585db9140f6485f792a",
+    "src/lab/report.ts": "d9482717f09e7de525f793d49273d1c791032f3d102970ceba55ae3b42b56167",
+    "src/lab/world-command.ts": "aeac32f2332c642c048b61bbf72520ce8db53702d73cc9ccb1f444ae211a6f64",
+    "src/lib/demo.ts": "720a15aacb4f3b7343f5c5938a665fd83bb6d8e8911f3c2a337bfec15a989eb9",
+    "src/lib/engine.ts": "f12e9666929db66a72bc5e4e8335a9731b5faf3bd4efbf161be90a52f1219c28",
+    "src/lib/schema.ts": "9da61bbebde6b33039ee3dcd12e03fa9197df0defe40d6316853b4fe24151007",
+    "src/world/benchmark.ts": "26bd5bc7649df375f5dd53e403c1bf8b3e9e1abe03c06a9d586d91520592afc3",
+    "src/world/challenge.ts": "eb2094649f21ae0d4a309d7530dbe1f31d27b3d979d01e13f9c2933b5c20a003",
+    "src/world/curriculum.ts": "a8fe4cbe9a9e8d0e0bee0615cc5890a1650bd2e155cf0ee88845427a5e890114",
+    "src/world/demo.ts": "ae7edd99ef5664a3d66a2c89a200f6135a573eeaeb5038e6695dfc1d0399c4ea",
+    "src/world/index.ts": "b868376850690c8951a022bacb9f9597e0a7ed992fddb12369be5ad1563eb593",
+    "src/world/replay.ts": "31f37e55ba7262c4cf2e6b74c8e775a35d95259046f93988832ac5594d7c78da",
+    "src/world/search.ts": "be7c68e3b9708b20bd207c3fb309768bf3ec3a581894841c9f9be5570649c049",
+    "src/world/snapshot.ts": "1a3eb72b3cbf6cea06e78737d061d520a611dd9b97f65cb37c815c69d09b7e14",
+    "src/world/state.ts": "0d855bc553c64d3f2f541d0ef97b8b4efff90f1264e2efb6639babda2e72dac7",
+    "src/world/tasks.ts": "37bf77bc4ef616769feca87dbd16355f4ac3ca99b01b3f4a0b93bcf97740f233",
+    "src/world/verifiers.ts": "18ebb68c82787658fbb0ad15eb499f73205da06c80e3a2074696aa9498460b9c"
+  },
+  "world_benchmark": {
+    "baseline": "accept-all",
+    "evidence": "synthetic",
+    "fixtureHash": "b8d9dfb78a007b3013b6134a9866d53b092b7fdebfc5490f0133ba6c0e2352fc",
+    "format": "avalon.world-benchmark/v1",
+    "limits": [
+      "Expected labels come from the hand-authored fixture mutations.",
+      "Accuracy does not estimate real-world performance.",
+      "Latency excludes fixture construction and includes clock overhead.",
+      "The runner contains no API client. API calls and API fees are zero by construction.",
+      "The task oracle is compared against fixture labels, not its own verdicts.",
+      "No model or reinforcement learning training runs."
+    ],
+    "repetitions": 25,
+    "seed": 7,
+    "uniqueCases": 20,
+    "versions": {
+      "method": "1",
+      "node": "22.23.4",
+      "zod": "4.6.7"
+    }
+  },
+  "world_methods": [
+    {
+      "accuracy": 0.4,
+      "apiCalls": 0,
+      "apiCostUsd": 0,
+      "baseline": "accept-all",
+      "correct": 8,
+      "falseAccepts": 12,
+      "falseRejects": 0,
+      "latency": {
+        "max": 0.06383300000000247,
+        "min": 8.300000000360797e-05,
+        "p50": 0.00012499999999704414,
+        "p95": 0.00016700000000469117,
+        "sampleSize": 500,
+        "uncertainty": "Observed local samples. Quantiles include clock overhead and provide no confidence interval.",
+        "unit": "ms"
+      },
+      "localComputeCostStatus": "unmeasured",
+      "localComputeCostUsd": null,
+      "method": "accept-all",
+      "sampleSize": 20,
+      "uncertainty": "Exact accuracy for this finite synthetic fixture set. Repetitions do not increase the accuracy sample size."
+    },
+    {
+      "accuracy": 0.2,
+      "apiCalls": 0,
+      "apiCostUsd": 0,
+      "baseline": "accept-all",
+      "correct": 4,
+      "falseAccepts": 12,
+      "falseRejects": 4,
+      "latency": {
+        "max": 0.002332999999993035,
+        "min": 0.00016600000000721593,
+        "p50": 0.00020899999999812735,
+        "p95": 0.00025000000000829914,
+        "sampleSize": 500,
+        "uncertainty": "Observed local samples. Quantiles include clock overhead and provide no confidence interval.",
+        "unit": "ms"
+      },
+      "localComputeCostStatus": "unmeasured",
+      "localComputeCostUsd": null,
+      "method": "weak-claim",
+      "sampleSize": 20,
+      "uncertainty": "Exact accuracy for this finite synthetic fixture set. Repetitions do not increase the accuracy sample size."
+    },
+    {
+      "accuracy": 1,
+      "apiCalls": 0,
+      "apiCostUsd": 0,
+      "baseline": "accept-all",
+      "correct": 20,
+      "falseAccepts": 0,
+      "falseRejects": 0,
+      "latency": {
+        "max": 0.5111670000000004,
+        "min": 0.023957999999993262,
+        "p50": 0.03233400000000586,
+        "p95": 0.04804099999999778,
+        "sampleSize": 500,
+        "uncertainty": "Observed local samples. Quantiles include clock overhead and provide no confidence interval.",
+        "unit": "ms"
+      },
+      "localComputeCostStatus": "unmeasured",
+      "localComputeCostUsd": null,
+      "method": "task-oracle",
+      "sampleSize": 20,
+      "uncertainty": "Exact accuracy for this finite synthetic fixture set. Repetitions do not increase the accuracy sample size."
+    }
+  ]
+}

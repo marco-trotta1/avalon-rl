@@ -4,6 +4,8 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 .playwright-mcp/
+.venv/
+*.tgz
 .env*
 *.log
 private-data/

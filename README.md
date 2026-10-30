@@ -1,175 +1,141 @@
 # Avalon RL
 
-Avalon RL is a local laboratory for agent experience and learning worlds.
-It compares RL pipeline stages and explains changes with reproducible evidence.
-Its appraisal commands also estimate prices from documented comparable transactions.
-The repository is public. The software uses the [MIT License](LICENSE).
-Keep actual data and reports private.
+**Build learning worlds. Challenge rewards. Keep the evidence.**
 
-Repository: [marco-trotta1/avalon-rl](https://github.com/marco-trotta1/avalon-rl).
+Avalon is a local CLI and SDK for people who build environments and data pipelines for agents.
+It compares what an environment emits with what a learner receives.
+It also finds synthetic cases where a verifier rewards the wrong outcome.
 
-The script has no web interface, server, external AI service, or telemetry.
-The synthetic demonstration uses invented assets, transactions, and prices.
-The repository does not contain a real transaction database.
+The project uses the [MIT License](LICENSE).
+It has no UI, site, server, telemetry, or model API client.
 
-## Setup
+## Start with a counterexample
 
 Use Node.js 22.12 or later.
-Package installation requires network access. Analysis uses local files.
 
 ```sh
 npm ci --ignore-scripts
 npm run build
-node dist/cli.js --help
-```
-
-## Audit experience
-
-```sh
-node dist/cli.js lab-demo
+node dist/cli.js world-demo
+node dist/cli.js lab-demo --fault collapsed-ending
 node dist/cli.js lab-demo --fault none
-node dist/cli.js audit --source source.json --target learner.json --out audit.json
 ```
 
-The first command demonstrates an injected reward mismatch.
-The second command runs the clean control.
-Actual audits use the [snapshot format](docs/snapshots.md).
-See the [laboratory commands](docs/cli.md) for exit codes and private output.
+The world demonstration gives a completion claim a weak reward.
+An independent state check rejects the same action sequence.
+The data demonstration changes an episode ending before the learner receives it.
+The clean control preserves the original experience.
+All three examples use synthetic data.
 
-## Inspect data
+## What works
 
-Use inspection when you do not have a deal ledger.
-The report contains structural checks and counts. It does not contain a price.
-
-```sh
-node dist/cli.js inspect --kind traces --data /private/path/traces.jsonl
-node dist/cli.js inspect --kind environment --data /private/path/environment.json
-```
-
-## Estimate a license or sale price
-
-Generate a blank appraisal file. Enter the asset scope, provenance evidence, transfer rights, and comparable transactions.
-Store actual files outside this repository.
-
-```sh
-node dist/cli.js template --kind traces --out /private/path/appraisal.json
-node dist/cli.js appraise --case /private/path/appraisal.json --data /private/path/traces.jsonl
-```
-
-The appraisal file selects the asset type.
-For an environment, use an environment appraisal file and a task manifest.
-The same command handles non-exclusive licenses, exclusive licenses, and ownership sales.
-See [the input formats](docs/formats.md) for the complete contract.
-
-## Save a private report
-
-Shell redirection uses the shell's file permissions. Use `--out` for an owner-only report file.
-The output directory must exist. The script never replaces an existing file or follows an existing output symlink.
-
-```sh
-node dist/cli.js appraise --case /private/path/appraisal.json --data /private/path/traces.jsonl --out /private/path/report.json
-```
-
-Without `--out`, the script writes JSON to stdout.
-With `--out`, it creates a file with mode `0600` and writes a fixed confirmation to stderr.
-The report omits raw observations, actions, asset names, deal identifiers, and contract references.
-It includes counts, a source SHA-256, terms, prices, and transaction inclusion decisions.
-Transaction record numbers refer to the original comparable array, starting at 1.
-Keep reports private.
-
-## Try synthetic data
-
-```sh
-node dist/cli.js demo --kind traces
-node dist/cli.js demo --kind environment
-```
-
-These commands do not require input files. Their prices are invented and remain marked as synthetic.
-The `npm run analyze --` command also accepts these subcommands.
-Use `node dist/cli.js` directly when you need JSON without npm status messages.
-
-## Exit codes
-
-| Code | Meaning |
+| Capability | Result |
 | --- | --- |
-| `0` | Inspection, appraisal, template generation, or demonstration completes |
-| `1` | A file, encoding, output, or data error prevents completion |
-| `2` | The command arguments are invalid |
-| `3` | Inspection completes, but the evidence does not support a price |
+| Experience audit | Compare observations, actions, rewards, final observations, ending signals, masks, and task context |
+| Pipeline audit | Compare adjacent stages and locate the first divergence from the source |
+| Private witness | Reduce evidence while preserving a selected finding and its episode identity |
+| Split inspection | Find exact episode or transition overlap across declared splits |
+| Operations world | Reset, act, replay, and evaluate synthetic invoices and tickets |
+| Verifier challenge | Compare a weak reward with explicit outcome, authority, and side-effect checks |
+| Bounded search | Keep counterexamples and report the unexplored action space |
+| Curriculum | Select tasks from recorded outcomes with a finite budget |
+| Python integration | Execute Gymnasium, a real Minari HDF5 roundtrip, and NumPy TD updates |
+| Portable reports | Write JSON, Markdown, and SARIF without uploading the inputs |
 
-Exit code `3` still produces a structured report with the evidence gaps.
-Invalid individual records appear as inspection exclusions.
-They do not cause a file error when the remaining input can be inspected.
+The [RL walkthrough](docs/learn-rl.md) explains these capabilities through runnable experiments.
+The [strategy](docs/strategy.md) connects the public laboratory to a possible specialist agency.
 
-## Method
-
-The named simple baseline is the median of matching transaction unit prices.
-The estimate multiplies that median by the inspected eligible volume.
-The observed minimum and maximum unit prices produce the reported range.
-This range is not a confidence interval. Every result remains provisional.
-
-The model requires:
-
-- At least 3 completed transactions from distinct counterparty groups.
-- Matching asset type, domain, modality, intended use, rights, and license term.
-- A closed contract or paid invoice with an attested document review.
-- Transaction dates within 365 days of the appraisal date.
-- Comparable volumes between 0.25 and 4 times the inspected subject volume.
-- Documented provenance and transfer rights for the requested transaction.
-
-These thresholds are product policies. They are not statistically calibrated.
-The model assumes linear unit pricing.
-It does not infer bundle discounts, scarcity premiums, exclusivity premiums, or training value.
-Quotes and asking prices do not enter the estimate.
-The script does not verify contracts, source documents, rights, or counterparty independence.
-See [the method and sources](docs/method.md) and [the validation record](docs/validation.md).
-
-## Inspection limits
-
-Trace inspection checks aligned arrays, finite rewards, final episode flags, and exact duplicate content.
-Conflicting identifiers and incomplete episodes do not enter the priced volume.
-Termination and truncation remain distinct. Neither proves task success.
-
-Environment inspection checks task specifications and declared passing test receipts.
-The script does not execute environment code or verify the receipts.
-It does not prove reset correctness, reward integrity, runtime performance, or reproducibility.
-
-Each input file has a 10 MiB limit. Each asset file has a 20,000-record limit.
-Native HDF5, Arrow, Parquet, video, and arbitrary agent logs require a separate JSON export.
-The script does not measure semantic novelty, benchmark contamination, downstream training improvement, or real market accuracy.
-
-## Privacy
-
-Input contents remain in process memory. Only stdout or an explicit `--out` receives a report.
-The script does not call external services, run imported code, start a server, or write automatic logs.
-It rejects invalid UTF-8 and bounds each input read.
-File errors do not print input paths or rejected payloads.
-Process exit releases memory. It does not guarantee secure memory erasure.
-See [the security notes](SECURITY.md).
-
-## Verify changes
+## Audit your pipeline
 
 ```sh
-npm run test:cli
-npm run test:engine
+node dist/cli.js audit --source source.json --target learner.json --out audit.json
+node dist/cli.js report --data audit.json --format markdown --out audit.md
+node dist/cli.js witness --source source.json --target learner.json --out witness.json
+node dist/cli.js pipeline --source source.json --recorded recorded.json --target learner.json
+```
+
+Use the [snapshot format](docs/snapshots.md) to export a pipeline boundary.
+Audit exit codes are `0` for pass, `4` for fail, and `5` for inconclusive.
+The pipeline remains inconclusive without explicit artifact links.
+Hash links bind supplied artifacts. They do not prove process execution or provenance.
+
+Witnesses contain raw selected evidence. Keep them private.
+The CLI requires a new owner-only output file for a witness.
+Ordinary reports omit raw observations and actions, but retain fingerprints and producer labels.
+See the [command reference](docs/cli.md) and [security boundary](SECURITY.md).
+
+## Run the real Python experiment
+
+Use Python 3.13 or later.
+The tested dependencies include CPU JAX for Minari's space handling.
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r python/requirements-tested.txt
+.venv/bin/python -m pip install --no-deps ./python
+.venv/bin/avalon-python experiment --seed 7 --output /tmp/avalon-experiment
+.venv/bin/avalon-python compare --experiment /tmp/avalon-experiment --avalon-cli "$PWD/dist/cli.js" --output /tmp/avalon-comparison
+```
+
+Select new output directories for each run.
+The experiment records source, recorded, and learner snapshots with versions and hashes.
+The comparison includes a structural baseline and a simple exact assertion.
+The [Python guide](docs/python-lab.md) covers built-in recording and local Minari export.
+
+## Test a learning world
+
+```sh
+node dist/cli.js world-challenge
+node dist/cli.js world-search --budget 1000 --depth 3
+node dist/cli.js world-benchmark --repetitions 25
+node dist/cli.js world-curriculum --budget 8
+node dist/cli.js world-run --data examples/world/claim-plan.json
+```
+
+World actions change synthetic local records only.
+The world curriculum uses a known-good script. It does not train a model.
+The search covers its declared action alphabet and depth.
+The [world contract](docs/world.md) states the rules and limits.
+
+## Evidence and limits
+
+The executed counter pipeline preserves its source transitions through real Minari storage.
+Avalon detects all 10 injected views from five selected fault families.
+The simple exact assertion detects the same 10 views.
+Both methods produce 0 false alarms on the 2 clean views.
+This result establishes no detection-count advantage over that assertion.
+It does not estimate a production detection rate or training improvement.
+
+The [experiment report](experiments/python-counter-results.md) records the method and negative result.
+The [release evidence](docs/releases/2026-10-30/evidence.json) records versions, hashes, latency, costs, and limits.
+The [PR ledger](docs/releases/2026-10-30/pr-ledger.md) maps the work to individual contributions.
+No native Gymnasium or Minari transition defect is established by these experiments.
+
+## Use the SDK
+
+```ts
+import { parseSnapshot, auditSnapshots } from "avalon-rl";
+
+const source = parseSnapshot(sourceObject);
+const target = parseSnapshot(targetObject);
+const report = auditSnapshots({ source, target });
+```
+
+The [SDK guide](docs/sdk.md) covers local package installation and type declarations.
+The original [inspection and appraisal commands](docs/appraisal.md) remain available.
+Appraisal requires documented comparable transactions. Synthetic prices remain explicitly invented.
+
+## Contribute
+
+Add one adapter, controlled fault, task family, or independent verifier with a reproducible check.
+Start with the [contributor guide](CONTRIBUTING.md).
+
+```sh
+npm run test:audit
+npm run test:lab
 npm run typecheck
 npm run check:privacy
 ```
 
-Run `npm test` before a commit. It builds the script and runs all engine and CLI tests.
-The CLI tests use synthetic fixtures and disable Node network APIs during the main workflows.
-The privacy source check is a guard. It is not a complete security audit.
-
-## Repository layout
-
-| Path | Purpose |
-| --- | --- |
-| `src/cli.ts` | Commands, bounded file reads, private output, and exit codes |
-| `src/lib/schema.ts` | Validated input formats |
-| `src/lib/engine.ts` | Inspection, transaction selection, pricing, and aggregate reports |
-| `src/lib/demo.ts` | Deterministic synthetic fixtures |
-| `tests/` | Engine and CLI checks |
-| `docs/` | Formats, sources, limits, and validation |
-| `dist/` | Generated script output, excluded from Git |
-
-The model version remains `comparable-median-v1`.
+Run the full suites before a commit or PR.
+The [validation workflow](docs/ci.md) checks the Node and Python boundary on GitHub.

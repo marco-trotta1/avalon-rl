@@ -6,25 +6,40 @@ Use synthetic fixtures for development and verification.
 
 The CLI reads local JSON and JSONL as data.
 It has no web interface, server, telemetry, external AI service, or runtime network client.
-It does not execute imported code or follow source references.
+It does not follow source references or execute user-provided programs.
 Its schemas reject unsupported fields.
-Each input read stops after 10 MiB plus one overflow detection byte.
+Snapshots and appraisal inputs have a 10 MiB limit.
+Saved audit reports have a 256 MiB limit and a 500,000-finding limit.
+Each reader stops at its limit plus one overflow detection byte.
 Each asset file has a 20,000-record limit.
 The reader rejects invalid UTF-8 and non-regular input files.
 
-The script writes JSON to stdout unless an output path is supplied.
+The CLI writes JSON, Markdown, or SARIF to stdout unless an output path is supplied.
 Terminal capture and shell redirection can retain stdout.
 Use `--out` to create report files with mode `0600`.
 The output directory must exist.
 The script uses exclusive file creation and never replaces an existing output path.
 This also rejects an output symlink or an output path that names an input file.
-File error messages omit input paths and rejected payloads.
+TypeScript file errors omit input paths and rejected payloads.
+Python exceptions can include local paths and field identifiers.
+Keep terminal logs private.
 
-Reports omit raw observations, actions, asset names, deal identifiers, and contract references.
-They retain sensitive counts, a source fingerprint, terms, prices, and transaction decisions.
+Audit reports omit raw observations, actions, and episode IDs.
+They retain counts, fingerprints, producer labels, and source or target ordinals.
+Appraisal reports also retain terms, prices, and transaction decisions.
 Transaction record numbers map to the supplied ledger.
 The SHA-256 can reveal a match to a known source file.
 Keep reports private.
+
+Witnesses contain selected raw evidence.
+The CLI requires an explicit owner-only output file for a witness.
+Never upload a private witness as a public reproducer.
+
+The Python recorder supports a documented list of built-in Gymnasium environments.
+Local Minari export requires HDF5 and supported serialized built-in spaces.
+It bypasses automatic environment recovery and the extensible space deserializer.
+The Python comparison starts only the Node CLI path that the user explicitly supplies.
+It passes arguments directly and uses no shell command interpolation.
 
 The script keeps input contents in process memory until the run ends.
 Memory release does not guarantee secure erasure.
@@ -36,6 +51,7 @@ The CLI tests block Node network APIs during the main workflows.
 These checks do not replace an operating system sandbox or a security audit.
 Review the exact staged files before each commit.
 
-No hosted deployment, CI upload, analytics, or external AI service is configured.
+No hosted product, experience upload, analytics, or external AI service is configured.
+GitHub CI runs the code on synthetic fixtures and retains ordinary job logs.
 Dependency installation and GitHub synchronization use network access.
 They do not require real asset data.

@@ -1,0 +1,9 @@
+{
+  "format": "avalon.world-counterexample/v1",
+  "evidence": "synthetic",
+  "seed": 7,
+  "taskId": "settle-a",
+  "actions": [{ "type": "claim-done" }],
+  "expected": { "classification": "false-accept", "reward": 1, "oracleAccepted": false },
+  "minimality": "No single action deletion retains this false accept."
+}
