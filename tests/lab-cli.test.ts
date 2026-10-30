@@ -36,6 +36,19 @@ describe("laboratory commands", () => {
     expect(JSON.parse(result.stdout)).toMatchObject({ episodes: 1, transitions: 2 });
     expect(result.stdout).not.toContain("counter-7");
   });
+  it.each(["snapshot", "inspect"])("rejects a named pipe for %s without waiting for a writer", command => {
+    const path = join(directory, `${command}-input-pipe`);
+    expect(spawnSync("mkfifo", [path]).status).toBe(0);
+    const args = command === "snapshot" ? [command, "--data", path]
+      : [command, "--kind", "traces", "--data", path];
+    const result = spawnSync(process.execPath, ["--import", guard, entry, ...args], {
+      encoding: "utf8", timeout: 1_000,
+    });
+    expect(result.error).toBeUndefined();
+    expect(result.status).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).not.toContain(path);
+  });
   it("exports a saved JSON audit to Markdown and SARIF", async () => {
     const path = join(directory, "saved-audit.json");
     await writeFile(path, run(["lab-demo"]).stdout);

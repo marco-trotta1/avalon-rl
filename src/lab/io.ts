@@ -1,11 +1,12 @@
 import { open } from "node:fs/promises";
+import { constants } from "node:fs";
 import { MAX_SNAPSHOT_BYTES } from "./contract.js";
 
 export type OutputDestination = { type: "stdout" } | { type: "file"; path: string };
 
 export async function readLocalText(path: string): Promise<string> {
   try {
-    const file = await open(path, "r");
+    const file = await open(path, constants.O_RDONLY | constants.O_NONBLOCK);
     try {
       if (!(await file.stat()).isFile()) throw new Error("The input must be a regular file.");
       const buffer = Buffer.alloc(MAX_SNAPSHOT_BYTES + 1);
