@@ -88,19 +88,23 @@ def train_policy(table: Mdp, *, seed: int, interactions: int, arm: RewardArm = "
     weights: dict[str, dict[str, QValue]] = {}
     updates = []
     state = table.states[table.initial_state]
-    changed = 0
     for ordinal in range(config.interactions):
-        values = weights.setdefault(state.key, {})
-        action = rng.choice(sorted(edge.action for edge in state.transitions)) if rng.random() < config.epsilon else greedy_action(state=state, values=values, rng=rng)
-        edge = next(edge for edge in state.transitions if edge.action == action)
-        target_state = table.states[edge.next_state]
-        target_values = weights.get(target_state.key, {})
-        future = 0.0 if edge.terminated else max((target_values.get(item.action, QValue(0.0)) for item in target_state.transitions), default=0.0)
-        target = QValue(edge.reward(config.arm) + config.discount * future)
-        previous = values.get(action, QValue(0.0))
-        updated = QValue(previous + config.learning_rate * (target - previous))
-        values[action] = updated
-        changed += int(abs(updated - previous) > 1e-12)
-        updates.append(Update(Count(ordinal), table.artifact_hash, state.id, action, previous, target, updated, edge.terminated, edge.truncated))
-        state = table.states[table.initial_state] if edge.terminated or edge.truncated else target_state
+        update, target_state = q_update(table=table, state=state, weights=weights, rng=rng, config=config, ordinal=ordinal)
+        updates.append(update)
+        state = table.states[table.initial_state] if update.terminated or update.truncated else target_state
+    changed = sum(abs(item.updated - item.previous) > 1e-12 for item in updates)
     return TrainingRun(freeze_policy(weights), tuple(updates), config, (table.artifact_hash,), Count(changed))
+
+
+def q_update(*, table: Mdp, state: State, weights: dict[str, dict[str, QValue]], rng: random.Random, config: TrainingConfig, ordinal: int) -> tuple[Update, State]:
+    values = weights.setdefault(state.key, {})
+    action = rng.choice(sorted(edge.action for edge in state.transitions)) if rng.random() < config.epsilon else greedy_action(state=state, values=values, rng=rng)
+    edge = next(edge for edge in state.transitions if edge.action == action)
+    target_state = table.states[edge.next_state]
+    target_values = weights.get(target_state.key, {})
+    future = 0.0 if edge.terminated else max((target_values.get(item.action, QValue(0.0)) for item in target_state.transitions), default=0.0)
+    target = QValue(edge.reward(config.arm) + config.discount * future)
+    previous = values.get(action, QValue(0.0))
+    updated = QValue(previous + config.learning_rate * (target - previous))
+    values[action] = updated
+    return Update(Count(ordinal), table.artifact_hash, state.id, action, previous, target, updated, edge.terminated, edge.truncated), target_state
