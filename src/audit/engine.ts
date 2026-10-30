@@ -201,3 +201,5 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
     limits: ["The audit compares supplied evidence. It does not establish task success or external validity."],
   };
 }
+
+export { auditPipeline, type PipelineReport } from "./pipeline.js";
