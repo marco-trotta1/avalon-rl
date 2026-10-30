@@ -1,11 +1,15 @@
 {
   "name": "avalon-rl",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "description": "Local command-line appraisal of RL environments and data traces.",
-  "bin": { "avalon-rl": "dist/cli.js" },
+  "description": "A local laboratory for RL experience, learning worlds, and reproducible counterexamples.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist", "docs", "README.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md"],
+  "bin": { "avalon": "dist/cli.js", "avalon-rl": "dist/cli.js" },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "analyze": "node dist/cli.js",
@@ -13,6 +17,8 @@
     "test": "npm run build && vitest run",
     "test:engine": "vitest run tests/engine.test.ts",
     "test:cli": "npm run build && vitest run tests/cli.test.ts",
+    "test:audit": "vitest run tests/audit-engine.test.ts",
+    "test:lab": "npm run build && vitest run tests/lab*.test.ts",
     "check:privacy": "node scripts/check-privacy.mjs"
   },
   "dependencies": {
