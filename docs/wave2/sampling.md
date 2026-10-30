@@ -48,3 +48,14 @@ The selected log probabilities still agree at `-log(2)`.
 The support audit identifies the difference.
 This is a synthetic counterexample. It is not an upstream defect.
 An exact assertion over the complete supports identifies the same difference.
+
+## Replay a finite distribution
+
+The reference normalizes the raw logits over the complete captured support.
+It subtracts the maximum supported logit before it calculates the partition.
+It compares each recorded selected probability with that reference.
+Two receipts can agree with each other while both contradict their recorded logits.
+
+A missing support, missing logits, unsupported processor, or unrepresentable result produces an unknown replay.
+The reference does not reconstruct omitted vocabulary values.
+The reference uses Python float64 arithmetic. It does not reproduce a GPU kernel.

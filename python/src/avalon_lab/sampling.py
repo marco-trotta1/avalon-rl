@@ -103,6 +103,8 @@ def audit_status(findings: tuple[SamplingFinding, ...]) -> AuditStatus:
 
 def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt, tolerance: float = 1e-9) -> SamplingAudit:
     """Compare keyed evidence. Use an absolute log-probability tolerance."""
+    from .sampling_math import replay_sampling_sample
+
     if type(tolerance) not in (int, float) or not math.isfinite(tolerance) or tolerance < 0:
         raise ValueError("Use a finite nonnegative log-probability tolerance.")
     findings = []
@@ -135,6 +137,13 @@ def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt,
             findings.append(SamplingFinding("selected-logprob", key, probability_status, "Compare selected log probabilities with the declared absolute tolerance."))
         else:
             findings.append(SamplingFinding("selected-logprob", key, "unknown", "A selected log probability is unavailable."))
+        for label, row in (("source", before), ("target", after)):
+            replay = replay_sampling_sample(row)
+            if isinstance(replay, Unavailable) or not isinstance(row.selected_logprob, Known):
+                replay_status = "unknown"
+            else:
+                replay_status = "match" if abs(replay.selected_logprob - row.selected_logprob.value) <= tolerance else "mismatch"
+            findings.append(SamplingFinding(f"probability-replay-{label}", key, replay_status, "Compare the declared selected probability with the finite reference."))
     frozen = tuple(findings)
     return SamplingAudit(audit_status(frozen), frozen)
 
