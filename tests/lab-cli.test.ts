@@ -36,6 +36,13 @@ describe("laboratory commands", () => {
     expect(JSON.parse(result.stdout)).toMatchObject({ episodes: 1, transitions: 2 });
     expect(result.stdout).not.toContain("counter-7");
   });
+  it("renders an offline HTML report through the CLI", () => {
+    const result = run(["lab-demo", "--format", "html"]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("<!doctype html>");
+    expect(result.stdout).toContain("Experience changed.");
+    expect(run(["lab-demo", "--format", "unknown"]).status).toBe(2);
+  });
   it.each(["none", "reward-shift", "collapsed-ending"])("runs a labeled %s demonstration without network access", fault => {
     const result = run(["lab-demo", "--fault", fault]);
     expect(result.status).toBe(0);

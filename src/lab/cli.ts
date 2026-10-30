@@ -1,8 +1,9 @@
 import { parseArgs } from "node:util";
-import { auditSnapshots, contentHash } from "../audit/engine.js";
+import { auditSnapshots, contentHash, type AuditReport } from "../audit/engine.js";
 import { parseSnapshotText } from "./contract.js";
 import { demoPair, type DemoFault } from "./demo.js";
 import { readLocalText, writeLocalText, type OutputDestination } from "./io.js";
+import { renderAuditHtml } from "./html.js";
 
 export const LAB_COMMANDS = ["audit", "snapshot", "lab-demo"];
 class LabUsageError extends Error {}
@@ -13,7 +14,7 @@ export async function runLab(args: string[]): Promise<number> {
     try {
       parsed = parseArgs({ args, allowPositionals: true, strict: true, tokens: true, options: {
         source: { type: "string" }, target: { type: "string" }, data: { type: "string" },
-        out: { type: "string" }, fault: { type: "string" },
+        out: { type: "string" }, fault: { type: "string" }, format: { type: "string" },
       } });
     } catch { throw new LabUsageError("Check the command options and values."); }
     const seen = new Set<string>();
@@ -24,13 +25,16 @@ export async function runLab(args: string[]): Promise<number> {
     }
     if (parsed.positionals.length !== 1) throw new LabUsageError("Supply one command.");
     const command = parsed.positionals[0];
-    const allowed = command === "audit" ? ["source", "target", "out"]
-      : command === "snapshot" ? ["data", "out"] : ["fault", "out"];
+    const allowed = command === "audit" ? ["source", "target", "out", "format"]
+      : command === "snapshot" ? ["data", "out"] : ["fault", "out", "format"];
     if ([...seen].some(name => !allowed.includes(name))) throw new LabUsageError("The command does not support this option.");
     const path = parsed.values.out;
     if (path !== undefined && !path.trim()) throw new LabUsageError("Supply an output path.");
     const output: OutputDestination = path === undefined || path === "-" ? { type: "stdout" } : { type: "file", path };
     let result: object;
+    let audit: AuditReport | undefined;
+    const format = parsed.values.format ?? "json";
+    if (format !== "json" && format !== "html") throw new LabUsageError("Select --format json or --format html.");
     let exitCode = 0;
     switch (command) {
       case "audit": {
@@ -39,6 +43,7 @@ export async function runLab(args: string[]): Promise<number> {
         const target = parseSnapshotText(await readLocalText(parsed.values.target));
         const report = auditSnapshots({ source, target });
         result = report;
+        audit = report;
         exitCode = report.status === "fail" ? 4 : report.status === "inconclusive" ? 5 : 0;
         break;
       }
@@ -57,12 +62,13 @@ export async function runLab(args: string[]): Promise<number> {
         const fault = parsed.values.fault ?? "reward-shift";
         if (!["none", "reward-shift", "collapsed-ending"].includes(fault)) throw new LabUsageError("Select none, reward-shift, or collapsed-ending.");
         const pair = demoPair({ fault: fault as DemoFault });
-        result = { ...auditSnapshots(pair), demonstration: { injectedFault: fault, seed: 7 } };
+        audit = auditSnapshots(pair);
+        result = { ...audit, demonstration: { injectedFault: fault, seed: 7 } };
         break;
       }
       default: throw new LabUsageError("Select audit, snapshot, or lab-demo.");
     }
-    await writeLocalText({ output, text: JSON.stringify(result, null, 2) + "\n" });
+    await writeLocalText({ output, text: format === "html" && audit ? renderAuditHtml(audit) : JSON.stringify(result, null, 2) + "\n" });
     return exitCode;
   } catch (cause) {
     if (cause instanceof LabUsageError) {
