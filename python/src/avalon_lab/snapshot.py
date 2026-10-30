@@ -22,6 +22,8 @@ def json_value(value: object, *, path: str = "value") -> Json:
         return json_value(value.tolist(), path=path)
     if isinstance(value, np.generic):
         return json_value(value.item(), path=path)
+    if type(value) is int and abs(value) > 2**53 - 1:
+        raise ValueError(f"{path}: Use an integer within the exact JSON number range.")
     if value is None or isinstance(value, (bool, str, int)):
         return value
     if isinstance(value, float):
@@ -78,18 +80,28 @@ class Snapshot:
 
 
 def encode(snapshot: Snapshot) -> bytes:
-    if not 0 <= snapshot.seed <= 0xFFFFFFFF:
+    if type(snapshot.seed) is not int or not 0 <= snapshot.seed <= 0xFFFFFFFF:
         raise ValueError("Use a uint32 seed.")
+    if snapshot.stage not in ("source", "recorded", "learner") or snapshot.evidence not in ("synthetic", "user-supplied"):
+        raise ValueError("Use a documented stage and evidence label.")
+    if set(snapshot.producer) != {"name", "version"} or not all(isinstance(value, str) and 1 <= len(value.strip()) <= 240 for value in snapshot.producer.values()):
+        raise ValueError("Use valid producer labels.")
     if not snapshot.episodes or sum(len(episode.steps) for episode in snapshot.episodes) > MAX_STEPS:
         raise ValueError("Use 1 to 20,000 transitions.")
     for episode in snapshot.episodes:
-        if not episode.steps or not episode.id.strip() or not episode.task.strip():
+        if not episode.steps or not 1 <= len(episode.id.strip()) <= 240 or not 1 <= len(episode.task.strip()) <= 240:
             raise ValueError("Use nonempty episode labels and steps.")
         for step in episode.steps:
             if type(step.index) is not int or not 0 <= step.index <= MAX_STEPS:
                 raise ValueError("Use a valid step index.")
             if not math.isfinite(step.reward):
                 raise ValueError("Use a finite reward.")
+            if type(step.terminated) is not bool or type(step.truncated) is not bool:
+                raise ValueError("Use boolean ending signals.")
+            if step.bootstrap_mask is not None and (type(step.bootstrap_mask) is not int or step.bootstrap_mask not in (0, 1)):
+                raise ValueError("Use bootstrap mask 0 or 1.")
+        if episode.metadata is not None and (not isinstance(episode.metadata, dict) or not all(isinstance(key, str) and len(key) <= 240 for key in episode.metadata)):
+            raise ValueError("Use a metadata object with valid keys.")
     payload = (json.dumps(snapshot.to_dict(), allow_nan=False, sort_keys=True, indent=2) + "\n").encode()
     if len(payload) > MAX_BYTES:
         raise ValueError("The snapshot exceeds 10 MiB.")
