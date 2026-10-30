@@ -1,0 +1,22 @@
+{
+  "format": "avalon.trace-pair/v1",
+  "name": "Declared invoice renaming",
+  "pairs": [
+    {
+      "sourceEpisode": "settle-a:unauthorized-restore",
+      "sourceTask": "settle-a",
+      "targetEpisode": "renamed-restoration",
+      "targetTask": "renamed-settlement"
+    }
+  ],
+  "renames": [
+    {
+      "from": "invoice-a",
+      "to": "invoice-x"
+    },
+    {
+      "from": "invoice-b",
+      "to": "invoice-y"
+    }
+  ]
+}

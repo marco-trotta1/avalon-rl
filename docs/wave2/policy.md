@@ -140,3 +140,97 @@ The memory peak includes the interpreter and earlier imports.
 API calls and API fees are zero because this runner has no model or network client.
 Local compute costs remain unpriced.
 The report preserves intervals that include zero and every failed learning condition.
+
+## Policy evidence
+
+`policy_snapshot(table, evaluations=(result,), seed=7)` returns the actual normalized learner observations.
+Set `view="world"` to export the raw table observations for outcome diagnosis.
+The world view uses the recorded stage. The policy view uses the learner stage.
+They represent an explicit observation transform and need separate interpretations.
+Both views preserve actual actions, rewards, next observations, and independent ending signals.
+The bootstrap mask uses termination only.
+
+`write_policy_evidence` writes both merged snapshots and a separate outcome file.
+Its keyword arguments are `tables`, `evaluations`, `seed`, `directory`, and `name`.
+The result maps each output filename to its SHA-256 byte hash.
+It requires the original table hash and rejects a modified rollout transition.
+The files use owner-only permissions and cannot replace existing files.
+
+The experiment writes these files for each seed, reward arm, and schedule:
+
+- `runs/seed-0-history-fixed.json` retains updates, weights, training episodes, and evaluation receipts.
+- `snapshots/seed-0-history-fixed-world.json` retains raw observations for an outcome audit.
+- `snapshots/seed-0-history-fixed-learner.json` retains the exact policy input features.
+- `snapshots/seed-0-history-fixed-outcomes.json` retains expected and independent outcomes separately.
+
+Episode metadata includes the table hash, policy hash, family, generator seed, evaluation seed, strategy, reward arm, and observation view.
+Expected verdicts remain outside both observation views and their metadata.
+A normal TypeScript snapshot audit can read either view through the existing inert-file boundary.
+A matching self-audit establishes record consistency only.
+The rollout traverses the exported table. It does not reexecute the TypeScript environment.
+
+Episode identities bind the table hash, policy hash, evaluation seed, strategy, reward arm, and merged ordinal.
+The world, learner, and outcome files use the same identity.
+Distinct generator instances retain distinct identities even when they share an evaluation seed.
+
+## Executed result: 2026-10-30
+
+The approved experiment executes 180 runs and 432,000 Q updates.
+Each condition uses 20 learner seeds and 160 evaluation episodes per partition.
+Each partition has eight fixed table instances. Repeated instances do not establish independent task families.
+The [summary](../../examples/policy/benchmark-summary.json) retains the plan, input hashes, source hashes, versions, controls, intervals, and negative results.
+
+| Reward and schedule | Same-family valid | Prohibited episodes | Ticket-family valid |
+| --- | --- | --- | --- |
+| Claim, fixed | 8/160 | 48/160 | 15/160 |
+| Claim, random | 12/160 | 52/160 | 15/160 |
+| Claim, disagreement | 3/160 | 67/160 | 15/160 |
+| Final, fixed | 140/160 | 20/160 | 15/160 |
+| Final, random | 132/160 | 28/160 | 15/160 |
+| Final, disagreement | 130/160 | 19/160 | 15/160 |
+| History, fixed | 160/160 | 0/160 | 15/160 |
+| History, random | 160/160 | 0/160 | 15/160 |
+| History, disagreement | 160/160 | 0/160 | 15/160 |
+
+The prohibited-episode column refers to same-family evaluation.
+The fixed final-state policy has mean proxy return 1.0 across its 160 same-family episodes.
+Its independent valid count is 140/160.
+The fixed history policy has mean proxy return 1.0 and independent valid count 160/160.
+These figures separate reward acceptance from actual task completion under the declared rules.
+
+The fixed history arm exceeds the fixed final-state arm by 0.125 in mean valid fraction.
+Its paired seed percentile interval is [0.05, 0.225], with 20 clusters and 2,000 resamples.
+This interval conditions on the eight fixed same-family table instances.
+It does not estimate performance in other task families or real operations.
+
+The disagreement schedule gives no history-arm gain over fixed or random selection.
+Its paired difference is 0.0 with interval [0.0, 0.0] against both baselines.
+The claim and final disagreement schedules have no positive paired interval against either schedule baseline.
+The candidate schedule therefore fails its improvement gate in this experiment.
+
+All nine learned conditions produce 15/160 valid ticket-family episodes.
+The seeded random-action baseline produces the same 15/160 count.
+Every ticket-family learner state is unseen during training.
+The result establishes no task-family transfer.
+The known-good ceiling accepts 160/160 episodes in both partitions.
+The history reward remains the simple complete assertion. No advantage over that assertion is established.
+
+The measured run takes 22,748.049 ms, with one complete timing sample and no timing interval.
+The measurement includes training, evaluation, and per-run output writes.
+It excludes input freeze and the final summary write.
+The process memory peak is 58,785,792 bytes, with one measurement including the interpreter and earlier imports.
+Python is 3.13.5 on Darwin arm64. NumPy is 2.4.2 and Avalon Python is 0.1.0.
+API calls are 0 and API fees are 0 USD. Local compute costs remain unpriced.
+The summary records condition timings beside each accuracy result.
+
+The plan hash is `8aaec5290c2ed99916a27257c6c95d97aa85f213c1b24ab54f3ffb557150003a`.
+The holdout hash is `a8d6b5cdb205bf892c4efca182ecb5b61127580b2e0778a7187e21c2422ba039`.
+The final semantic result hash is `e7fe50f8c82711645adf0975b71db4d0d84eb731e6882fda0fe19af8b93c8661`.
+
+The first run completes before independent review finds an episode-identity defect in the public exporter.
+A failing CLI regression reproduces duplicate episode keys across two generator instances with a shared evaluation seed.
+The correction binds each episode to its full table and evaluation identity.
+The original run remains preserved as pre-fix evidence.
+The corrected run uses the same frozen inputs, rewards, budgets, seeds, schedules, and statistics.
+All 180 policy hashes, update hashes, training counts, and evaluation score tables match exactly.
+The final evidence uses the corrected snapshot identities.

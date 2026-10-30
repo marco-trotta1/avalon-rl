@@ -36,4 +36,13 @@ describe("history contracts", () => {
     incomplete.episodes[0]!.steps.forEach(step => { step.action = { type: "finish" }; });
     expect(auditTraceContract({ snapshot: incomplete, contract }).status).toBe("match");
   });
+  it("represents no permitted actions with an empty authority list", () => {
+    const contract = parseTraceContract({ format: "avalon.trace-contract/v1", name: "deny payments", rules: [
+      { id: "authority", kind: "action-allowlist", when: { path: ["type"], equals: "pay" }, path: ["invoice"], allowed: [] },
+    ] });
+    expect(auditTraceContract({ snapshot, contract }).status).toBe("mismatch");
+    const unrelated = structuredClone(snapshot);
+    unrelated.episodes[0]!.steps.forEach(step => { step.action = { type: "finish" }; });
+    expect(auditTraceContract({ snapshot: unrelated, contract }).status).toBe("match");
+  });
 });

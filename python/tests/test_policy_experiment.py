@@ -50,3 +50,50 @@ def test_invalid_plan_fails_before_output_creation_or_parameter_updates(tmp_path
     with pytest.raises(ValueError, match="bootstrap seed"):
         run_policy_experiment(**paths, output=output, plan=replace(plan, bootstrap_seed=-1))
     assert not output.exists()
+
+
+def test_experiment_exports_each_policy_and_keeps_expected_outcomes_separate(tmp_path):
+    paths, plan = experiment_inputs(tmp_path)
+    report = run_policy_experiment(**paths, output=tmp_path / "exported", plan=plan)
+    assert all(len(row["snapshot_hashes"]) == 3 for row in report["runs"])
+    from avalon_lab.snapshot import read_snapshot
+    world = read_snapshot(tmp_path / "exported/snapshots/seed-0-history-fixed-world.json")
+    learner = read_snapshot(tmp_path / "exported/snapshots/seed-0-history-fixed-learner.json")
+    outcomes = json.loads((tmp_path / "exported/snapshots/seed-0-history-fixed-outcomes.json").read_text())
+    assert len(world.episodes) == len(learner.episodes) == len(outcomes["episodes"]) == 4
+    assert all("valid" not in episode.metadata for episode in world.episodes)
+    assert all("independent_outcome" in row for row in outcomes["episodes"])
+
+
+def test_invalid_training_graph_preserves_a_failure_receipt(tmp_path):
+    import pytest
+    paths, plan = experiment_inputs(tmp_path)
+    path = paths["train_paths"][0]
+    value = json.loads(path.read_text())
+    value["states"][0]["transitions"].pop()
+    path.write_text(json.dumps(value))
+    output = tmp_path / "failed"
+    with pytest.raises(ValueError, match="exactly one transition"):
+        run_policy_experiment(**paths, output=output, plan=plan)
+    failure = json.loads((output / "failure.json").read_text())
+    assert failure["completed_runs"] == 0
+    assert failure["error"] == "ValueError"
+    assert (output / "plan.json").is_file()
+
+
+def test_output_failure_after_plan_creation_keeps_a_failure_receipt(tmp_path, monkeypatch):
+    import pytest
+    import avalon_lab.policy_experiment as experiment
+    paths, plan = experiment_inputs(tmp_path)
+    original = experiment.write_json
+    def fail_holdout(path, value):
+        if path.name == "holdout.json":
+            raise RuntimeError("The controlled output failure occurs.")
+        original(path, value)
+    monkeypatch.setattr(experiment, "write_json", fail_holdout)
+    output = tmp_path / "output-failed"
+    with pytest.raises(RuntimeError, match="controlled output failure"):
+        run_policy_experiment(**paths, output=output, plan=plan)
+    failure = json.loads((output / "failure.json").read_text())
+    assert failure["completed_runs"] == 0
+    assert failure["error"] == "RuntimeError"

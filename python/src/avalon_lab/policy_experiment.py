@@ -9,6 +9,7 @@ import resource
 from time import perf_counter
 
 from .policy_evaluation import evaluate_baseline, evaluate_policy
+from .policy_export import write_policy_evidence
 from .policy_holdout import HoldoutManifest, freeze_holdout, load_evaluation, load_training
 from .policy_mdp import ARMS, RewardArm, digest
 from .policy_schedule import Schedule, train_schedule
@@ -82,15 +83,17 @@ def run_policy_experiment(*, train_paths: tuple[Path, ...], same_family_paths: t
     frozen_plan = {"format": "avalon.policy-plan/v1", "plan": asdict(plan), "manifest_hash": manifest.hash}
     plan_hash = digest(frozen_plan)
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
-    runs_path = output / "runs"
-    runs_path.mkdir(mode=0o700)
-    write_json(output / "plan.json", {**frozen_plan, "hash": plan_hash})
-    write_json(output / "holdout.json", manifest.to_dict())
-    started = perf_counter()
     rows: list[dict[str, object]] = []
     baseline_rows = []
-    training_tables = load_training(manifest)
+    started = perf_counter()
     try:
+        runs_path = output / "runs"
+        runs_path.mkdir(mode=0o700)
+        snapshots_path = output / "snapshots"
+        snapshots_path.mkdir(mode=0o700)
+        write_json(output / "plan.json", {**frozen_plan, "hash": plan_hash})
+        write_json(output / "holdout.json", manifest.to_dict())
+        training_tables = load_training(manifest)
         for seed in plan.learner_seeds:
             for arm in plan.arms:
                 for schedule in plan.schedules:
@@ -101,9 +104,13 @@ def run_policy_experiment(*, train_paths: tuple[Path, ...], same_family_paths: t
                     evaluation_started = perf_counter()
                     scores = {}
                     evaluations = {}
+                    all_tables = []
+                    all_evaluations = []
                     for partition in ("same-family", "family"):
                         tables = load_evaluation(manifest, policy=policy, partition=partition)
                         results = tuple(evaluate_policy(table, policy=policy, seed=(plan.evaluation_seed_base + seed * 4099 + index * 131) & 0xFFFFFFFF, arm=arm) for index, table in enumerate(tables))
+                        all_tables.extend(tables)
+                        all_evaluations.extend(results)
                         scores[partition] = evaluation_metrics(results)
                         evaluations[partition] = [asdict(item) for item in results]
                         if schedule == "fixed":
@@ -112,8 +119,9 @@ def run_policy_experiment(*, train_paths: tuple[Path, ...], same_family_paths: t
                                 controls = tuple(evaluate_baseline(table, baseline=baseline, seed=(plan.evaluation_seed_base + seed * 4099 + index * 131) & 0xFFFFFFFF, arm=arm) for index, table in enumerate(tables))
                                 baseline_rows.append({"seed": seed, "arm": arm, "baseline": baseline, "partition": partition, "training_interactions": 0, "latency_ms": {"evaluation": (perf_counter() - baseline_started) * 1000, "samples": 1, "uncertainty": "Not estimated for one control and seed."}, "metrics": evaluation_metrics(controls), "episodes": [asdict(item) for item in controls]})
                     evaluation_ms = (perf_counter() - evaluation_started) * 1000
+                    snapshot_hashes = write_policy_evidence(tables=tuple(all_tables), evaluations=tuple(all_evaluations), seed=seed, directory=snapshots_path, name=f"seed-{seed}-{arm}-{schedule}")
                     updates = [asdict(item) for item in run.training.updates]
-                    row = {"seed": seed, "arm": arm, "schedule": schedule, "policy_hash": policy.hash, "updates_hash": digest(updates), "interaction_count": len(updates), "changed_updates": run.training.changed_updates, "training_episodes": len(run.episodes), "metrics": scores, "latency_ms": {"training": training_ms, "evaluation": evaluation_ms, "samples": 1, "scope": "Evaluation includes frozen-table loading. The fixed schedule also measures random and known-good controls.", "uncertainty": "Not estimated for one condition and seed."}}
+                    row = {"seed": seed, "arm": arm, "schedule": schedule, "policy_hash": policy.hash, "updates_hash": digest(updates), "interaction_count": len(updates), "changed_updates": run.training.changed_updates, "training_episodes": len(run.episodes), "snapshot_hashes": snapshot_hashes, "metrics": scores, "latency_ms": {"training": training_ms, "evaluation": evaluation_ms, "samples": 1, "scope": "Evaluation includes frozen-table loading. The fixed schedule also measures random and known-good controls.", "uncertainty": "Not estimated for one condition and seed."}}
                     write_json(runs_path / f"seed-{seed}-{arm}-{schedule}.json", {**row, "config": asdict(run.training.config), "policy": asdict(policy), "updates": updates, "training_episode_receipts": [asdict(item) for item in run.episodes], "evaluations": evaluations})
                     rows.append(row)
         elapsed_ms = (perf_counter() - started) * 1000
