@@ -9,7 +9,7 @@ import gymnasium as gym
 import minari
 
 from .counter import CounterEnv, record_counter
-from .snapshot import Episode, Snapshot, Step, json_value
+from .snapshot import Episode, Snapshot, Step, json_value, reward_value
 
 
 @contextmanager
@@ -35,7 +35,7 @@ def export_collected(dataset, *, seed: int) -> Snapshot:
             identity["indices"][index],
             json_value(episode.observations[index]),
             json_value(episode.actions[index]),
-            float(episode.rewards[index]),
+            reward_value(episode.rewards[index], path=f"episode[{episode.id}].rewards[{index}]"),
             json_value(episode.observations[index + 1]),
             bool(episode.terminations[index]),
             bool(episode.truncations[index]),

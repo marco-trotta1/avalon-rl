@@ -3,7 +3,7 @@
 import gymnasium as gym
 from gymnasium import spaces
 
-from .snapshot import Episode, Snapshot, Step
+from .snapshot import Episode, Snapshot, Step, reward_value
 
 
 class CounterEnv(gym.Env):
@@ -41,7 +41,7 @@ def record_counter(*, seed: int, episodes: int = 3, env=None) -> Snapshot:
                 # The middle episode deliberately reaches the external time limit.
                 action = 0 if episode_index % 3 == 1 else 1
                 next_observation, reward, terminated, truncated, _ = environment.step(action)
-                steps.append(Step(index, int(observation), action, float(reward), int(next_observation), bool(terminated), bool(truncated)))
+                steps.append(Step(index, int(observation), action, reward_value(reward, path=f"episode[counter-{episode_index}].rewards[{index}]"), int(next_observation), bool(terminated), bool(truncated)))
                 observation = next_observation
                 if terminated or truncated:
                     break

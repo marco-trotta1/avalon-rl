@@ -130,6 +130,9 @@ Existing Avalon identity attributes preserve original episode labels, indices, a
 Other datasets use `minari-<id>` episode labels and zero-based indices.
 The exporter preserves nested dictionary observations and categorical strings.
 It rejects nonfinite values, unequal array lengths, and missing final observations.
+Reward conversion checks the raw NumPy scalar before it converts the value to a Python float.
+Integer rewards outside `[-9007199254740991, 9007199254740991]` fail with an exact JSON number error.
+The same conversion protects both Minari exporters, both recorders, and the NumPy learner adapter.
 Boundary errors identify the episode and nested field.
 Actual Minari tests cover dictionary observations, a text mission, and simultaneous ending signals.
 The first categorical test exposes list-valued text storage in Minari 0.5.3.
