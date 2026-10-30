@@ -5,7 +5,11 @@ Call `auditSnapshots({ source, target, policy? })` with the parsed snapshots.
 The audit joins episodes by ID and transitions by index.
 It compares observations, actions, rewards, next observations, and both ending signals.
 It also compares the optional bootstrap mask.
-Missing source episodes and transitions fail the audit.
+Missing and extra episodes or transitions fail the audit.
+Duplicate episode keys and transition indices fail the audit.
+The audit skips ambiguous matches.
+Reordered episodes produce a warning because their keys still identify the same experience.
+Reordered transitions fail because their sequence changes.
 
 The report format is `avalon.audit/v1`.
 Findings identify a source episode by its one-based position.

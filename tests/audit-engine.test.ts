@@ -53,3 +53,34 @@ describe("recursive numeric comparison", () => {
     expect(() => auditSnapshots({ source, target, policy: { absoluteTolerance: 0, relativeTolerance: Number.NaN } })).toThrow("nonnegative");
   });
 });
+
+describe("key coverage", () => {
+  it("reports extra episodes and transitions", () => {
+    const source = fixture();
+    const target = parseSnapshot({ ...fixture("recorded"), episodes: [
+      { ...fixture().episodes[0], steps: [...fixture().episodes[0]!.steps, { ...fixture().episodes[0]!.steps[0], index: 1 }] },
+      { ...fixture().episodes[0], id: "extra-private" },
+    ] });
+    const report = auditSnapshots({ source, target });
+    expect(report.findings.map(item => item.code)).toEqual(expect.arrayContaining(["episode.extra", "step.extra"]));
+    expect(JSON.stringify(report)).not.toContain("extra-private");
+  });
+  it("rejects ambiguous duplicate keys instead of comparing the first match", () => {
+    const source = fixture();
+    const duplicateEpisode = parseSnapshot({ ...fixture(), episodes: [fixture().episodes[0], fixture().episodes[0]] });
+    expect(auditSnapshots({ source, target: duplicateEpisode }).findings.map(item => item.code)).toContain("target.episode.duplicate");
+    const duplicateStep = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], steps: [fixture().episodes[0]!.steps[0], fixture().episodes[0]!.steps[0]] }] });
+    const report = auditSnapshots({ source, target: duplicateStep });
+    expect(report.findings.map(item => item.code)).toContain("target.step.duplicate");
+    expect(report.summary.comparedSteps).toBe(0);
+  });
+  it("detects reordered keys while joining matching transitions", () => {
+    const source = parseSnapshot({ ...fixture(), episodes: [fixture().episodes[0], { ...fixture().episodes[0], id: "second" }] });
+    const target = parseSnapshot({ ...source, episodes: [...source.episodes].reverse() });
+    expect(auditSnapshots({ source, target }).findings.map(item => item.code)).toContain("episode.reordered");
+    const twoSteps = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], steps: [fixture().episodes[0]!.steps[0], { ...fixture().episodes[0]!.steps[0], index: 1 }] }] });
+    const reversed = parseSnapshot({ ...twoSteps, episodes: [{ ...twoSteps.episodes[0], steps: [...twoSteps.episodes[0]!.steps].reverse() }] });
+    expect(auditSnapshots({ source: twoSteps, target: reversed }).findings.map(item => item.code)).toContain("step.reordered");
+    expect(auditSnapshots({ source: twoSteps, target: reversed }).summary.comparedSteps).toBe(2);
+  });
+});
