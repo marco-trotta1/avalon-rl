@@ -2,7 +2,7 @@
 
 import gymnasium as gym
 
-from .snapshot import Episode, MAX_STEPS, Snapshot, Step, json_value
+from .snapshot import Episode, MAX_STEPS, Snapshot, Step, json_value, reward_value
 
 BUILTIN_ENVIRONMENTS = {
     "CartPole-v1": "gymnasium.envs.classic_control.cartpole:CartPoleEnv",
@@ -33,7 +33,7 @@ def record_builtin(*, environment_id: str, seed: int, episodes: int = 2, max_ste
                 before = json_value(observation, path=f"episode[{episode_index}].observation")
                 action = environment.action_space.sample()
                 next_observation, reward, terminated, truncated, _ = environment.step(action)
-                steps.append(Step(index, before, json_value(action), float(json_value(float(reward))), json_value(next_observation), bool(terminated), bool(truncated)))
+                steps.append(Step(index, before, json_value(action), reward_value(reward, path=f"episode[{environment_id}-{episode_index}].rewards[{index}]"), json_value(next_observation), bool(terminated), bool(truncated)))
                 observation = next_observation
                 if terminated or truncated:
                     break

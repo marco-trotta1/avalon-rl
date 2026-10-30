@@ -33,4 +33,8 @@ Initial dependency failures require explicit Pillow and CPU JAX installation.
 The first dictionary export test exposes list-valued text observations.
 The exporter now handles that representation explicitly.
 The counter has one task family. It cannot support an independent family holdout.
-Automatic Minari environment recovery remains unavailable because the counter spec is absent.
+The counter dataset has no environment spec.
+Local export requires explicit serialized spaces and bypasses the path loader that can recover an environment.
+The reward regression first reproduces precision loss at five adapter boundaries.
+The adapters now check integer rewards before float conversion.
+The largest safe integer reward remains exact through every boundary.

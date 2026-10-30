@@ -116,12 +116,23 @@ avalon-python export-minari --dataset-path /tmp/my-dataset/data --task my-task -
 ```
 
 Select a local dataset directory that you own.
-The exporter reads that directory. It does not download data or recover an environment.
+The exporter reads local HDF5 datasets only.
+It requires serialized action and observation spaces before it opens the Minari dataset.
+It constructs the storage with those explicit spaces and bypasses the Minari path loader.
+Missing spaces therefore cannot trigger automatic environment recovery.
+Supported spaces are `Box`, `Discrete`, `MultiDiscrete`, `MultiBinary`, `Text`, `Dict`, and `Tuple`.
+Nested spaces use the same type list. Custom types, unknown fields, and object dtypes fail before the dataset loader.
+Space metadata has a 10 MiB limit and a nesting limit of 16.
+A `Box` shape has at most 1,000,000 elements.
+The exporter does not download data or recover an environment.
 The output evidence label is `user-supplied`.
 Existing Avalon identity attributes preserve original episode labels, indices, and metadata.
 Other datasets use `minari-<id>` episode labels and zero-based indices.
 The exporter preserves nested dictionary observations and categorical strings.
 It rejects nonfinite values, unequal array lengths, and missing final observations.
+Reward conversion checks the raw NumPy scalar before it converts the value to a Python float.
+Integer rewards outside `[-9007199254740991, 9007199254740991]` fail with an exact JSON number error.
+The same conversion protects both Minari exporters, both recorders, and the NumPy learner adapter.
 Boundary errors identify the episode and nested field.
 Actual Minari tests cover dictionary observations, a text mission, and simultaneous ending signals.
 The first categorical test exposes list-valued text storage in Minari 0.5.3.

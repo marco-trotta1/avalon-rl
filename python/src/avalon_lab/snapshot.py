@@ -39,6 +39,13 @@ def json_value(value: object, *, path: str = "value") -> Json:
     raise ValueError(f"{path}: Unsupported value type {type(value).__name__}.")
 
 
+def reward_value(value: object, *, path: str) -> float:
+    parsed = json_value(value, path=path)
+    if type(parsed) not in (int, float):
+        raise ValueError(f"{path}: Use a finite numeric reward.")
+    return float(parsed)
+
+
 @dataclass(frozen=True)
 class Step:
     index: int
