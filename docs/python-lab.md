@@ -46,3 +46,14 @@ The package declares both runtime dependencies explicitly.
 `python/requirements-tested.txt` records the complete installed dependency versions.
 Minari warns about the absent environment spec, contact email, and code permalink.
 The dataset preserves transitions, but automatic environment recovery is unavailable.
+
+## NumPy learner
+
+`learner_snapshot(recorded)` converts rewards and both ending signals through explicit NumPy arrays.
+It preserves episode identity, indices, observations, actions, and categorical metadata.
+It sets `bootstrap_mask` to `0` for termination and `1` otherwise.
+Simultaneous termination and truncation therefore use mask `0`.
+`train_counter(learner)` executes tabular TD updates on bounded scalar counter states.
+It initializes the table to one and uses ten deterministic passes by default.
+The tests check all four ending cases and execute reproducible training.
+The table demonstrates learner execution. It does not establish policy quality.
