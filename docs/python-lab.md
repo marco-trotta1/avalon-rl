@@ -126,3 +126,13 @@ Boundary errors identify the episode and nested field.
 Actual Minari tests cover dictionary observations, a text mission, and simultaneous ending signals.
 The first categorical test exposes list-valued text storage in Minari 0.5.3.
 The exporter handles that representation explicitly without numeric coercion.
+
+## End-to-end comparison
+
+`avalon-python compare` explicitly starts a selected local Avalon CLI.
+The comparison uses the structural baseline and the exact assertion baseline.
+Audit exit codes are `0` for pass, `4` for fail, and `5` for inconclusive.
+Other exit codes stop the experiment as runner errors.
+Set `AVALON_CLI` to run the real CLI integration test.
+Without that variable, pytest marks this external integration test as skipped.
+See [the comparison procedure](../experiments/README.md) for the command and evidence limits.

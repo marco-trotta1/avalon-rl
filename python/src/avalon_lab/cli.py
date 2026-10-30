@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from .counter import record_counter
+from .comparison import run_comparison
 from .experiment import run_experiment
 from .gym_recorder import BUILTIN_ENVIRONMENTS, record_builtin
 from .local_export import export_local
@@ -30,8 +31,14 @@ def main() -> None:
     export.add_argument("--task", required=True)
     export.add_argument("--seed", type=int, required=True)
     export.add_argument("--output", type=Path, required=True)
+    compare = commands.add_parser("compare")
+    compare.add_argument("--experiment", type=Path, required=True)
+    compare.add_argument("--avalon-cli", type=Path, required=True)
+    compare.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if args.command == "experiment":
+    if args.command == "compare":
+        run_comparison(experiment=args.experiment, avalon_cli=args.avalon_cli, output=args.output)
+    elif args.command == "experiment":
         run_experiment(output=args.output, seed=args.seed)
     elif args.command == "export-minari":
         write_snapshot(args.output, export_local(path=args.dataset_path, seed=args.seed, task=args.task))
