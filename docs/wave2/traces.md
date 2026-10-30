@@ -18,6 +18,18 @@ Both tolerances are finite and nonnegative.
 Rules without tolerances use zero tolerance.
 The contract states a supplied specification. It does not prove the specification correct.
 
+## Outcome checks
+
+`auditTraceContract({snapshot, contract})` returns `match`, `mismatch`, or `unknown`.
+The `final-equals` rule compares the last next observation with a declared value.
+The final `preserve` rule compares the first observation with the last next observation.
+Missing paths return `unknown`.
+Open episodes, missing transitions, inconsistent continuity, and duplicate episode identities also return `unknown`.
+These cases do not establish a correct final outcome.
+Reports retain hashes and rule identifiers. They omit raw observations, actions, and episode identifiers.
+An episode with positive reward and a mismatch counts as a rewarded disagreement.
+That count does not establish why the reward differs from the rule.
+
 ## Finite learning tables
 
 `makeWorldMdp({task, horizon})` exports `avalon.mdp/v1` through the existing world reducer.
@@ -35,6 +47,7 @@ The tests check every action path to depth three for all four catalog tasks.
 This finite check does not prove that the abstraction fits another world.
 
 The policy uses `observationKey`, a JSON encoding of normalized public task features.
+The declared task goal is public instruction and enters this key.
 It includes remaining actions and prohibited-action history.
 It excludes task identifiers, split labels, reward columns, and expected verdicts.
 The separate observation retains actual invoice amounts for independent evaluation.
@@ -45,4 +58,7 @@ The `claim` reward checks the completion claim.
 The `final` reward checks the goal and protected final records.
 The `history` reward uses the existing independent world verifier.
 The terminal outcome remains separate from these reward columns.
+The exported `valid` label comes from the existing world verifier.
+That label is not independent ground truth.
+The Python evaluator must recompute goal, frame, and history outcomes from the raw observations and concrete actions.
 Training must read only training tables. Evaluation must freeze the policy before it opens evaluation tables.
