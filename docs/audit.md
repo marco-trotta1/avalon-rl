@@ -21,7 +21,11 @@ Reordering compares the relative order of unambiguous shared keys.
 An omission does not create a reorder finding for the remaining keys.
 
 The report format is `avalon.audit/v1`.
-Findings identify a source episode by its one-based position.
+The optional `episode` field identifies a source episode by its one-based position.
+The optional `targetEpisode` field identifies a target episode by its one-based position.
+All target-origin findings include `targetEpisode`, including extra episodes, duplicate groups, and internal sequence failures.
+Matched comparisons include both positions.
+Source-only findings can omit the target position.
 Findings include field hashes instead of raw values or episode IDs.
 Snapshot hashes use SHA-256 and canonical JSON object keys.
 Array order remains significant.
