@@ -203,3 +203,4 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
 }
 
 export { auditPipeline, type PipelineReport } from "./pipeline.js";
+export { buildWitness, type AuditWitness } from "./witness.js";

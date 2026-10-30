@@ -236,3 +236,65 @@ describe("pipeline audit", () => {
     expect(() => auditPipeline({ snapshots: [fixture()] })).toThrow("at least two");
   });
 });
+
+describe("reproducible witnesses", () => {
+  it("reduces evidence and reproduces the selected finding under a fresh audit", async () => {
+    const { buildWitness } = await import("../src/audit/engine.js");
+    const base = fixture();
+    const episodes = [0, 1, 2].map(episode => ({ ...base.episodes[0], id: `episode-${episode}`, steps: [0, 1, 2, 3].map(index => ({ ...base.episodes[0]!.steps[0], index, observation: { counter: index }, next_observation: { counter: index + 1 }, terminated: index === 3 })) }));
+    const source = parseSnapshot({ ...base, episodes });
+    const target = parseSnapshot({ ...source, stage: "recorded" });
+    target.episodes[2]!.steps[1]!.action = "private-witness-action";
+    const report = auditSnapshots({ source, target });
+    const witness = buildWitness({ source, target, report, findingIndex: report.findings.findIndex(item => item.code === "transition.changed") });
+    expect(witness.source.episodes).toHaveLength(1);
+    expect(witness.target.episodes).toHaveLength(1);
+    expect(witness.source.episodes[0]!.steps).toHaveLength(1);
+    expect(witness.target.episodes[0]!.steps).toHaveLength(1);
+    expect(witness.sourceOrdinals).toEqual([3]);
+    const fresh = auditSnapshots({ source: parseSnapshot(witness.source), target: parseSnapshot(witness.target), policy: witness.report.policy });
+    expect(fresh.findings).toContainEqual(expect.objectContaining({ code: "transition.changed", step: 1, field: "action", expectedHash: witness.selected.expectedHash, actualHash: witness.selected.actualHash }));
+    expect(contentHash(witness.report)).toBe(contentHash(fresh));
+    expect(contentHash(buildWitness({ source, target, report }))).toBe(contentHash(buildWitness({ source, target, report })));
+    expect(source.episodes).toHaveLength(3);
+    expect(JSON.stringify(witness.report)).not.toContain("private-witness-action");
+    expect(witness.privacy).toBe("private-evidence");
+  });
+  it("rejects stale evidence and fabricated findings", async () => {
+    const { buildWitness } = await import("../src/audit/engine.js");
+    const source = fixture();
+    const target = fixture("recorded");
+    target.episodes[0]!.steps[0]!.action = "different";
+    const report = auditSnapshots({ source, target });
+    const changed = fixture("recorded");
+    expect(() => buildWitness({ source, target: changed, report })).toThrow("exact snapshots");
+    expect(() => buildWitness({ source, target, report, findingIndex: -1 })).toThrow("existing audit finding");
+    expect(() => buildWitness({ source, target, report: { ...report, findings: [{ code: "invented", severity: "error", message: "A fabricated finding." }] } })).toThrow("does not reproduce");
+  });
+});
+
+describe("pipeline finding coordinates", () => {
+  it("localizes seed-only faults with one-based snapshot positions", async () => {
+    const { auditPipeline } = await import("../src/audit/engine.js");
+    for (const changedOffset of [1, 2]) {
+      const snapshots = [fixture(), fixture("recorded"), fixture("learner")];
+      snapshots[changedOffset] = parseSnapshot({ ...snapshots[changedOffset], seed: 8 });
+      const lineage = snapshots.slice(1).map((snapshot, index) => ({ parentSha256: contentHash(snapshots[index]), childSha256: contentHash(snapshot) }));
+      const report = auditPipeline({ snapshots, lineage });
+      expect(report.edges.every(edge => edge.report.status === "pass")).toBe(true);
+      expect(report.firstDivergence).toEqual({ from: changedOffset, to: changedOffset + 1 });
+      expect(report.findings.find(item => item.code === "lineage.seed.changed")?.snapshot).toBe(changedOffset + 1);
+    }
+  });
+  it("localizes hash-only faults on the first and final edges", async () => {
+    const { auditPipeline } = await import("../src/audit/engine.js");
+    for (const changedOffset of [0, 1]) {
+      const snapshots = [fixture(), fixture("recorded"), fixture("learner")];
+      const lineage = snapshots.slice(1).map((snapshot, index) => ({ parentSha256: contentHash(snapshots[index]), childSha256: contentHash(snapshot) }));
+      lineage[changedOffset]!.childSha256 = "incorrect";
+      const report = auditPipeline({ snapshots, lineage });
+      expect(report.edges.every(edge => edge.report.status === "pass")).toBe(true);
+      expect(report.firstDivergence).toEqual({ from: changedOffset + 1, to: changedOffset + 2 });
+    }
+  });
+});
