@@ -1,7 +1,8 @@
 # Avalon RL
 
-Avalon RL is a local command-line script for RL environments and data traces.
-It inspects data and estimates licensing or sale prices from documented comparable transactions.
+Avalon RL is a local laboratory for agent experience and learning worlds.
+It compares RL pipeline stages and explains changes with reproducible evidence.
+Its appraisal commands also estimate prices from documented comparable transactions.
 The repository is public. The software uses the [MIT License](LICENSE).
 Keep actual data and reports private.
 
@@ -21,6 +22,19 @@ npm ci --ignore-scripts
 npm run build
 node dist/cli.js --help
 ```
+
+## Audit experience
+
+```sh
+node dist/cli.js lab-demo
+node dist/cli.js lab-demo --fault none
+node dist/cli.js audit --source source.json --target learner.json --out audit.json
+```
+
+The first command demonstrates an injected reward mismatch.
+The second command runs the clean control.
+Actual audits use the [snapshot format](docs/snapshots.md).
+See the [laboratory commands](docs/cli.md) for exit codes and private output.
 
 ## Inspect data
 

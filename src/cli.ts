@@ -4,6 +4,7 @@ import { parseArgs } from "node:util";
 import { aggregateReport, analyzeData, estimateValue, type Analysis } from "./lib/engine.js";
 import { blankCase, demoCase, demoData } from "./lib/demo.js";
 import { assertNever, MAX_FILE_BYTES, parseCase } from "./lib/schema.js";
+import { LAB_COMMANDS, runLab } from "./lab/cli.js";
 
 type Kind = Analysis["kind"];
 type Output = { type: "stdout" } | { type: "file"; path: string };
@@ -17,9 +18,12 @@ type Command =
 class UsageError extends Error {}
 class FileError extends Error {}
 
-const help = `Avalon RL: private appraisal of RL environments and data traces.
+const help = `Avalon RL: a local laboratory for agent experience and learning worlds.
 
 Usage:
+  node dist/cli.js audit --source source.json --target learner.json [--out audit.json]
+  node dist/cli.js snapshot --data snapshot.json [--out summary.json]
+  node dist/cli.js lab-demo [--fault none|reward-shift|collapsed-ending] [--out audit.json]
   node dist/cli.js appraise --case appraisal.json --data asset-file [--out report.json]
   node dist/cli.js inspect --kind traces|environment --data asset-file [--out report.json]
   node dist/cli.js template [--kind traces|environment] [--out appraisal.json]
@@ -32,7 +36,8 @@ The script reads local files. It does not start a server or call external servic
 Inputs use the formats in docs/formats.md. Each file must not exceed 10 MiB.
 Real estimates require documented comparable transactions. Demo prices are invented.
 
-Exit codes: 0 success, 1 file or data error, 2 usage error, 3 price withheld.
+Exit codes: 0 complete, 1 file or data error, 2 usage error, 3 price withheld, 4 audit fails, 5 audit inconclusive.
+The lab-demo command completes with code 0, including an expected injected fault.
 `;
 
 function parseCommand(args: string[]): Command {
@@ -124,6 +129,7 @@ async function writeOutput(input: { output: Output; value: object }): Promise<vo
 }
 
 async function main(args: string[]): Promise<number> {
+  if (LAB_COMMANDS.includes(args[0] ?? "")) return runLab(args);
   try {
     const command = parseCommand(args);
     switch (command.type) {
