@@ -87,3 +87,18 @@ It does not measure local runtime latency.
 Its result permits no further single-action deletion.
 This guarantee does not establish a global shortest counterexample.
 The public `examples/world/claim-only.json` fixture contains only synthetic records.
+
+## Bounded counterexample search
+
+`searchWorldCounterexamples({seed, budget, maxDepth})` enumerates a hand-authored six-action alphabet for each task.
+It includes claims, ticket closure, finish, two exact payments, and one zero payment.
+Each prefix stops after finish.
+The search visits shorter sequences first and alternates tasks at each sequence index.
+It retains all evaluated cases, including agreements and false rejects.
+
+The default depth is 3 and the default budget is 1,000 candidates.
+This declaration contains 744 candidates across four tasks.
+The maximum accepted depth is 4 and the maximum budget is 10,000 candidates.
+The report gives the evaluated count, the unexplored count, and task coverage.
+An exhaustive result applies only to the declared alphabet and depth.
+No search result establishes absence of other counterexamples.
