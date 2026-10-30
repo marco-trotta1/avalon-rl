@@ -30,6 +30,9 @@ Keep producer labels free of private data.
 
 The default absolute and relative tolerances are zero.
 The numeric comparison uses `abs(source - target) <= absoluteTolerance + relativeTolerance * max(abs(source), abs(target))`.
+The calculation divides the values and absolute tolerance by their largest magnitude before comparison.
+This normalization prevents overflow for finite values near the numeric limit.
+The relative tolerance remains dimensionless.
 This rule applies recursively to numeric observations, actions, and rewards.
 The absolute tolerance covers values near zero.
 The relative tolerance scales with the larger magnitude.

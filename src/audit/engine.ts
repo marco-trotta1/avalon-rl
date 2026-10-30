@@ -58,9 +58,12 @@ export function valuesEqual({ expected, actual, policy }: {
   policy: AuditPolicy;
 }): boolean {
   if (typeof expected === "number" && typeof actual === "number") {
-    const difference = Math.abs(expected - actual);
-    const scale = Math.max(Math.abs(expected), Math.abs(actual));
-    return difference <= policy.absoluteTolerance + policy.relativeTolerance * scale;
+    const magnitude = Math.max(Math.abs(expected), Math.abs(actual));
+    const scale = Math.max(magnitude, policy.absoluteTolerance);
+    if (scale <= 0) return true;
+    const difference = Math.abs(expected / scale - actual / scale);
+    const tolerance = policy.absoluteTolerance / scale + policy.relativeTolerance * (magnitude / scale);
+    return difference <= tolerance;
   }
   if (Array.isArray(expected)) {
     return Array.isArray(actual) && expected.length === actual.length && expected.every((value, index) => {
