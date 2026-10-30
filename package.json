@@ -8,7 +8,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist", "docs", "README.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md"],
+  "files": ["dist", "docs", "examples", "README.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md"],
   "bin": { "avalon": "dist/cli.js", "avalon-rl": "dist/cli.js" },
   "scripts": {
     "build": "node scripts/build.mjs",
