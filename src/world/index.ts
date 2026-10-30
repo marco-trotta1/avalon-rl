@@ -6,3 +6,4 @@ export * from "./demo.js";
 export * from "./challenge.js";
 export * from "./search.js";
 export * from "./curriculum.js";
+export * from "./snapshot.js";

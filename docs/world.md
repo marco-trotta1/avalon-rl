@@ -122,3 +122,19 @@ The default split is training.
 Evaluation requires an explicit `split: "eval"` selection.
 Evaluation outcomes do not promote difficulty or change training task scores.
 This selector does not train a policy, update weights, or establish learning progress.
+
+## Shared experience snapshots
+
+`makeWorldSnapshot({seed, maxSteps})` exports all 20 challenge episodes through the shared `avalon.snapshot/v1` parser.
+`worldEpisodeSnapshot({id, task, receipt})` exports one replay receipt.
+Each transition preserves its observation, action, next observation, reward, and both ending signals.
+The final observation remains the actual final state.
+The reward is 1 after a completion claim and 0 before it.
+This rule intentionally permits a reward on a failed outcome.
+
+Episode metadata records the family, split, independent verdicts, reasons, stop condition, and state hashes.
+A terminated transition has bootstrap mask 0.
+A transition with truncation alone has bootstrap mask 1.
+Both ending signals remain true when they coincide.
+The snapshot marks all evidence as synthetic.
+The exporter rejects empty episodes through the shared parser.
