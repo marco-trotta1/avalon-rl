@@ -307,7 +307,7 @@ def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
     return result
 
 
-def read_mdp(path: Path) -> Mdp:
+def read_mdp_document(path: Path) -> object:
     descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
     with os.fdopen(descriptor, "rb") as source:
         if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
@@ -315,4 +315,8 @@ def read_mdp(path: Path) -> Mdp:
         payload = source.read(MAX_MDP_BYTES + 1)
     if len(payload) > MAX_MDP_BYTES:
         raise ValueError("The MDP file exceeds 64 MiB.")
-    return parse_mdp(json.loads(payload, object_pairs_hook=_unique_object))
+    return json.loads(payload, object_pairs_hook=_unique_object)
+
+
+def read_mdp(path: Path) -> Mdp:
+    return parse_mdp(read_mdp_document(path))
