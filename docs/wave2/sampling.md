@@ -33,7 +33,7 @@ Call `audit_sampling_receipts(source=source, target=target)` with parsed receipt
 The audit joins token rows by their sample ID and position.
 It checks context, coverage, sampled identity, group, complete support, membership, and selected log probability.
 Support order has no meaning.
-The default absolute log-probability tolerance is `1e-9`.
+The default absolute probability and log-probability tolerance is `1e-9`.
 This tolerance covers arithmetic rounding in synthetic examples. It is not a measured cross-engine tolerance.
 Select a measured tolerance for a real workflow.
 
@@ -71,7 +71,9 @@ The token list records affected IDs. It does not infer prompt or completion hist
 The reference applies the list in the recorded order, then normalizes over the captured support.
 
 Record the effective settings after configuration overrides.
-A changed declaration produces a processor mismatch.
+A changed declaration produces an informational diagnostic.
+When both distributions can be replayed, the audit compares their complete vocabulary probabilities.
+Different declarations with equal effective distributions do not establish an update mismatch.
 An unsupported processor produces unknown, even when both receipts name the same processor.
 Avalon does not import a named processor or reconstruct a top-p filter.
 The captured support records filtering evidence separately.
@@ -82,9 +84,24 @@ This reference does not establish a current TRL or vLLM defect.
 The audit compares the observed role and loss mask at each token key.
 Tool, context, and padding tokens must have a false loss mask.
 A policy token can have a false loss mask under a declared masking rule.
-Its sampling evidence still remains subject to comparison.
+Its captured sampling evidence remains subject to preservation checks.
+Missing probability evidence for an inactive token does not make an update check inconclusive.
 
 The audit does not require invented probabilities for nonpolicy tokens.
 It still checks their coverage, identity, group, role, and loss mask.
 Agreement between two invalid nonpolicy masks does not establish a pass.
 The supplied role remains evidence from the producer. Avalon does not independently classify the token's origin.
+
+## Describe correction impact
+
+Call `sampling_correction_impact(source=source, target=target)` for raw token and sequence importance weights.
+The log ratio is the target selected log probability minus the source selected log probability.
+The sequence log ratio sums the aligned active policy tokens.
+Inactive tokens do not enter that sum.
+Mismatched identity, group, role, mask, or missing active probability produces unknown.
+
+The result preserves a finite log ratio when its exponential underflows or overflows.
+An unavailable probability never becomes a verified ratio of one.
+These raw weights do not reproduce trainer clipping, optimizer behavior, or policy quality.
+The audit also checks the complete replayed distribution when captured.
+Equal support and equal selected probability can still hide different nonselected probabilities and gradients.

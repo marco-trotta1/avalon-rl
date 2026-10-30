@@ -62,3 +62,12 @@ def test_equal_unknown_processors_do_not_establish_a_verified_match():
     report = audit_sampling_receipts(source=parsed, target=parsed)
     assert report.status == "inconclusive"
     assert next(finding for finding in report.findings if finding.rule == "processors").status == "unknown"
+
+
+def test_different_processor_declarations_with_equal_effects_are_not_an_update_mismatch():
+    value = receipt_value()
+    value["samples"][0]["processors"] = [{"name": "temperature", "value": 2.0, "token_ids": []}]
+    target = receipt_value()
+    report = audit_sampling_receipts(source=parse_sampling_receipt(value), target=parse_sampling_receipt(target))
+    assert report.status == "pass"
+    assert any(diagnostic.code == "processor-declaration-change" for diagnostic in report.diagnostics)

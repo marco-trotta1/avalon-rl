@@ -47,3 +47,16 @@ def test_missing_logits_produce_an_unknown_replay_without_mutating_the_row():
     assert isinstance(replay_sampling_sample(parsed.samples[0]), Unavailable)
     assert audit_sampling_receipts(source=parsed, target=parsed).status == "inconclusive"
     assert value == before
+
+
+def test_full_distribution_changes_are_detected_when_support_and_selected_logprob_agree():
+    source = receipt_value()
+    row = source["samples"][0]
+    row["support"]["token_ids"] = [0, 1, 2]
+    row["raw_logits"]["values"] = [0.0, math.log(2), 0.0]
+    row["selected_logprob"]["value"] = -math.log(4)
+    target = deepcopy(source)
+    target["samples"][0]["raw_logits"]["values"] = [0.0, 0.0, math.log(2)]
+    report = audit_sampling_receipts(source=parse_sampling_receipt(source), target=parse_sampling_receipt(target))
+    assert report.status == "fail"
+    assert next(finding for finding in report.findings if finding.rule == "replayed-distribution").status == "mismatch"
