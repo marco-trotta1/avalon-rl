@@ -33,3 +33,20 @@ This split does not establish generalization to real operations.
 Protected invoices must retain their amounts and payment state.
 Completion claims and ending signals do not contribute to these checks.
 The catalog tests execute all known-good sequences with three seeds.
+
+## Replay receipts
+
+`replayWorld({initial, actions, maxSteps})` records each immutable transition and its SHA-256 state hash.
+The canonical encoding sorts object keys and retains array order.
+It rejects non-JSON values.
+The default limit is 128 transitions.
+The maximum accepted limit is 10,000 transitions.
+
+`compareReplay({expected, actual})` reports the first transition divergence.
+It compares the observations, actions, and both ending flags.
+Index `-1` identifies the initial state.
+Later indices identify transitions, starting at zero.
+A missing state is a divergence.
+Matching hashes establish repeatability of these records, not outcome correctness.
+A hash is not a signature or a source authenticity claim.
+The receipt keeps both ending flags when the step limit and termination coincide.
