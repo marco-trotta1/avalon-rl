@@ -61,3 +61,18 @@ A protected payment followed by its restoration still produces two prohibited ac
 The final-state reward accepts the restored result.
 The history-aware reward and independent outcome check reject it.
 This is a controlled synthetic case, not an upstream defect.
+
+## Equal budgets
+
+Call `train_schedule(tables, seed=7, interactions=1000, schedule="fixed")` from `avalon_lab.policy_schedule`.
+Use `schedule="random"` for uniform random task selection.
+The fixed schedule cycles through the supplied training tables.
+Task selection occurs at episode boundaries.
+Both schedules count the same action interactions, regardless of episode length.
+The task stream and action exploration stream use separate seeded generators.
+
+Each episode record includes its table hash, action sequence, interaction range, completion state, and independent training outcome.
+A budget can stop within an episode.
+The record then has no terminal outcome and adds no invented transition.
+All training artifacts must be distinct and carry the training split.
+Cross-table feature aliases must preserve the same transition and reward rules.
