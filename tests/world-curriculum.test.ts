@@ -44,3 +44,22 @@ it("does not promote difficulty from a rewarded false claim", () => {
   expect(next.maxDifficulty).toBe(1);
   expect(next.history[0]).toMatchObject({ oracleAccepted: false, verifierDisagreed: true });
 });
+
+it("selects an unseen eligible task before repeated failures and then prioritizes seen failures", () => {
+  let state = startWorldCurriculum({ seed: 7, budget: 20 });
+  for (let attempt = 0; attempt < 11; attempt++) {
+    const split = attempt < 9 ? "eval" : "train";
+    const selection = selectWorldTask({ state, split });
+    const actions = attempt < 9 ? [{ type: "claim-done" } as const] : selection.task.knownGood;
+    const receipt = replayWorld({ initial: selection.task.initial, actions });
+    const next = recordWorldOutcome({ state: selection.state, receipt });
+    if (next.phase !== "ready") throw new Error("The fixture requires remaining budget.");
+    state = next;
+  }
+  const unseen = selectWorldTask({ state, split: "eval" });
+  expect(unseen.task.id).toBe("settle-and-close");
+  const receipt = replayWorld({ initial: unseen.task.initial, actions: unseen.task.knownGood });
+  const next = recordWorldOutcome({ state: unseen.state, receipt });
+  if (next.phase !== "ready") throw new Error("The fixture requires remaining budget.");
+  expect(selectWorldTask({ state: next, split: "eval" }).task.id).toBe("close-ticket");
+});
