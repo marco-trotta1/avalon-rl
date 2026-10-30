@@ -29,9 +29,9 @@ export function replayWorld(options: {
   const transitions: WorldTransition[] = [];
   const stateHashes: string[] = [];
   let state = options.initial;
-  let stop: ReplayReceipt["stop"] = state.terminated ? "terminated" : "actions-exhausted";
+  let stop: ReplayReceipt["stop"] = state.truncated ? "truncated" : state.terminated ? "terminated" : "actions-exhausted";
   for (const action of options.actions) {
-    if (state.terminated) break;
+    if (state.status !== "active") break;
     const transition = stepWorld({ state, action, truncate: transitions.length + 1 >= maxSteps });
     transitions.push(transition);
     state = transition.nextObservation;

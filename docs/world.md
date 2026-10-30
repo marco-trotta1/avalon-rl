@@ -16,8 +16,10 @@ The actions pay an invoice, close the ticket, claim completion, or finish the ep
 Finishing does not establish success.
 The transition preserves termination and truncation as separate signals.
 Both signals can be true.
-A terminated state rejects further actions.
-The caller controls truncation and must stop after it.
+The state type distinguishes active, terminated, truncated, and simultaneous ending states.
+`stepWorld` accepts only an active state.
+Its runtime guard also rejects ended states from untyped callers.
+Truncation closes the episode, including when it coincides with termination.
 
 The tests cover deterministic resets, immutable transitions, authority evidence, and ending signals.
 All records and outcomes are synthetic.

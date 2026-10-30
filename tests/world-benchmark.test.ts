@@ -14,6 +14,8 @@ it("compares baselines against independent fixture labels and retains misses", (
     expect(result.latency.min).toBeGreaterThanOrEqual(0);
     expect(result.latency.p50).toBeLessThanOrEqual(result.latency.p95);
     expect(result.latency.p95).toBeLessThanOrEqual(result.latency.max);
+    expect(result.localComputeCostUsd).toBeNull();
+    expect(result.localComputeCostStatus).toBe("unmeasured");
     expect(result.apiCalls).toBe(0);
     expect(result.apiCostUsd).toBe(0);
   }

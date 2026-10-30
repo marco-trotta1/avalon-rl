@@ -54,6 +54,7 @@ export function runWorldBenchmark(options: { seed?: number; repetitions?: number
       falseAccepts: cases.filter(item => item.accepted && !item.expected).length,
       falseRejects: cases.filter(item => !item.accepted && item.expected).length,
       latency: latency(samples), apiCalls: 0, apiCostUsd: 0,
+      localComputeCostUsd: null, localComputeCostStatus: "unmeasured" as const,
       uncertainty: "Exact accuracy for this finite synthetic fixture set. Repetitions do not increase the accuracy sample size.",
       cases, missedCases: cases.filter(item => !item.correct),
     };
