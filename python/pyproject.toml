@@ -7,7 +7,7 @@ name = "avalon-rl-lab"
 version = "0.1.0"
 description = "Local Gymnasium and Minari preservation experiments for Avalon."
 requires-python = ">=3.13"
-dependencies = ["gymnasium==1.2.3", "numpy==2.4.2"]
+dependencies = ["gymnasium==1.2.3", "numpy==2.4.2", "minari[hdf5]==0.5.3", "h5py==3.16.0", "pillow==12.1.0", "jax==0.8.2", "jaxlib==0.8.2"]
 
 [project.optional-dependencies]
 test = ["pytest==9.0.2"]
