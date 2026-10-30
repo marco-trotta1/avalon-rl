@@ -16,6 +16,8 @@ MAX_TOKENS = 4096
 MAX_VOCABULARY = 4096
 MAX_LOGIT_VALUES = 131_072
 type Role = Literal["policy", "tool", "context", "padding"]
+type CheckStatus = Literal["match", "mismatch", "unknown"]
+type AuditStatus = Literal["pass", "fail", "inconclusive"]
 
 
 @dataclass(frozen=True)
@@ -75,6 +77,66 @@ class SamplingReceipt:
     producer: Producer
     context_hash: str
     samples: tuple[SamplingSample, ...]
+
+
+@dataclass(frozen=True)
+class SamplingFinding:
+    rule: str
+    key: tuple[str, int] | None
+    status: CheckStatus
+    detail: str
+
+
+@dataclass(frozen=True)
+class SamplingAudit:
+    status: AuditStatus
+    findings: tuple[SamplingFinding, ...]
+
+
+def audit_status(findings: tuple[SamplingFinding, ...]) -> AuditStatus:
+    if any(finding.status == "mismatch" for finding in findings):
+        return "fail"
+    if any(finding.status == "unknown" for finding in findings):
+        return "inconclusive"
+    return "pass"
+
+
+def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt, tolerance: float = 1e-9) -> SamplingAudit:
+    """Compare keyed evidence. Use an absolute log-probability tolerance."""
+    if type(tolerance) not in (int, float) or not math.isfinite(tolerance) or tolerance < 0:
+        raise ValueError("Use a finite nonnegative log-probability tolerance.")
+    findings = []
+    if source.context_hash != target.context_hash:
+        finding = SamplingFinding("context", None, "mismatch", "The receipts declare different contexts.")
+        return SamplingAudit("fail", (finding,))
+    source_rows = {row.key: row for row in source.samples}
+    target_rows = {row.key: row for row in target.samples}
+    for key in sorted(source_rows.keys() | target_rows.keys()):
+        before, after = source_rows.get(key), target_rows.get(key)
+        if before is None or after is None:
+            findings.append(SamplingFinding("coverage", key, "mismatch", "The token key occurs in only one receipt."))
+            continue
+        if before.sampled_token_id != after.sampled_token_id:
+            findings.append(SamplingFinding("sampled-token", key, "mismatch", "The sampled token ID changes."))
+            continue
+        group_status = "match" if before.group_id == after.group_id else "mismatch"
+        findings.append(SamplingFinding("group", key, group_status, "Compare the declared group for this sample."))
+        if isinstance(before.support, CapturedSupport) and isinstance(after.support, CapturedSupport):
+            support_status = "match" if set(before.support.token_ids) == set(after.support.token_ids) else "mismatch"
+            findings.append(SamplingFinding("support", key, support_status, "Compare the complete captured token supports."))
+            for label, row in (("source", before), ("target", after)):
+                membership = "match" if row.sampled_token_id in row.support.token_ids else "mismatch"
+                findings.append(SamplingFinding(f"support-membership-{label}", key, membership, "The sampled token must belong to its support."))
+        else:
+            findings.append(SamplingFinding("support", key, "unknown", "A complete captured support is unavailable."))
+        if isinstance(before.selected_logprob, Known) and isinstance(after.selected_logprob, Known):
+            distance = abs(before.selected_logprob.value - after.selected_logprob.value)
+            probability_status = "match" if distance <= tolerance else "mismatch"
+            findings.append(SamplingFinding("selected-logprob", key, probability_status, "Compare selected log probabilities with the declared absolute tolerance."))
+        else:
+            findings.append(SamplingFinding("selected-logprob", key, "unknown", "A selected log probability is unavailable."))
+    frozen = tuple(findings)
+    return SamplingAudit(audit_status(frozen), frozen)
 
 
 def _object(value: object, *, keys: set[str], path: str) -> dict[str, object]:

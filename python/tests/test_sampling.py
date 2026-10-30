@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from avalon_lab.sampling import CapturedSupport, Known, Unavailable, parse_sampling_receipt, read_sampling_receipt
+from avalon_lab.sampling import CapturedSupport, Known, Unavailable, audit_sampling_receipts, parse_sampling_receipt, read_sampling_receipt
 
 
 def receipt_value():
@@ -78,3 +78,48 @@ def test_file_reader_rejects_duplicate_keys_symlinks_and_named_pipes(tmp_path):
     os.mkfifo(pipe)
     with pytest.raises(ValueError, match="regular"):
         read_sampling_receipt(pipe)
+
+
+def test_support_audit_exposes_a_mismatch_that_selected_logprobs_cannot_reveal():
+    source = receipt_value()
+    target = deepcopy(source)
+    target["samples"][0]["support"]["token_ids"] = [0, 2]
+    report = audit_sampling_receipts(source=parse_sampling_receipt(source), target=parse_sampling_receipt(target))
+    assert report.status == "fail"
+    statuses = {finding.rule: finding.status for finding in report.findings}
+    assert statuses["support"] == "mismatch"
+    assert statuses["selected-logprob"] == "match"
+
+
+def test_alignment_uses_token_keys_and_support_order_has_no_meaning():
+    source = receipt_value()
+    second = deepcopy(source["samples"][0])
+    second["token_position"] = 1
+    source["samples"].append(second)
+    target = deepcopy(source)
+    target["samples"].reverse()
+    target["samples"][0]["support"]["token_ids"].reverse()
+    assert audit_sampling_receipts(source=parse_sampling_receipt(source), target=parse_sampling_receipt(target)).status == "pass"
+    target["samples"][0]["token_position"] = 2
+    report = audit_sampling_receipts(source=parse_sampling_receipt(source), target=parse_sampling_receipt(target))
+    assert sum(finding.rule == "coverage" for finding in report.findings) == 2
+
+
+def test_missing_evidence_is_inconclusive_and_contexts_cannot_be_joined():
+    source = receipt_value()
+    target = deepcopy(source)
+    target["samples"][0]["support"] = {"kind": "unavailable", "reason": "Not captured."}
+    assert audit_sampling_receipts(source=parse_sampling_receipt(source), target=parse_sampling_receipt(target)).status == "inconclusive"
+    target["context_hash"] = "1" * 64
+    report = audit_sampling_receipts(source=parse_sampling_receipt(source), target=parse_sampling_receipt(target))
+    assert report.status == "fail"
+    assert [finding.rule for finding in report.findings] == ["context"]
+
+
+def test_support_membership_is_not_proved_by_agreement_between_two_bad_receipts():
+    value = receipt_value()
+    value["samples"][0]["support"]["token_ids"] = [1, 2]
+    parsed = parse_sampling_receipt(value)
+    report = audit_sampling_receipts(source=parsed, target=parsed)
+    assert report.status == "fail"
+    assert sum(finding.rule.startswith("support-membership") and finding.status == "mismatch" for finding in report.findings) == 2
