@@ -4,8 +4,9 @@ import { parseSnapshotText } from "./contract.js";
 import { demoPair, type DemoFault } from "./demo.js";
 import { readLocalText, writeLocalText, type OutputDestination } from "./io.js";
 import { renderAuditHtml } from "./html.js";
+import { parseAuditReport, renderAuditMarkdown, renderAuditSarif } from "./report.js";
 
-export const LAB_COMMANDS = ["audit", "snapshot", "lab-demo"];
+export const LAB_COMMANDS = ["audit", "snapshot", "lab-demo", "report"];
 class LabUsageError extends Error {}
 
 export async function runLab(args: string[]): Promise<number> {
@@ -26,7 +27,7 @@ export async function runLab(args: string[]): Promise<number> {
     if (parsed.positionals.length !== 1) throw new LabUsageError("Supply one command.");
     const command = parsed.positionals[0];
     const allowed = command === "audit" ? ["source", "target", "out", "format"]
-      : command === "snapshot" ? ["data", "out"] : ["fault", "out", "format"];
+      : command === "snapshot" ? ["data", "out"] : command === "report" ? ["data", "out", "format"] : ["fault", "out", "format"];
     if ([...seen].some(name => !allowed.includes(name))) throw new LabUsageError("The command does not support this option.");
     const path = parsed.values.out;
     if (path !== undefined && !path.trim()) throw new LabUsageError("Supply an output path.");
@@ -34,7 +35,7 @@ export async function runLab(args: string[]): Promise<number> {
     let result: object;
     let audit: AuditReport | undefined;
     const format = parsed.values.format ?? "json";
-    if (format !== "json" && format !== "html") throw new LabUsageError("Select --format json or --format html.");
+    if (!["json", "html", "markdown", "sarif"].includes(format)) throw new LabUsageError("Select json, html, markdown, or sarif.");
     let exitCode = 0;
     switch (command) {
       case "audit": {
@@ -66,9 +67,18 @@ export async function runLab(args: string[]): Promise<number> {
         result = { ...audit, demonstration: { injectedFault: fault, seed: 7 } };
         break;
       }
-      default: throw new LabUsageError("Select audit, snapshot, or lab-demo.");
+      case "report": {
+        if (!parsed.values.data?.trim()) throw new LabUsageError("Report export requires --data.");
+        audit = parseAuditReport(await readLocalText(parsed.values.data));
+        result = audit;
+        break;
+      }
+      default: throw new LabUsageError("Select audit, snapshot, lab-demo, or report.");
     }
-    await writeLocalText({ output, text: format === "html" && audit ? renderAuditHtml(audit) : JSON.stringify(result, null, 2) + "\n" });
+    const text = format === "html" && audit ? renderAuditHtml(audit)
+      : format === "markdown" && audit ? renderAuditMarkdown(audit)
+      : JSON.stringify(format === "sarif" && audit ? renderAuditSarif(audit) : result, null, 2) + "\n";
+    await writeLocalText({ output, text });
     return exitCode;
   } catch (cause) {
     if (cause instanceof LabUsageError) {
