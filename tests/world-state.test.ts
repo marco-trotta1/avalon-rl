@@ -17,10 +17,17 @@ it("preserves simultaneous ending signals without claiming success", () => {
   const result = stepWorld({ state: resetWorld(), action: { type: "finish" }, truncate: true });
   expect(result).toMatchObject({ terminated: true, truncated: true });
   expect(result.nextObservation.ticket).toBe("open");
-  expect(() => stepWorld({ state: result.nextObservation, action: { type: "claim-done" } })).toThrow("terminated");
+  // @ts-expect-error The regression probes the runtime boundary with an ended state.
+  expect(() => stepWorld({ state: result.nextObservation, action: { type: "claim-done" } })).toThrow("ended");
 });
 
 it("rejects invalid quantities and seeds at the boundary", () => {
   for (const value of [-1, 1.5, Infinity]) expect(() => cents(value)).toThrow();
   expect(() => resetWorld({ seed: -1 })).toThrow();
+});
+
+it("rejects further actions after truncation", () => {
+  const stopped = stepWorld({ state: resetWorld(), action: { type: "claim-done" }, truncate: true });
+  // @ts-expect-error The regression probes the runtime boundary with an ended state.
+  expect(() => stepWorld({ state: stopped.nextObservation, action: { type: "close-ticket" } })).toThrow("ended");
 });

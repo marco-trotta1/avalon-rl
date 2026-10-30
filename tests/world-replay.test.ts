@@ -31,3 +31,12 @@ it("bounds replay and retains simultaneous ending flags", () => {
   expect(receipt.transitions[1]).toMatchObject({ terminated: true, truncated: true });
   expect(() => worldHash({ value: undefined })).toThrow("finite JSON");
 });
+
+it("does not resume an episode from a truncated final state", () => {
+  const task = worldTasks()[0]!;
+  const stopped = replayWorld({ initial: task.initial, actions: task.knownGood, maxSteps: 1 });
+  const resumed = replayWorld({ initial: stopped.final, actions: task.knownGood });
+  expect(resumed.stop).toBe("truncated");
+  expect(resumed.transitions).toHaveLength(0);
+  expect(resumed.final).toEqual(stopped.final);
+});

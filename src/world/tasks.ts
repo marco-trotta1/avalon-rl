@@ -1,11 +1,11 @@
-import { resetWorld, type Cents, type RecordId, type WorldAction, type WorldState } from "./state.js";
+import { resetWorld, type Cents, type RecordId, type WorldAction, type WorldState, type ActiveWorldState } from "./state.js";
 
 export type WorldTask = Readonly<{
   id: "settle-a" | "settle-b" | "close-ticket" | "settle-and-close";
   family: "invoice-settlement" | "ticket-resolution";
   split: "train" | "eval";
   difficulty: 1 | 2;
-  initial: WorldState;
+  initial: ActiveWorldState;
   goal: Readonly<{
     payment: Readonly<{ invoice: RecordId; amount: Cents }> | null;
     ticket: "open" | "closed";

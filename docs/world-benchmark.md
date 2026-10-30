@@ -19,7 +19,8 @@ The report records the seed, fixture hash, Node version, Zod version, and method
 Each method reports API calls, API cost, accuracy, false accepts, false rejects, and latency together.
 The runner has no API client.
 The API call count is 0 and the API cost is 0 USD.
-These values exclude local compute and electricity costs.
+The report sets `localComputeCostUsd` to `null` and `localComputeCostStatus` to `unmeasured`.
+Local compute and electricity costs are not measured.
 
 The latency measurement excludes fixture construction.
 It includes the check call and clock overhead.
@@ -32,14 +33,14 @@ The benchmark does not run a model or train a policy.
 ## Recorded local measurement
 
 This measurement uses seed 7, Node 22.22.3, Zod 4.6.7, and method version 1.
-The fixture hash is `e43554bbe96e3e46f6fe4a9a166bda1fae533fc8ae5ad964c69973324600fb87`.
+The fixture hash is `b8d9dfb78a007b3013b6134a9866d53b092b7fdebfc5490f0133ba6c0e2352fc`.
 Each method has 20 unique accuracy cases and 500 latency samples from 25 repetitions.
 
-| Method | Correct cases | False accepts | False rejects | Median, ms | 95th percentile, ms | API cost, USD |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| accept-all baseline | 8/20 | 12 | 0 | 0.000083 | 0.000084 | 0 |
-| weak-claim | 4/20 | 12 | 4 | 0.000125 | 0.000125 | 0 |
-| task-oracle | 20/20 | 0 | 0 | 0.013542 | 0.019750 | 0 |
+| Method | Correct cases | False accepts | False rejects | Median, ms | 95th percentile, ms | API cost, USD | Local compute cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| accept-all baseline | 8/20 | 12 | 0 | 0.000083 | 0.000084 | 0 | Unmeasured |
+| weak-claim | 4/20 | 12 | 4 | 0.000125 | 0.000125 | 0 | Unmeasured |
+| task-oracle | 20/20 | 0 | 0 | 0.014500 | 0.021083 | 0 | Unmeasured |
 
 Accuracy has no sampling uncertainty within these 20 cases.
 It provides no population confidence interval.
