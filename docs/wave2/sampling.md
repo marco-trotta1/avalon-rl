@@ -76,3 +76,15 @@ An unsupported processor produces unknown, even when both receipts name the same
 Avalon does not import a named processor or reconstruct a top-p filter.
 The captured support records filtering evidence separately.
 This reference does not establish a current TRL or vLLM defect.
+
+## Preserve the training mask
+
+The audit compares the observed role and loss mask at each token key.
+Tool, context, and padding tokens must have a false loss mask.
+A policy token can have a false loss mask under a declared masking rule.
+Its sampling evidence still remains subject to comparison.
+
+The audit does not require invented probabilities for nonpolicy tokens.
+It still checks their coverage, identity, group, role, and loss mask.
+Agreement between two invalid nonpolicy masks does not establish a pass.
+The supplied role remains evidence from the producer. Avalon does not independently classify the token's origin.
