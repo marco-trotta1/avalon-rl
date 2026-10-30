@@ -26,3 +26,25 @@ Receipts can contain sensitive model evidence.
 Keep user receipts outside Git.
 The public examples contain synthetic data only.
 Hashes bind supplied content. They do not prove that a trainer executes the recorded steps.
+
+## Compare supports
+
+Call `audit_sampling_receipts(source=source, target=target)` with parsed receipts.
+The audit joins token rows by their sample ID and position.
+It checks context, coverage, sampled identity, group, complete support, membership, and selected log probability.
+Support order has no meaning.
+The default absolute log-probability tolerance is `1e-9`.
+This tolerance covers arithmetic rounding in synthetic examples. It is not a measured cross-engine tolerance.
+Select a measured tolerance for a real workflow.
+
+The audit returns `pass`, `fail`, or `inconclusive`.
+Each check returns `match`, `mismatch`, or `unknown`.
+A known mismatch determines failure even when another check lacks evidence.
+Unavailable support cannot establish a match.
+
+The source example uses support `{0,1}` with three zero logits.
+Change the target support to `{0,2}` and keep token `0` as the sample.
+The selected log probabilities still agree at `-log(2)`.
+The support audit identifies the difference.
+This is a synthetic counterexample. It is not an upstream defect.
+An exact assertion over the complete supports identifies the same difference.

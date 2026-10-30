@@ -1,0 +1,13 @@
+{
+  "format": "avalon.sampling/v1",
+  "producer": {"name": "avalon-synthetic-trainer", "version": "1", "revision": "support-fixture-v1"},
+  "context_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "samples": [{
+    "sample_id": "support-example", "group_id": "group-1", "token_position": 0,
+    "sampled_token_id": 0, "role": "policy", "loss_mask": true,
+    "selected_logprob": {"kind": "known", "value": -0.6931471805599453},
+    "support": {"kind": "captured", "token_ids": [0, 2]},
+    "raw_logits": {"kind": "known", "values": [0, 0, 0]},
+    "processors": []
+  }]
+}
