@@ -11,7 +11,7 @@
   "files": ["dist", "docs", "README.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md"],
   "bin": { "avalon": "dist/cli.js", "avalon-rl": "dist/cli.js" },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "node scripts/build.mjs",
     "analyze": "node dist/cli.js",
     "typecheck": "tsc --noEmit",
     "test": "npm run build && vitest run",

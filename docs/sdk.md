@@ -1,16 +1,17 @@
 # TypeScript SDK
 
 Build the repository before importing the SDK.
+The build removes previous generated files before it emits JavaScript and declarations.
 The package exposes types and ESM functions.
 Importing the SDK does not start the CLI.
 
 ```ts
-import { parseSnapshot, auditSnapshots, renderAuditHtml } from "avalon-rl";
+import { parseSnapshot, auditSnapshots, renderAuditMarkdown } from "avalon-rl";
 
 const source = parseSnapshot(sourceObject);
 const target = parseSnapshot(targetObject);
 const report = auditSnapshots({ source, target });
-const html = renderAuditHtml(report);
+const text = renderAuditMarkdown(report);
 ```
 
 Parse external JSON at the boundary.

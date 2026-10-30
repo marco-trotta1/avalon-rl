@@ -22,8 +22,8 @@ class FileError extends Error {}
 const help = `Avalon RL: a local laboratory for agent experience and learning worlds.
 
 Usage:
-  node dist/cli.js audit --source source.json --target learner.json [--format json|html|markdown|sarif] [--out audit.json]
-  node dist/cli.js report --data audit.json [--format json|html|markdown|sarif] [--out report.html]
+  node dist/cli.js audit --source source.json --target learner.json [--format json|markdown|sarif] [--out audit.json]
+  node dist/cli.js report --data audit.json [--format json|markdown|sarif] [--out report.md]
   node dist/cli.js pipeline --source source.json --recorded recorded.json --target learner.json [--lineage links.json]
   node dist/cli.js witness --source source.json --target learner.json --out witness.json
   node dist/cli.js contamination --source train.json --target eval.json
@@ -33,7 +33,7 @@ Usage:
   node dist/cli.js world-curriculum [--seed 7] [--budget 8]
   node dist/cli.js world-run --data action-plan.json
   node dist/cli.js snapshot --data snapshot.json [--out summary.json]
-  node dist/cli.js lab-demo [--fault none|reward-shift|collapsed-ending] [--format json|html] [--out audit.json]
+  node dist/cli.js lab-demo [--fault none|reward-shift|collapsed-ending] [--format json|markdown|sarif] [--out audit.json]
   node dist/cli.js appraise --case appraisal.json --data asset-file [--out report.json]
   node dist/cli.js inspect --kind traces|environment --data asset-file [--out report.json]
   node dist/cli.js template [--kind traces|environment] [--out appraisal.json]

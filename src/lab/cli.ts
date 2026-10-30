@@ -5,7 +5,6 @@ import { z } from "zod";
 import { parseSnapshotText } from "./contract.js";
 import { demoPair, type DemoFault } from "./demo.js";
 import { readLocalText, writeLocalText, type OutputDestination } from "./io.js";
-import { renderAuditHtml } from "./html.js";
 import { MAX_AUDIT_REPORT_BYTES, MAX_AUDIT_REPORT_FINDINGS, parseAuditReport, renderAuditMarkdown, renderAuditSarif } from "./report.js";
 import { runWorldCommand } from "./world-command.js";
 
@@ -69,7 +68,7 @@ export async function runLab(args: string[]): Promise<number> {
     let result: object;
     let audit: AuditReport | undefined;
     const format = parsed.values.format ?? "json";
-    if (!["json", "html", "markdown", "sarif"].includes(format)) throw new LabUsageError("Select json, html, markdown, or sarif.");
+    if (!["json", "markdown", "sarif"].includes(format)) throw new LabUsageError("Select json, markdown, or sarif.");
     let exitCode = 0;
     const policy = {
       absoluteTolerance: numeric({ value: parsed.values["absolute-tolerance"], fallback: 0, max: Number.MAX_VALUE, integer: false }),
@@ -149,8 +148,7 @@ export async function runLab(args: string[]): Promise<number> {
       }
       default: { const impossible: never = command; return impossible; }
     }
-    const text = format === "html" && audit ? renderAuditHtml(audit)
-      : format === "markdown" && audit ? renderAuditMarkdown(audit)
+    const text = format === "markdown" && audit ? renderAuditMarkdown(audit)
       : JSON.stringify(format === "sarif" && audit ? renderAuditSarif(audit) : result, null, 2) + "\n";
     await writeLocalText({ output, text });
     return exitCode;

@@ -65,11 +65,10 @@ describe("laboratory commands", () => {
     expect(run([...args, "499999"]).status).toBe(1);
     expect(run([...args, "500000"]).status).toBe(2);
   });
-  it("renders an offline HTML report through the CLI", () => {
+  it("rejects UI output formats", () => {
     const result = run(["lab-demo", "--format", "html"]);
-    expect(result.status).toBe(0);
-    expect(result.stdout).toContain("<!doctype html>");
-    expect(result.stdout).toContain("Experience changed.");
+    expect(result.status).toBe(2);
+    expect(result.stdout).toBe("");
     expect(run(["lab-demo", "--format", "unknown"]).status).toBe(2);
   });
   it.each(["none", "reward-shift", "collapsed-ending"])("runs a labeled %s demonstration without network access", fault => {

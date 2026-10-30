@@ -10,5 +10,4 @@ export { auditContamination, episodeFingerprint, transitionFingerprint } from ".
 export { type PipelineReport } from "./audit/pipeline.js";
 export { type AuditWitness } from "./audit/witness.js";
 export { parseAuditReport, renderAuditMarkdown, renderAuditSarif } from "./lab/report.js";
-export { renderAuditHtml } from "./lab/html.js";
 export * from "./world/index.js";

@@ -28,21 +28,6 @@ It refuses existing files and output symlinks.
 Keep the snapshots and reports private.
 The commands call no external service.
 
-## Offline report
-
-```sh
-node dist/cli.js lab-demo --format html --out audit.html
-node dist/cli.js audit --source source.json --target learner.json --format html --out audit.html
-```
-
-Open the HTML file in a browser.
-Filter the findings by text or severity.
-Expand the field fingerprints to compare the source and target.
-The report includes no raw observations or actions.
-It uses no external scripts, fonts, or services.
-It retains producer labels, counts, and fingerprints.
-Keep the report private.
-
 ## Portable exports
 
 ```sh
