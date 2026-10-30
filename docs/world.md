@@ -21,3 +21,15 @@ The caller controls truncation and must stop after it.
 
 The tests cover deterministic resets, immutable transitions, authority evidence, and ending signals.
 All records and outcomes are synthetic.
+
+## Task catalog
+
+`worldTasks({seed})` returns four tasks with explicit goals and known-good actions.
+Two invoice tasks form the training family.
+Two ticket tasks form a separate evaluation family.
+This split does not establish generalization to real operations.
+
+`taskEvidence({task, state})` reports payment, ticket, protected-invoice, and authority evidence separately.
+Protected invoices must retain their amounts and payment state.
+Completion claims and ending signals do not contribute to these checks.
+The catalog tests execute all known-good sequences with three seeds.
