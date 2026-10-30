@@ -53,6 +53,11 @@ export function verifyTraceWitness(options: { witness: TraceWitness; sourceSnaps
   const selected = source.checks[witness.source.finding];
   if (!selected || selected.status !== "mismatch" || findingHash(selected) !== witness.bindingHash
     || contentHash(selected) !== contentHash(witness.selection)) return false;
+  const episode = sourceSnapshot.episodes[selected.episode - 1];
+  const rule = sourceContract.rules.find(item => item.id === selected.ruleId);
+  if (!episode || !rule
+    || contentHash({ ...sourceSnapshot, episodes: [episode] }) !== contentHash(witness.snapshot)
+    || contentHash({ ...sourceContract, rules: [rule] }) !== contentHash(witness.contract)) return false;
   const reduced = auditTraceContract({ snapshot: witness.snapshot, contract: witness.contract });
   return reduced.checks.length === 1 && findingHash(reduced.checks[0]!) === witness.bindingHash
     && contentHash(reduced) === contentHash(witness.audit);

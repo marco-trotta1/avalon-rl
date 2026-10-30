@@ -86,9 +86,10 @@ function outcome(options: { task: WorldTask; actions: readonly WorldAction[]; ho
   };
 }
 
-export function makeWorldMdp(options: { task: WorldTask; horizon?: number }): WorldMdp {
+export function makeWorldMdp(options: { task: WorldTask; horizon?: number; split?: WorldTask["split"] }): WorldMdp {
   const horizon = horizonSchema.parse(options.horizon ?? 4);
   const { task } = options;
+  const split = z.enum(["train", "eval"]).parse(options.split ?? task.split);
   const catalogTask = worldTasks({ seed: task.initial.seed }).find(entry => entry.id === task.id);
   if (!catalogTask || worldHash(task) !== worldHash(catalogTask)) {
     throw new Error("The MDP requires an unchanged catalog task.");
@@ -136,7 +137,7 @@ export function makeWorldMdp(options: { task: WorldTask; horizon?: number }): Wo
   });
   return {
     format: "avalon.mdp/v1", generator: { name: "avalon-operations", version: "1" }, evidence: "synthetic",
-    seed: task.initial.seed, family: task.family, split: task.split, horizon, initialState: "s0", knownGood,
+    seed: task.initial.seed, family: task.family, split, horizon, initialState: "s0", knownGood,
     task: { id: task.id, goal: task.goal, initial: {
       invoices: task.initial.invoices, ticket: task.initial.ticket, authority: task.initial.authority,
     } },
@@ -144,6 +145,6 @@ export function makeWorldMdp(options: { task: WorldTask; horizon?: number }): Wo
   };
 }
 
-export function makeWorldMdpSuite(options: { seed?: number; horizon?: number } = {}): readonly WorldMdp[] {
-  return worldTasks({ seed: options.seed }).map(task => makeWorldMdp({ task, horizon: options.horizon }));
+export function makeWorldMdpSuite(options: { seed?: number; horizon?: number; split?: WorldTask["split"] } = {}): readonly WorldMdp[] {
+  return worldTasks({ seed: options.seed }).map(task => makeWorldMdp({ task, horizon: options.horizon, split: options.split }));
 }

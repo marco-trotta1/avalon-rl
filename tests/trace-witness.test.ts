@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseSnapshot } from "../src/lab/contract.js";
 import { parseTraceContract } from "../src/trace/contract.js";
 import { buildTraceWitness, verifyTraceWitness } from "../src/trace/witness.js";
+import { auditTraceContract } from "../src/trace/audit.js";
 
 describe("selected trace witnesses", () => {
   const snapshot = parseSnapshot({ format: "avalon.snapshot/v1", stage: "source", producer: { name: "fixture", version: "1" },
@@ -32,5 +33,17 @@ describe("selected trace witnesses", () => {
     for (const finding of [0, -1, 0.5, 100]) expect(() => buildTraceWitness({ snapshot, contract, finding })).toThrow("mismatching check");
     const ambiguous = parseSnapshot({ ...snapshot, episodes: [snapshot.episodes[1], snapshot.episodes[1]] });
     expect(() => buildTraceWitness({ snapshot: ambiguous, contract })).toThrow("mismatching check");
+  });
+  it("rejects changed raw evidence and envelopes even when the finding stays equal", () => {
+    const witness = buildTraceWitness({ snapshot, contract });
+    const forgedSnapshot = structuredClone(witness.snapshot);
+    forgedSnapshot.episodes[0]!.steps[0]!.action = "invented-evidence";
+    const forged = { ...witness, snapshot: forgedSnapshot,
+      audit: auditTraceContract({ snapshot: forgedSnapshot, contract: witness.contract }) };
+    expect(verifyTraceWitness({ witness: forged, sourceSnapshot: snapshot, sourceContract: contract })).toBe(false);
+    const forgedContract = { ...witness.contract, name: "changed specification" };
+    expect(verifyTraceWitness({ witness: { ...witness, contract: forgedContract,
+      audit: auditTraceContract({ snapshot: witness.snapshot, contract: forgedContract }) },
+    sourceSnapshot: snapshot, sourceContract: contract })).toBe(false);
   });
 });

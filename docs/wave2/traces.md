@@ -63,6 +63,8 @@ The selected check must be a mismatch with unambiguous episode evidence.
 The witness retains one complete episode and one rule.
 It binds the episode identity, rule, finding code, step, and evidence hashes.
 `verifyTraceWitness({witness, sourceSnapshot, sourceContract})` checks that binding against the original supplied artifacts.
+It also binds the complete retained episode, selected rule, and source envelopes.
+Changing an unrelated action or contract name invalidates the witness, even when the selected finding stays equal.
 Changing the selected episode identity invalidates the binding, even when the replacement fails the same rule.
 
 The witness contains raw evidence. Keep the output private.
@@ -71,8 +73,8 @@ The hashes do not authenticate the original recorder.
 
 ## Finite learning tables
 
-`makeWorldMdp({task, horizon})` exports `avalon.mdp/v1` through the existing world reducer.
-`makeWorldMdpSuite({seed, horizon})` exports all existing catalog tasks.
+`makeWorldMdp({task, horizon, split})` exports `avalon.mdp/v1` through the existing world reducer.
+`makeWorldMdpSuite({seed, horizon, split})` exports all existing catalog tasks.
 The default horizon is four actions. The accepted range is one to six actions.
 The action alphabet contains exact payments, zero payments, ticket closure, a completion claim, and finish.
 The exporter does not change the world or call its known solution during search.
@@ -101,3 +103,17 @@ The exported `valid` label comes from the existing world verifier.
 That label is not independent ground truth.
 The Python evaluator must recompute goal, frame, and history outcomes from the raw observations and concrete actions.
 Training must read only training tables. Evaluation must freeze the policy before it opens evaluation tables.
+The optional `split` declares the experiment partition in envelope metadata.
+Without it, the exporter uses the catalog partition.
+An override changes no task, state, action, reward, outcome, or policy feature.
+
+## Holdout manifests
+
+`parseTraceHoldout` parses `avalon.trace-holdout/v1`.
+`auditTraceHoldout({manifest})` compares declared training and evaluation groups.
+The manifest selects disjoint task families, mutation families, or instance groups.
+The audit always checks supplied SHA-256 values for exact overlap.
+Both partitions must contain evidence. A missing partition returns `unknown`.
+Reports hash group labels instead of exposing them.
+The audit checks declarations and supplied hashes, not the underlying files.
+A manifest hash does not prove that the partition was frozen before evaluation.
