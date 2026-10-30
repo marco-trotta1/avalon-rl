@@ -40,7 +40,10 @@ The catalog tests execute all known-good sequences with three seeds.
 
 `replayWorld({initial, actions, maxSteps})` records each immutable transition and its SHA-256 state hash.
 The canonical encoding sorts object keys and retains array order.
-It rejects non-JSON values.
+It supports standard arrays and plain records with the standard object prototype or a null prototype.
+It rejects other object prototypes with the fixed error `The hash input must contain finite JSON values.`
+It rejects cycles with the fixed error `The hash input must not contain cycles.`
+Repeated child references remain valid when they do not form a cycle.
 The default limit is 128 transitions.
 The maximum accepted limit is 10,000 transitions.
 
