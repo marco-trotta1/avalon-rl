@@ -43,14 +43,27 @@ export function replayWorld(options: {
 }
 export type ReplayDivergence = Readonly<{
   matches: boolean; firstIndex: number | null; expected: string | null; actual: string | null;
+  component: "initial" | "transition" | "summary" | null;
 }>;
 export function compareReplay(options: { expected: ReplayReceipt; actual: ReplayReceipt }): ReplayDivergence {
-  const expected = [options.expected.initialHash, ...options.expected.transitions.map(worldHash)];
-  const actual = [options.actual.initialHash, ...options.actual.transitions.map(worldHash)];
-  for (let index = 0; index < Math.max(expected.length, actual.length); index++) {
-    if (expected[index] !== actual[index]) return {
-      matches: false, firstIndex: index - 1, expected: expected[index] ?? null, actual: actual[index] ?? null,
+  const { expected, actual } = options;
+  if (expected.initialHash !== actual.initialHash) return {
+    matches: false, component: "initial", firstIndex: -1,
+    expected: expected.initialHash, actual: actual.initialHash,
+  };
+  const count = Math.max(expected.transitions.length, actual.transitions.length, expected.stateHashes.length, actual.stateHashes.length);
+  for (let index = 0; index < count; index++) {
+    const expectedHash = worldHash({ transition: expected.transitions[index] ?? null, stateHash: expected.stateHashes[index] ?? null });
+    const actualHash = worldHash({ transition: actual.transitions[index] ?? null, stateHash: actual.stateHashes[index] ?? null });
+    if (expectedHash !== actualHash) return {
+      matches: false, component: "transition", firstIndex: index, expected: expectedHash, actual: actualHash,
     };
   }
-  return { matches: true, firstIndex: null, expected: null, actual: null };
+  const expectedSummary = worldHash({ final: expected.final, stop: expected.stop });
+  const actualSummary = worldHash({ final: actual.final, stop: actual.stop });
+  if (expectedSummary !== actualSummary) return {
+    matches: false, component: "summary", firstIndex: Math.max(expected.transitions.length, actual.transitions.length) - 1,
+    expected: expectedSummary, actual: actualSummary,
+  };
+  return { matches: true, component: null, firstIndex: null, expected: null, actual: null };
 }

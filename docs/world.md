@@ -45,7 +45,10 @@ The default limit is 128 transitions.
 The maximum accepted limit is 10,000 transitions.
 
 `compareReplay({expected, actual})` reports the first transition divergence.
-It compares the observations, actions, and both ending flags.
+It compares the observations, actions, both ending flags, and stored state hashes.
+It also compares the final state and stop summary.
+The `component` field distinguishes initial, transition, and summary differences.
+A summary difference uses the last transition index, or `-1` for an empty replay.
 Index `-1` identifies the initial state.
 Later indices identify transitions, starting at zero.
 A missing state is a divergence.
