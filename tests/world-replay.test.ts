@@ -30,6 +30,7 @@ it("bounds replay and retains simultaneous ending flags", () => {
   expect(receipt.stop).toBe("truncated");
   expect(receipt.transitions[1]).toMatchObject({ terminated: true, truncated: true });
   expect(() => worldHash({ value: undefined })).toThrow("finite JSON");
+  expect(() => worldHash(new Array<unknown>(1))).toThrow("finite JSON");
 });
 
 it("does not resume an episode from a truncated final state", () => {
@@ -49,4 +50,30 @@ it("detects changed receipt summaries and stored state hashes", () => {
     { ...expected, stop: "actions-exhausted" as const },
     { ...expected, stateHashes: [] },
   ]) expect(compareReplay({ expected, actual }).matches).toBe(false);
+});
+
+it.each([
+  { name: "Date", value: new Date("2026-01-01T00:00:00Z") },
+  { name: "Map", value: new Map([["paid", 100]]) },
+  { name: "Set", value: new Set([100]) },
+])("rejects unsupported $name objects with a fixed error", ({ value }) => {
+  expect(() => worldHash(value)).toThrowError(new Error("The hash input must contain finite JSON values."));
+});
+
+it("rejects cyclic object and array inputs with a fixed error", () => {
+  const record: { self?: unknown } = {};
+  record.self = record;
+  const array: unknown[] = [];
+  array.push(array);
+  for (const value of [record, array]) {
+    expect(() => worldHash(value)).toThrowError(new Error("The hash input must not contain cycles."));
+  }
+});
+
+it("preserves plain and null-prototype JSON records with canonical ordering and shared children", () => {
+  const shared = { value: [true, null, 2] };
+  const record = Object.create(null) as Record<string, unknown>;
+  record.b = shared;
+  record.a = shared;
+  expect(worldHash(record)).toBe(worldHash({ a: { value: [true, null, 2] }, b: { value: [true, null, 2] } }));
 });

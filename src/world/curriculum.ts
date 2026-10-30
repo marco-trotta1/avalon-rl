@@ -28,10 +28,14 @@ export function selectWorldTask(options: {
   const candidates = worldTasks({ seed: state.seed }).filter(task => task.split === (options.split ?? "train") && task.difficulty <= state.maxDifficulty);
   const score = (task: WorldTask): number => {
     const evidence = state.history.filter(item => item.taskId === task.id);
-    if (evidence.length === 0) return 100;
     return evidence.reduce((sum, item) => sum + (item.oracleAccepted ? -1 : 10) + (item.verifierDisagreed ? 2 : 0), 0);
   };
-  candidates.sort((left, right) => score(right) - score(left) || left.id.localeCompare(right.id, "en"));
+  candidates.sort((left, right) => {
+    const leftSeen = state.history.some(item => item.taskId === left.id);
+    const rightSeen = state.history.some(item => item.taskId === right.id);
+    if (leftSeen !== rightSeen) return leftSeen ? 1 : -1;
+    return score(right) - score(left) || left.id.localeCompare(right.id, "en");
+  });
   const task = candidates[0];
   if (!task || state.remaining < 1) throw new Error("The curriculum requires an available task and budget.");
   return {
