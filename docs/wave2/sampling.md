@@ -105,3 +105,17 @@ An unavailable probability never becomes a verified ratio of one.
 These raw weights do not reproduce trainer clipping, optimizer behavior, or policy quality.
 The audit also checks the complete replayed distribution when captured.
 Equal support and equal selected probability can still hide different nonselected probabilities and gradients.
+
+## Preserve a gradient witness
+
+Call `sampling_gradient_witness(source=source, target=target, key=(sample_id, token_position))`.
+The witness binds the context, selected token, group alignment, and complete receipt fingerprints.
+It records both supports and the gradient of the selected log probability with respect to the processed categorical logits.
+That gradient is the selected one-hot vector minus the replayed probability vector.
+
+The source and target examples have equal selected probability and a gradient L1 difference of `1.0`.
+This result uses one deterministic synthetic token and float64 arithmetic with an absolute tolerance of `1e-12`.
+An exact complete-distribution assertion identifies the same difference.
+The witness does not compute model parameter gradients, processor derivatives, an optimizer step, or policy improvement.
+Unavailable evidence, inactive tokens, and mismatched token identities cannot produce a witness.
+Keep the witness private because it contains raw model evidence.
