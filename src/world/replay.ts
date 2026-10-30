@@ -2,13 +2,24 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { stepWorld, type WorldAction, type WorldState, type WorldTransition } from "./state.js";
 
-function canonical(value: unknown): string {
+function canonical(value: unknown, ancestors = new Set<object>()): string {
   if (value === null || typeof value === "boolean" || typeof value === "string") return JSON.stringify(value);
   if (typeof value === "number" && Number.isFinite(value)) return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
   if (typeof value === "object" && value !== null) {
-    const object = value as Record<string, unknown>;
-    return `{${Object.keys(object).sort().map(key => `${JSON.stringify(key)}:${canonical(object[key])}`).join(",")}}`;
+    const array = Array.isArray(value);
+    const prototype: unknown = Object.getPrototypeOf(value);
+    if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) {
+      throw new Error("The hash input must contain finite JSON values.");
+    }
+    if (ancestors.has(value)) throw new Error("The hash input must not contain cycles.");
+    ancestors.add(value);
+    try {
+      if (array) return `[${Array.from(value, item => canonical(item, ancestors)).join(",")}]`;
+      const object = value as Record<string, unknown>;
+      return `{${Object.keys(object).sort().map(key => `${JSON.stringify(key)}:${canonical(object[key], ancestors)}`).join(",")}}`;
+    } finally {
+      ancestors.delete(value);
+    }
   }
   throw new Error("The hash input must contain finite JSON values.");
 }
