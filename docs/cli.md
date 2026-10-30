@@ -54,7 +54,8 @@ The `report` command checks that the saved summary agrees with its findings.
 It returns `0` when the export completes, including exports of failing audits.
 SARIF uses version `2.1.0` and preserves rule IDs, severity, and field fingerprints.
 The CLI does not upload the SARIF file.
-Markdown escapes supplied labels and messages.
+Markdown replaces line separators with spaces before it escapes supplied labels and messages.
+This includes CR, LF, and CRLF separators.
 All exports retain the synthetic or user-supplied evidence marker.
 
 ## Complete pipeline

@@ -42,7 +42,7 @@ export function parseAuditReport(text: string): AuditReport {
 }
 
 function markdown(value: string | number): string {
-  return String(value).replace(/\r?\n/g, " ").replace(/([\\`*_[\]{}()<>!|#])/g, "\\$1");
+  return String(value).replace(/\r\n|\r|\n/g, " ").replace(/([\\`*_[\]{}()<>!|#])/g, "\\$1");
 }
 
 export function renderAuditMarkdown(report: AuditReport): string {

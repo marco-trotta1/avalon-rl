@@ -26,4 +26,17 @@ describe("report exports", () => {
     expect(text).toContain("\\!\\[private\\]\\(remote-resource\\) \\| injected");
     expect(text).toContain("missing.evidence");
   });
+  it.each(["\r", "\n", "\r\n"])("flattens %j separators before escaping supplied Markdown", separator => {
+    const report = auditSnapshots(demoPair({ fault: "none" }));
+    const label = ["source-label", "---", "![private](remote-resource)"].join(separator);
+    report.source.producer.name = label;
+    report.limits.push(label);
+    report.summary.warnings = 1;
+    report.findings.push({ code: "supplied.label", severity: "warning", field: label, message: label });
+    const text = renderAuditMarkdown(report);
+    expect(text).toContain("Source: source-label --- \\!\\[private\\]\\(remote-resource\\) 1 (source).");
+    expect(text).toContain("| source-label --- \\!\\[private\\]\\(remote-resource\\) | source-label --- \\!\\[private\\]\\(remote-resource\\) |");
+    expect(text).toContain("- source-label --- \\!\\[private\\]\\(remote-resource\\)");
+    expect(text).not.toContain("\r");
+  });
 });
