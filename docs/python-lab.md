@@ -80,3 +80,16 @@ Use a new directory. The command refuses an existing directory.
 All generated files use mode `0600` inside a directory with mode `0700`.
 The manifest identifies controlled faults separately from upstream defects.
 See [the experiment procedure](../experiments/README.md) for measurements and limits.
+
+## Dataset split
+
+`split_grouped(snapshot, seed=7)` holds out complete task families.
+It returns train and evaluation snapshots without changing episodes or step indices.
+Episode identifiers must be unique.
+Every episode must declare the `task_family` metadata field.
+Use `group_keys=("task_family", "site", "year")` for site and time data.
+Shared values connect groups transitively across every declared key.
+The splitter rejects missing group values and datasets with only one independent group.
+The counter experiment has one family. It therefore cannot provide an independent holdout.
+The tests check episode preservation and group separation across twenty split seeds.
+The held-out fraction applies to groups. It does not promise an exact transition ratio.
