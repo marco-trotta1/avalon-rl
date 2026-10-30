@@ -108,3 +108,21 @@ The recorder copies observations before the next step or reset.
 It converts dictionary and categorical JSON values without stringification.
 Real built-in tests execute discrete, vector, and continuous-action observations.
 The sampled policy is a simple collection baseline. It is not a trained policy.
+
+## Local Minari export
+
+```sh
+avalon-python export-minari --dataset-path /tmp/my-dataset/data --task my-task --seed 7 --output /tmp/recorded.json
+```
+
+Select a local dataset directory that you own.
+The exporter reads that directory. It does not download data or recover an environment.
+The output evidence label is `user-supplied`.
+Existing Avalon identity attributes preserve original episode labels, indices, and metadata.
+Other datasets use `minari-<id>` episode labels and zero-based indices.
+The exporter preserves nested dictionary observations and categorical strings.
+It rejects nonfinite values, unequal array lengths, and missing final observations.
+Boundary errors identify the episode and nested field.
+Actual Minari tests cover dictionary observations, a text mission, and simultaneous ending signals.
+The first categorical test exposes list-valued text storage in Minari 0.5.3.
+The exporter handles that representation explicitly without numeric coercion.
