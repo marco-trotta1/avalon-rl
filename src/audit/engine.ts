@@ -10,6 +10,7 @@ export interface AuditFinding {
   code: string;
   severity: "error" | "warning" | "unknown";
   episode?: number;
+  targetEpisode?: number;
   step?: number;
   field?: string;
   message: string;
@@ -58,9 +59,12 @@ export function valuesEqual({ expected, actual, policy }: {
   policy: AuditPolicy;
 }): boolean {
   if (typeof expected === "number" && typeof actual === "number") {
-    const difference = Math.abs(expected - actual);
-    const scale = Math.max(Math.abs(expected), Math.abs(actual));
-    return difference <= policy.absoluteTolerance + policy.relativeTolerance * scale;
+    const magnitude = Math.max(Math.abs(expected), Math.abs(actual));
+    const scale = Math.max(magnitude, policy.absoluteTolerance);
+    if (scale <= 0) return true;
+    const difference = Math.abs(expected / scale - actual / scale);
+    const tolerance = policy.absoluteTolerance / scale + policy.relativeTolerance * (magnitude / scale);
+    return difference <= tolerance;
   }
   if (Array.isArray(expected)) {
     return Array.isArray(actual) && expected.length === actual.length && expected.every((value, index) => {
@@ -113,13 +117,16 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
   const sourceEpisodes = uniqueByKey({ items: source.episodes, key: episode => episode.id, duplicate: (_episode, offset) => {
     findings.push({ code: "source.episode.duplicate", severity: "error", episode: offset + 1, message: "The source repeats an episode key." });
   } });
-  const targetEpisodes = uniqueByKey({ items: target.episodes, key: episode => episode.id, duplicate: () => {
-    findings.push({ code: "target.episode.duplicate", severity: "error", message: "The target repeats an episode key." });
+  const targetEpisodes = uniqueByKey({ items: target.episodes, key: episode => episode.id, duplicate: (_episode, offset) => {
+    findings.push({ code: "target.episode.duplicate", severity: "error", targetEpisode: offset + 1, message: "The target repeats an episode key." });
   } });
   for (const [side, snapshot] of [["source", source], ["target", target]] as const) {
     snapshot.episodes.forEach((episode, offset) => {
       const sourceOffset = side === "source" ? offset : sourceEpisodes.get(episode.id)?.offset;
-      const episodeLocation = sourceOffset === undefined ? {} : { episode: sourceOffset + 1 };
+      const episodeLocation = {
+        ...(sourceOffset === undefined ? {} : { episode: sourceOffset + 1 }),
+        ...(side === "target" ? { targetEpisode: offset + 1 } : {}),
+      };
       const first = episode.steps[0];
       const last = episode.steps.at(-1);
       if (first && first.index > 0) findings.push({ code: `${side}.episode.prefix`, severity: "unknown", ...episodeLocation, step: first.index, message: "The evidence omits the episode prefix." });
@@ -134,7 +141,7 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
         else if (!valuesEqual({ expected: previous.next_observation, actual: step.observation, policy })) findings.push({ code: `${side}.continuity.changed`, severity: "error", ...location, field: "observation", message: "The next observation does not continue into the next transition.", expectedHash: contentHash(previous.next_observation), actualHash: contentHash(step.observation) });
       });
       for (const step of episode.steps) {
-        const location = { ...(sourceOffset === undefined ? {} : { episode: sourceOffset + 1 }), step: step.index, field: "bootstrap_mask" };
+        const location = { ...episodeLocation, step: step.index, field: "bootstrap_mask" };
         if (step.bootstrap_mask === undefined) {
           if (snapshot.stage === "learner") findings.push({ code: `${side}.bootstrap.unknown`, severity: "unknown", ...location, message: "The learner evidence omits the bootstrap mask." });
         } else if (step.bootstrap_mask !== (step.terminated ? 0 : 1)) {
@@ -142,7 +149,7 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
         }
       }
       uniqueByKey({ items: episode.steps, key: step => step.index, duplicate: step => {
-        findings.push({ code: `${side}.step.duplicate`, severity: "error", ...(sourceOffset === undefined ? {} : { episode: sourceOffset + 1 }), step: step.index, message: "The snapshot repeats a transition index." });
+        findings.push({ code: `${side}.step.duplicate`, severity: "error", ...episodeLocation, step: step.index, message: "The snapshot repeats a transition index." });
       } });
     });
   }
@@ -158,9 +165,9 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
     for (const field of ["task", "metadata"] as const) {
       const expectedHash = contentHash({ present: episode[field] !== undefined, value: episode[field] ?? null });
       const actualHash = contentHash({ present: other[field] !== undefined, value: other[field] ?? null });
-      if (expectedHash !== actualHash) findings.push({ code: `episode.${field}.changed`, severity: "error", episode: offset + 1, field, message: "The target changes the episode context.", expectedHash, actualHash });
+      if (expectedHash !== actualHash) findings.push({ code: `episode.${field}.changed`, severity: "error", episode: offset + 1, targetEpisode: matched.offset + 1, field, message: "The target changes the episode context.", expectedHash, actualHash });
     }
-    if (sourceEpisodePositions.get(id) !== targetEpisodePositions.get(id)) findings.push({ code: "episode.reordered", severity: "warning", episode: offset + 1, message: "The target changes the episode position." });
+    if (sourceEpisodePositions.get(id) !== targetEpisodePositions.get(id)) findings.push({ code: "episode.reordered", severity: "warning", episode: offset + 1, targetEpisode: matched.offset + 1, message: "The target changes the episode position." });
     const sourceSteps = uniqueByKey({ items: episode.steps, key: step => step.index, duplicate: () => {} });
     const targetSteps = uniqueByKey({ items: other.steps, key: step => step.index, duplicate: () => {} });
     const sourceStepPositions = new Map([...sourceSteps.keys()].filter(index => targetSteps.has(index)).map((index, offset) => [index, offset]));
@@ -168,27 +175,27 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
     for (const [index, { value: step }] of sourceSteps) {
       const matchedStep = targetSteps.get(index);
       if (!matchedStep) {
-        findings.push({ code: "step.missing", severity: "error", episode: offset + 1, step: index, message: "The target omits an unambiguous source transition." });
+        findings.push({ code: "step.missing", severity: "error", episode: offset + 1, targetEpisode: matched.offset + 1, step: index, message: "The target omits an unambiguous source transition." });
         continue;
       }
       const candidate = matchedStep.value;
-      if (sourceStepPositions.get(index) !== targetStepPositions.get(index)) findings.push({ code: "step.reordered", severity: "error", episode: offset + 1, step: index, message: "The target changes the transition position." });
+      if (sourceStepPositions.get(index) !== targetStepPositions.get(index)) findings.push({ code: "step.reordered", severity: "error", episode: offset + 1, targetEpisode: matched.offset + 1, step: index, message: "The target changes the transition position." });
       comparedSteps += 1;
       if (step.bootstrap_mask !== undefined && candidate.bootstrap_mask === undefined) {
-        findings.push({ code: "bootstrap.removed", severity: "error", episode: offset + 1, step: index, field: "bootstrap_mask", message: "The target removes a supplied bootstrap mask.", expectedHash: contentHash({ present: true, value: step.bootstrap_mask }), actualHash: contentHash({ present: false }) });
+        findings.push({ code: "bootstrap.removed", severity: "error", episode: offset + 1, targetEpisode: matched.offset + 1, step: index, field: "bootstrap_mask", message: "The target removes a supplied bootstrap mask.", expectedHash: contentHash({ present: true, value: step.bootstrap_mask }), actualHash: contentHash({ present: false }) });
       }
       for (const field of ["observation", "action", "reward", "next_observation", "terminated", "truncated"] as const) {
         const expectedHash = contentHash(step[field] ?? null);
         const actualHash = contentHash(candidate[field] ?? null);
-        if (!valuesEqual({ expected: step[field] ?? null, actual: candidate[field] ?? null, policy })) findings.push({ code: "transition.changed", severity: "error", episode: offset + 1, step: index, field, message: "The target changes a transition field.", expectedHash, actualHash });
+        if (!valuesEqual({ expected: step[field] ?? null, actual: candidate[field] ?? null, policy })) findings.push({ code: "transition.changed", severity: "error", episode: offset + 1, targetEpisode: matched.offset + 1, step: index, field, message: "The target changes a transition field.", expectedHash, actualHash });
       }
     }
     for (const index of targetSteps.keys()) {
-      if (!episode.steps.some(step => step.index === index)) findings.push({ code: "step.extra", severity: "error", episode: offset + 1, step: index, message: "The target adds a transition index." });
+      if (!episode.steps.some(step => step.index === index)) findings.push({ code: "step.extra", severity: "error", episode: offset + 1, targetEpisode: matched.offset + 1, step: index, message: "The target adds a transition index." });
     }
   }
-  for (const id of targetEpisodes.keys()) {
-    if (!source.episodes.some(episode => episode.id === id)) findings.push({ code: "episode.extra", severity: "error", message: "The target adds an episode key." });
+  for (const [id, { offset }] of targetEpisodes) {
+    if (!source.episodes.some(episode => episode.id === id)) findings.push({ code: "episode.extra", severity: "error", targetEpisode: offset + 1, message: "The target adds an episode key." });
   }
   const errors = findings.filter(finding => finding.severity === "error").length;
   const warnings = findings.filter(finding => finding.severity === "warning").length;

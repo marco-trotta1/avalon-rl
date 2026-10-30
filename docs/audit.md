@@ -21,7 +21,11 @@ Reordering compares the relative order of unambiguous shared keys.
 An omission does not create a reorder finding for the remaining keys.
 
 The report format is `avalon.audit/v1`.
-Findings identify a source episode by its one-based position.
+The optional `episode` field identifies a source episode by its one-based position.
+The optional `targetEpisode` field identifies a target episode by its one-based position.
+All target-origin findings include `targetEpisode`, including extra episodes, duplicate groups, and internal sequence failures.
+Matched comparisons include both positions.
+Source-only findings can omit the target position.
 Findings include field hashes instead of raw values or episode IDs.
 Snapshot hashes use SHA-256 and canonical JSON object keys.
 Array order remains significant.
@@ -30,6 +34,9 @@ Keep producer labels free of private data.
 
 The default absolute and relative tolerances are zero.
 The numeric comparison uses `abs(source - target) <= absoluteTolerance + relativeTolerance * max(abs(source), abs(target))`.
+The calculation divides the values and absolute tolerance by their largest magnitude before comparison.
+This normalization prevents overflow for finite values near the numeric limit.
+The relative tolerance remains dimensionless.
 This rule applies recursively to numeric observations, actions, and rewards.
 The absolute tolerance covers values near zero.
 The relative tolerance scales with the larger magnitude.

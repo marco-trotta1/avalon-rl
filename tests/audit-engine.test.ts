@@ -319,3 +319,97 @@ describe("coverage without false reordering", () => {
     expect(codes).not.toContain("episode.reordered");
   });
 });
+
+describe("finite numeric overflow", () => {
+  it("rejects an opposite-sign difference above the relative tolerance near the finite limit", async () => {
+    const { valuesEqual } = await import("../src/audit/engine.js");
+    const policy = { absoluteTolerance: 0, relativeTolerance: 1.9 };
+    expect(valuesEqual({ expected: 1e308, actual: -1e308, policy })).toBe(false);
+    expect(valuesEqual({ expected: -1e308, actual: 1e308, policy })).toBe(false);
+    const source = fixture();
+    const target = fixture("recorded");
+    source.episodes[0]!.steps[0]!.action = 1e308;
+    target.episodes[0]!.steps[0]!.action = -1e308;
+    expect(auditSnapshots({ source, target, policy }).status).toBe("fail");
+    expect(valuesEqual({ expected: 1e308, actual: -1e308, policy: { absoluteTolerance: 0, relativeTolerance: 2 } })).toBe(true);
+  });
+  it("preserves the tolerance rule across power-of-two scales and subnormal values", async () => {
+    const { valuesEqual } = await import("../src/audit/engine.js");
+    for (const exponent of [-1000, 0, 1000]) {
+      const scale = 2 ** exponent;
+      expect(valuesEqual({ expected: 4 * scale, actual: -4 * scale, policy: { absoluteTolerance: scale, relativeTolerance: 1.5 } })).toBe(false);
+      expect(valuesEqual({ expected: 4 * scale, actual: -4 * scale, policy: { absoluteTolerance: 2 * scale, relativeTolerance: 1.5 } })).toBe(true);
+    }
+    expect(valuesEqual({ expected: Number.MIN_VALUE, actual: 0, policy: { absoluteTolerance: 0, relativeTolerance: 0.5 } })).toBe(false);
+    expect(valuesEqual({ expected: Number.MIN_VALUE, actual: 0, policy: { absoluteTolerance: Number.MIN_VALUE, relativeTolerance: 0 } })).toBe(true);
+    expect(valuesEqual({ expected: 0, actual: -0, policy: { absoluteTolerance: 0, relativeTolerance: 0 } })).toBe(true);
+  });
+});
+
+describe("target witness identity", () => {
+  it("keeps the selected original extra target episode", async () => {
+    const { buildWitness } = await import("../src/audit/engine.js");
+    const source = fixture();
+    const target = parseSnapshot({ ...fixture("recorded"), episodes: [source.episodes[0], { ...source.episodes[0], id: "extra-a-private" }, { ...source.episodes[0], id: "extra-b-private" }] });
+    const report = auditSnapshots({ source, target });
+    const findingIndex = report.findings.findIndex(finding => finding.code === "episode.extra");
+    const witness = buildWitness({ source, target, report, findingIndex });
+    expect(witness.targetOrdinals).toContain(2);
+    expect(report.findings[findingIndex]).toMatchObject({ targetEpisode: 2 });
+    expect(witness.selected).toMatchObject({ targetEpisode: 2 });
+    expect(JSON.stringify(report)).not.toMatch(/extra-a-private|extra-b-private/);
+  });
+  it("keeps the selected duplicate target group", async () => {
+    const { buildWitness } = await import("../src/audit/engine.js");
+    const source = fixture();
+    const target = parseSnapshot({ ...fixture("recorded"), episodes: [source.episodes[0], ...["duplicate-a", "duplicate-a", "duplicate-b", "duplicate-b"].map(id => ({ ...source.episodes[0], id }))] });
+    const report = auditSnapshots({ source, target });
+    const findingIndex = report.findings.findIndex(finding => finding.code === "target.episode.duplicate");
+    const witness = buildWitness({ source, target, report, findingIndex });
+    expect(witness.targetOrdinals).toEqual([2, 3]);
+    expect(report.findings[findingIndex]).toMatchObject({ targetEpisode: 2 });
+  });
+  it.each(["episode.open", "episode.prefix", "step.gap", "episode.after_end", "step.order", "continuity.changed", "bootstrap.invalid", "bootstrap.unknown", "step.duplicate"] as const)("binds a target-origin %s finding to its original episode", async suffix => {
+    const { buildWitness } = await import("../src/audit/engine.js");
+    const source = fixture();
+    const step = source.episodes[0]!.steps[0]!;
+    const next = { ...step, index: 1, observation: { counter: 1 }, next_observation: { counter: 2 } };
+    const variants = {
+      "episode.open": [{ ...step, terminated: false }],
+      "episode.prefix": [{ ...step, index: 2 }],
+      "step.gap": [{ ...step, terminated: false }, { ...next, index: 2 }],
+      "episode.after_end": [step, next],
+      "step.order": [{ ...step, index: 1, terminated: false }, next, step],
+      "continuity.changed": [{ ...step, terminated: false }, { ...next, observation: { counter: 9 } }],
+      "bootstrap.invalid": [{ ...step, bootstrap_mask: 1 }],
+      "bootstrap.unknown": [step],
+      "step.duplicate": [{ ...step, terminated: false }, step],
+    };
+    const target = parseSnapshot({ ...fixture("learner"), episodes: [fixture("learner").episodes[0], ...["extra-a", "extra-b"].map(id => ({ ...source.episodes[0], id, steps: variants[suffix] }))] });
+    const report = auditSnapshots({ source, target });
+    const findingIndex = report.findings.findIndex(finding => finding.code === `target.${suffix}`);
+    expect(findingIndex).toBeGreaterThanOrEqual(0);
+    const witness = buildWitness({ source, target, report, findingIndex });
+    expect(witness.targetOrdinals).toContain(2);
+    expect(witness.targetOrdinals).not.toContain(3);
+    expect(report.findings[findingIndex]).toMatchObject({ targetEpisode: 2 });
+    const fresh = auditSnapshots({ source: witness.source, target: witness.target, policy: report.policy });
+    expect(contentHash(witness.report)).toBe(contentHash(fresh));
+  });
+});
+
+describe("target identity report compatibility", () => {
+  it("restores a legacy target position by replaying the exact selected finding index", async () => {
+    const { buildWitness } = await import("../src/audit/engine.js");
+    const source = fixture();
+    const target = parseSnapshot({ ...fixture("recorded"), episodes: [source.episodes[0], { ...source.episodes[0], id: "extra-a" }, { ...source.episodes[0], id: "extra-b" }] });
+    const report = auditSnapshots({ source, target });
+    const legacy = { ...report, findings: report.findings.map(({ targetEpisode: _targetEpisode, ...finding }) => finding) };
+    const findingIndex = legacy.findings.findIndex(finding => finding.code === "episode.extra");
+    const witness = buildWitness({ source, target, report: legacy, findingIndex });
+    expect(witness.targetOrdinals).toEqual([2]);
+    expect(witness.selected.targetEpisode).toBe(2);
+    const forged = { ...report, findings: report.findings.map((finding, index) => index === findingIndex ? { ...finding, targetEpisode: 3 } : finding) };
+    expect(() => buildWitness({ source, target, report: forged, findingIndex })).toThrow("does not reproduce");
+  });
+});

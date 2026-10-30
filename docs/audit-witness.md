@@ -13,7 +13,10 @@ The privacy label is `private-evidence`.
 The function removes episodes and transitions while the selected finding still reproduces.
 It keeps original transition indices and all selected field values.
 It records the original source and target episode positions.
-It preserves the selected code, severity, field, step, hashes, and source episode identity.
+It preserves the selected code, severity, field, step, hashes, and both episode identities.
+It maps `episode` through the source positions and `targetEpisode` through the target positions.
+A repeated failure on another target episode cannot replace the selected failure.
+For an older report without target positions, it restores the selected position from a fresh audit at the same finding index.
 It does not change the input snapshots.
 
 The reduction uses the report policy and makes at most 64 removal checks.
