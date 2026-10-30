@@ -102,3 +102,10 @@ def write_snapshot(path: Path, snapshot: Snapshot) -> None:
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(descriptor, "wb") as output:
         output.write(payload)
+
+
+def write_json(path: Path, value: object) -> None:
+    payload = (json.dumps(json_value(value), allow_nan=False, sort_keys=True, indent=2) + "\n").encode()
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "wb") as output:
+        output.write(payload)
