@@ -21,7 +21,8 @@ class FileError extends Error {}
 const help = `Avalon RL: a local laboratory for agent experience and learning worlds.
 
 Usage:
-  node dist/cli.js audit --source source.json --target learner.json [--format json|html] [--out audit.json]
+  node dist/cli.js audit --source source.json --target learner.json [--format json|html|markdown|sarif] [--out audit.json]
+  node dist/cli.js report --data audit.json [--format json|html|markdown|sarif] [--out report.html]
   node dist/cli.js snapshot --data snapshot.json [--out summary.json]
   node dist/cli.js lab-demo [--fault none|reward-shift|collapsed-ending] [--format json|html] [--out audit.json]
   node dist/cli.js appraise --case appraisal.json --data asset-file [--out report.json]

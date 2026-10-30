@@ -39,6 +39,20 @@ It uses no external scripts, fonts, or services.
 It retains producer labels, counts, and fingerprints.
 Keep the report private.
 
+## Portable exports
+
+```sh
+node dist/cli.js report --data audit.json --format markdown --out audit.md
+node dist/cli.js report --data audit.json --format sarif --out audit.sarif
+```
+
+The `report` command checks that the saved summary agrees with its findings.
+It returns `0` when the export completes, including exports of failing audits.
+SARIF uses version `2.1.0` and preserves rule IDs, severity, and field fingerprints.
+The CLI does not upload the SARIF file.
+Markdown escapes supplied labels and messages.
+All exports retain the synthetic or user-supplied evidence marker.
+
 A passing audit establishes agreement under the reported policy.
 It does not establish task success, training improvement, or market value.
 The original inspection, template, demo, and appraisal commands remain available.

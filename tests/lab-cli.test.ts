@@ -36,6 +36,16 @@ describe("laboratory commands", () => {
     expect(JSON.parse(result.stdout)).toMatchObject({ episodes: 1, transitions: 2 });
     expect(result.stdout).not.toContain("counter-7");
   });
+  it("exports a saved JSON audit to Markdown and SARIF", async () => {
+    const path = join(directory, "saved-audit.json");
+    await writeFile(path, run(["lab-demo"]).stdout);
+    const markdown = run(["report", "--data", path, "--format", "markdown"]);
+    expect(markdown.status).toBe(0);
+    expect(markdown.stdout).toContain("# Avalon experience audit");
+    const sarif = run(["report", "--data", path, "--format", "sarif"]);
+    expect(sarif.status).toBe(0);
+    expect(JSON.parse(sarif.stdout)).toHaveProperty("version", "2.1.0");
+  });
   it("renders an offline HTML report through the CLI", () => {
     const result = run(["lab-demo", "--format", "html"]);
     expect(result.status).toBe(0);
