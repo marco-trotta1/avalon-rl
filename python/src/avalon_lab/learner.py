@@ -4,7 +4,7 @@ from dataclasses import replace
 
 import numpy as np
 
-from .snapshot import Snapshot
+from .snapshot import Snapshot, reward_value
 
 
 def learner_snapshot(recorded: Snapshot) -> Snapshot:
@@ -12,7 +12,7 @@ def learner_snapshot(recorded: Snapshot) -> Snapshot:
         raise ValueError("Use a recorded snapshot for the learner adapter.")
     episodes = []
     for episode in recorded.episodes:
-        rewards = np.asarray([step.reward for step in episode.steps], dtype=np.float64)
+        rewards = np.asarray([reward_value(step.reward, path=f"episode[{episode.id}].rewards[{index}]") for index, step in enumerate(episode.steps)], dtype=np.float64)
         terminations = np.asarray([step.terminated for step in episode.steps], dtype=np.bool_)
         truncations = np.asarray([step.truncated for step in episode.steps], dtype=np.bool_)
         masks = np.logical_not(terminations).astype(np.uint8)

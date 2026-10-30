@@ -10,7 +10,7 @@ import minari
 from minari.dataset._storages.hdf5_storage import HDF5Storage
 import numpy as np
 
-from .snapshot import Episode, MAX_BYTES, MAX_STEPS, Snapshot, Step, encode, json_value
+from .snapshot import Episode, MAX_BYTES, MAX_STEPS, Snapshot, Step, encode, json_value, reward_value
 
 SPACE_FIELDS = {
     "Discrete": {"type", "dtype", "start", "n"},
@@ -131,7 +131,7 @@ def export_dataset(dataset, *, seed: int, task: str) -> Snapshot:
             indices[index],
             tree_item(episode.observations, index=index, expected_length=length + 1, path=f"{path}.observations"),
             tree_item(episode.actions, index=index, expected_length=length, path=f"{path}.actions"),
-            float(episode.rewards[index]),
+            reward_value(episode.rewards[index], path=f"{path}.rewards[{index}]"),
             tree_item(episode.observations, index=index + 1, expected_length=length + 1, path=f"{path}.observations"),
             bool(episode.terminations[index]), bool(episode.truncations[index]),
         ) for index in range(length))
