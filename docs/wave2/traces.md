@@ -38,6 +38,7 @@ It detects a protected change even when a later action restores the final value.
 The `action-allowlist` rule selects actions through its `when` path and value.
 It compares the selected action field with the declared allowed values.
 It does not trust an action's supplied authorization label.
+An empty allowed list forbids every selected action.
 Missing selected fields return `unknown` unless another action establishes a mismatch.
 An episode without a selected action matches that scoped authority rule.
 Use a separate goal rule when the task requires an action or outcome.
@@ -117,3 +118,50 @@ Both partitions must contain evidence. A missing partition returns `unknown`.
 Reports hash group labels instead of exposing them.
 The audit checks declarations and supplied hashes, not the underlying files.
 A manifest hash does not prove that the partition was frozen before evaluation.
+
+## Finite control comparison
+
+`runTraceBenchmark({seed, repetitions})` compares accept-all, weak-claim, simple-full-assertion, and Avalon trace contracts.
+The suite contains 28 synthetic cases across four existing tasks.
+It retains 12 valid plans, 12 invalid plans, and four missing-evidence views.
+The valid plans include reordered independent work and an early completion claim followed by correct work.
+The expected labels come from hand-authored mutations, not the tested verifier.
+The simple assertion independently checks the same declared final records and payment authority.
+
+The report records each verdict, exact counts, versions, hardware, artifact hash, latency samples, and API costs.
+Timing repetitions do not increase the accuracy sample size.
+Latency excludes fixture construction and includes clock overhead.
+The RSS samples do not measure peak memory. Local compute costs remain unmeasured.
+The finite suite does not estimate a production detection rate.
+A tie with the simple assertion does not establish a detection advantage.
+
+The executed seed-7 comparison gives these exact counts over 28 finite cases:
+
+| Method | Correct cases | False accepts | False rejects | Unknown verdicts | p50 ms | p95 ms | API fees USD |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Accept all | 12 | 12 | 0 | 0 | 0.000083 | 0.000166 | 0 |
+| Weak claim | 8 | 12 | 4 | 0 | 0.000166 | 0.000167 | 0 |
+| Simple full assertion | 28 | 0 | 0 | 4 | 0.026958 | 0.078959 | 0 |
+| Avalon trace contract | 28 | 0 | 0 | 4 | 0.061500 | 0.148750 | 0 |
+
+Avalon and the simple full assertion return identical verdicts on all 28 cases.
+These counts have no sampling uncertainty within the declared finite set.
+They supply no population estimate or algorithmic novelty evidence.
+The fixture hash is `9f53a70792de705902e10177c6320bca94ef685830da54447623bc8580672562`.
+The run uses Node.js 22.22.3, Zod 4.6.7, and method version 1.
+The hardware is an Apple M5 with Darwin 25.6.0 on arm64.
+Latency uses 140 observations per method: five timing repetitions of 28 cases.
+These local quantiles include clock overhead and have no estimated confidence interval.
+The runner makes zero model calls. API fees are 0 USD for every compared method.
+
+## Runnable artifacts
+
+All files in `examples/traces` contain synthetic evidence.
+`snapshot.json` retains an unauthorized payment and its restoration.
+`contract.json` checks the final state and returns `match`.
+`history-contract.json` adds payment authority and returns `mismatch` on the same snapshot.
+`pair-contract.json` declares the transformation to `paired-snapshot.json`.
+The paired audit returns `match` for that complete static transformation.
+The transformed trace is not an executed run of a renamed environment.
+`holdout.json` illustrates disjoint mutation and instance groups.
+Its hashes bind the supplied synthetic snapshot objects.

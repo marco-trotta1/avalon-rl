@@ -1,0 +1,54 @@
+{
+  "format": "avalon.trace-contract/v1",
+  "name": "Final operations outcome",
+  "rules": [
+    {
+      "id": "final-records",
+      "kind": "final-equals",
+      "path": [
+        "invoices"
+      ],
+      "expected": [
+        {
+          "id": "invoice-a",
+          "due": 102,
+          "paid": 102
+        },
+        {
+          "id": "invoice-b",
+          "due": 200,
+          "paid": 0
+        }
+      ]
+    },
+    {
+      "id": "ticket-goal",
+      "kind": "final-equals",
+      "path": [
+        "ticket"
+      ],
+      "expected": "open"
+    },
+    {
+      "id": "authority",
+      "kind": "final-equals",
+      "path": [
+        "authority"
+      ],
+      "expected": {
+        "actor": "operator",
+        "payable": [
+          "invoice-a"
+        ]
+      }
+    },
+    {
+      "id": "seed",
+      "kind": "final-equals",
+      "path": [
+        "seed"
+      ],
+      "expected": 7
+    }
+  ]
+}

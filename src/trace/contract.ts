@@ -17,7 +17,7 @@ const preserve = z.object({
 const allowlist = z.object({
   id: label, kind: z.literal("action-allowlist"),
   when: z.object({ path: tracePathSchema, equals: z.json() }).strict(),
-  path: tracePathSchema, allowed: z.array(z.json()).min(1).max(128),
+  path: tracePathSchema, allowed: z.array(z.json()).max(128),
 }).strict();
 export const traceContractSchema = z.object({
   format: z.literal("avalon.trace-contract/v1"), name: label,
