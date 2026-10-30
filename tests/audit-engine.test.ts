@@ -91,7 +91,7 @@ describe("ending and bootstrap semantics", () => {
       for (const truncated of [false, true]) {
         const source = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], steps: [{ ...fixture().episodes[0]!.steps[0], terminated, truncated }] }] });
         const target = parseSnapshot({ ...source, stage: "learner", episodes: [{ ...source.episodes[0], steps: [{ ...source.episodes[0]!.steps[0], bootstrap_mask: terminated ? 0 : 1 }] }] });
-        expect(auditSnapshots({ source, target }).status).toBe("pass");
+        expect(auditSnapshots({ source, target }).status).toBe(terminated || truncated ? "pass" : "inconclusive");
         target.episodes[0]!.steps[0]!.bootstrap_mask = terminated ? 1 : 0;
         expect(auditSnapshots({ source, target }).findings.map(item => item.code)).toContain("target.bootstrap.invalid");
       }
@@ -113,5 +113,44 @@ describe("ending and bootstrap semantics", () => {
     const fields = auditSnapshots({ source, target }).findings.map(item => item.field);
     expect(fields).toContain("terminated");
     expect(fields).toContain("truncated");
+  });
+});
+
+describe("sequence invariants", () => {
+  it("rejects internal discontinuity even when both stages contain the same corruption", () => {
+    const base = fixture();
+    const broken = parseSnapshot({ ...base, episodes: [{ ...base.episodes[0], steps: [
+      { ...base.episodes[0]!.steps[0], terminated: false },
+      { ...base.episodes[0]!.steps[0], index: 1, observation: { counter: 9 }, next_observation: { counter: 10 } },
+    ] }] });
+    const report = auditSnapshots({ source: broken, target: broken });
+    expect(report.status).toBe("fail");
+    expect(report.findings.map(item => item.code)).toContain("source.continuity.changed");
+    expect(report.findings.map(item => item.code)).toContain("target.continuity.changed");
+  });
+  it("rejects steps after either ending signal and marks incomplete evidence unknown", () => {
+    const base = fixture();
+    for (const ending of ["terminated", "truncated"] as const) {
+      const afterEnd = parseSnapshot({ ...base, episodes: [{ ...base.episodes[0], steps: [
+        { ...base.episodes[0]!.steps[0], terminated: false, [ending]: true },
+        { ...base.episodes[0]!.steps[0], index: 1, observation: { counter: 1 } },
+      ] }] });
+      expect(auditSnapshots({ source: afterEnd, target: afterEnd }).findings.map(item => item.code)).toContain("source.episode.after_end");
+    }
+    const partial = parseSnapshot({ ...base, episodes: [{ ...base.episodes[0], steps: [{ ...base.episodes[0]!.steps[0], index: 2, terminated: false }] }] });
+    const report = auditSnapshots({ source: partial, target: partial });
+    expect(report.status).toBe("inconclusive");
+    expect(report.findings.map(item => item.code)).toEqual(expect.arrayContaining(["source.episode.prefix", "source.episode.open"]));
+  });
+  it("marks a transition gap unknown without assuming adjacency", () => {
+    const base = fixture();
+    const gap = parseSnapshot({ ...base, episodes: [{ ...base.episodes[0], steps: [
+      { ...base.episodes[0]!.steps[0], terminated: false },
+      { ...base.episodes[0]!.steps[0], index: 2, observation: { counter: 2 } },
+    ] }] });
+    const report = auditSnapshots({ source: gap, target: gap });
+    expect(report.status).toBe("inconclusive");
+    expect(report.findings.map(item => item.code)).toContain("source.step.gap");
+    expect(report.findings.map(item => item.code)).not.toContain("source.continuity.changed");
   });
 });

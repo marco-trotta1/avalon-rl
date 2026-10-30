@@ -119,6 +119,20 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
   for (const [side, snapshot] of [["source", source], ["target", target]] as const) {
     snapshot.episodes.forEach((episode, offset) => {
       const sourceOffset = side === "source" ? offset : sourceEpisodes.get(episode.id)?.offset;
+      const episodeLocation = sourceOffset === undefined ? {} : { episode: sourceOffset + 1 };
+      const first = episode.steps[0];
+      const last = episode.steps.at(-1);
+      if (first && first.index > 0) findings.push({ code: `${side}.episode.prefix`, severity: "unknown", ...episodeLocation, step: first.index, message: "The evidence omits the episode prefix." });
+      if (last && !last.terminated && !last.truncated) findings.push({ code: `${side}.episode.open`, severity: "unknown", ...episodeLocation, step: last.index, message: "The evidence does not establish an episode ending." });
+      episode.steps.forEach((step, offset) => {
+        const previous = episode.steps[offset - 1];
+        if (!previous) return;
+        const location = { ...episodeLocation, step: step.index };
+        if (previous.terminated || previous.truncated) findings.push({ code: `${side}.episode.after_end`, severity: "error", ...location, message: "The episode contains a transition after an ending signal." });
+        if (step.index <= previous.index) findings.push({ code: `${side}.step.order`, severity: "error", ...location, message: "The transition indices do not increase." });
+        else if (step.index > previous.index + 1) findings.push({ code: `${side}.step.gap`, severity: "unknown", ...location, message: "The evidence omits intermediate transitions." });
+        else if (!valuesEqual({ expected: previous.next_observation, actual: step.observation, policy })) findings.push({ code: `${side}.continuity.changed`, severity: "error", ...location, field: "observation", message: "The next observation does not continue into the next transition.", expectedHash: contentHash(previous.next_observation), actualHash: contentHash(step.observation) });
+      });
       for (const step of episode.steps) {
         const location = { ...(sourceOffset === undefined ? {} : { episode: sourceOffset + 1 }), step: step.index, field: "bootstrap_mask" };
         if (step.bootstrap_mask === undefined) {

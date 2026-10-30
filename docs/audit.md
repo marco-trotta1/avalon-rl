@@ -37,3 +37,12 @@ The parser rejects nonfinite JSON numbers.
 The policy rejects negative or nonfinite tolerances.
 The audit compares supplied evidence only.
 A passing report does not establish task success or external validity.
+
+Each stage must preserve its internal sequence.
+Adjacent indices must connect the previous next observation to the current observation.
+The same numeric tolerance applies to this connection.
+A transition after termination or truncation fails the audit.
+Indices that decrease or repeat fail the audit.
+A missing prefix, an index gap, or an open ending makes the evidence inconclusive.
+The audit does not compare observations across a gap.
+Identical corruption at both stages still fails these sequence checks.
