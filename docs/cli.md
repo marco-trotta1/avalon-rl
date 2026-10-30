@@ -15,6 +15,10 @@ node dist/cli.js audit --source source.json --target learner.json --out audit.js
 The audit returns `0` for a pass, `4` for a failure, and `5` for an inconclusive result.
 File or data errors return `1`.
 Usage errors return `2`.
+Inputs must be regular UTF-8 files.
+The CLI rejects named pipes without waiting for a writer.
+Snapshot inputs have a 10 MiB limit.
+Saved audit reports have a 256 MiB limit and can contain at most 500,000 findings.
 Use `snapshot --data snapshot.json` for a format summary.
 That summary does not compare pipeline stages.
 
@@ -50,7 +54,8 @@ The `report` command checks that the saved summary agrees with its findings.
 It returns `0` when the export completes, including exports of failing audits.
 SARIF uses version `2.1.0` and preserves rule IDs, severity, and field fingerprints.
 The CLI does not upload the SARIF file.
-Markdown escapes supplied labels and messages.
+Markdown replaces line separators with spaces before it escapes supplied labels and messages.
+This includes CR, LF, and CRLF separators.
 All exports retain the synthetic or user-supplied evidence marker.
 
 ## Complete pipeline
@@ -70,6 +75,7 @@ Hash links bind supplied artifacts. They do not prove that a process runs.
 Witnesses contain raw selected evidence. Keep them private.
 Witness extraction requires a new output path.
 Use `--finding` to select a zero-based finding index.
+The index must be between `0` and `499999` and must identify an existing finding.
 The reduction preserves the selected finding within a bounded search.
 It does not prove global minimality.
 

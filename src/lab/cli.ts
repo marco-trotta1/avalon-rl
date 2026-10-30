@@ -6,7 +6,7 @@ import { parseSnapshotText } from "./contract.js";
 import { demoPair, type DemoFault } from "./demo.js";
 import { readLocalText, writeLocalText, type OutputDestination } from "./io.js";
 import { renderAuditHtml } from "./html.js";
-import { parseAuditReport, renderAuditMarkdown, renderAuditSarif } from "./report.js";
+import { MAX_AUDIT_REPORT_BYTES, MAX_AUDIT_REPORT_FINDINGS, parseAuditReport, renderAuditMarkdown, renderAuditSarif } from "./report.js";
 import { runWorldCommand } from "./world-command.js";
 
 const allowedOptions = {
@@ -104,7 +104,7 @@ export async function runLab(args: string[]): Promise<number> {
         if (output.type !== "file") throw new LabUsageError("Witness extraction requires --out because it contains raw evidence.");
         const snapshots = await pair();
         const report = auditSnapshots({ ...snapshots, policy });
-        result = buildWitness({ ...snapshots, report, findingIndex: numeric({ value: parsed.values.finding, fallback: 0, max: 150_000 }) });
+        result = buildWitness({ ...snapshots, report, findingIndex: numeric({ value: parsed.values.finding, fallback: 0, max: MAX_AUDIT_REPORT_FINDINGS - 1 }) });
         break;
       }
       case "contamination": {
@@ -133,7 +133,7 @@ export async function runLab(args: string[]): Promise<number> {
       }
       case "report": {
         if (!parsed.values.data?.trim()) throw new LabUsageError("Report export requires --data.");
-        audit = parseAuditReport(await readLocalText(parsed.values.data));
+        audit = parseAuditReport(await readLocalText(parsed.values.data, { maxBytes: MAX_AUDIT_REPORT_BYTES }));
         result = audit;
         break;
       }

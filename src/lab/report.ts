@@ -1,6 +1,9 @@
 import { z } from "zod";
 import type { AuditReport } from "../audit/engine.js";
 
+export const MAX_AUDIT_REPORT_BYTES = 256 * 1024 * 1024;
+export const MAX_AUDIT_REPORT_FINDINGS = 500_000;
+
 const count = z.number().int().nonnegative().max(1_000_000);
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
 const stage = z.object({
@@ -16,7 +19,7 @@ const reportSchema = z.object({
     code: z.string().min(1).max(120), severity: z.enum(["error", "warning", "unknown"]),
     episode: count.positive().optional(), targetEpisode: count.positive().optional(), step: count.optional(), field: z.string().max(500).optional(),
     message: z.string().max(5000), expectedHash: hash.optional(), actualHash: hash.optional(),
-  }).strict()).max(150_000),
+  }).strict()).max(MAX_AUDIT_REPORT_FINDINGS),
   limits: z.array(z.string().max(5000)).max(100),
   demonstration: z.object({ injectedFault: z.string().max(240), seed: count }).strict().optional(),
 }).strict().superRefine((report, context) => {
@@ -39,7 +42,7 @@ export function parseAuditReport(text: string): AuditReport {
 }
 
 function markdown(value: string | number): string {
-  return String(value).replace(/\r?\n/g, " ").replace(/([\\`*_[\]{}()<>!|#])/g, "\\$1");
+  return String(value).replace(/\r\n|\r|\n/g, " ").replace(/([\\`*_[\]{}()<>!|#])/g, "\\$1");
 }
 
 export function renderAuditMarkdown(report: AuditReport): string {

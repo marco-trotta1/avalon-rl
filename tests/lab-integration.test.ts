@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { demoPair } from "../src/lab/demo.js";
 import { contentHash } from "../src/audit/engine.js";
+import { parseSnapshot } from "../src/lab/contract.js";
 
 const entry = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
 const guard = fileURLToPath(new URL("./block-network.mjs", import.meta.url));
@@ -24,6 +25,32 @@ beforeAll(async () => {
 });
 afterAll(async () => { await rm(directory, { recursive: true, force: true }); });
 describe("complete laboratory CLI", () => {
+  it("exports a generated report above the snapshot byte and old finding limits", async () => {
+    const pair = demoPair({ fault: "none" });
+    const paths: Record<"source" | "target", string> = {
+      source: join(directory, "large-source.json"), target: join(directory, "large-target.json"),
+    };
+    for (const side of ["source", "target"] as const) {
+      const changed = side === "target";
+      const snapshot = parseSnapshot({
+        ...pair[side],
+        episodes: [{ ...pair[side].episodes[0], steps: Array.from({ length: 20_000 }, (_, index) => ({
+          index, observation: changed ? 1 : 0, action: changed ? 1 : 0, reward: changed ? 1 : 0,
+          next_observation: changed ? 1 : 0, terminated: changed, truncated: changed, bootstrap_mask: 1,
+        })) }],
+      });
+      await writeFile(paths[side], JSON.stringify(snapshot));
+      expect((await stat(paths[side])).size).toBeLessThan(10 * 1024 * 1024);
+    }
+    const audit = join(directory, "large-audit.json");
+    expect(run(["audit", "--source", paths.source, "--target", paths.target, "--out", audit]).status).toBe(4);
+    expect((await stat(audit)).size).toBeGreaterThan(10 * 1024 * 1024);
+    const saved = JSON.parse(await readFile(audit, "utf8")) as { findings: unknown[] };
+    expect(saved.findings).toHaveLength(160_000);
+    const output = join(directory, "large-audit.md");
+    expect(run(["report", "--data", audit, "--format", "markdown", "--out", output]).status).toBe(0);
+    expect(await readFile(output, "utf8")).toContain("Compared transitions: 20000.");
+  }, 15_000);
   it("keeps missing lineage inconclusive and validates explicit hash links", () => {
     const args = ["pipeline", "--source", join(directory, "source.json"), "--recorded", join(directory, "recorded.json"), "--target", join(directory, "target.json")];
     expect(run(args).status).toBe(5);

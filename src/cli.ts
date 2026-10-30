@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { open } from "node:fs/promises";
+import { constants } from "node:fs";
 import { parseArgs } from "node:util";
 import { aggregateReport, analyzeData, estimateValue, type Analysis } from "./lib/engine.js";
 import { blankCase, demoCase, demoData } from "./lib/demo.js";
@@ -42,7 +43,8 @@ Output is JSON. Without --out, output goes to stdout.
 Template and demo use traces unless --kind selects environment.
 Existing output files are never replaced. New files use owner-only permissions.
 The script reads local files. It does not start a server or call external services.
-Inputs use the formats in docs/formats.md. Each file must not exceed 10 MiB.
+Inputs use the formats in docs/formats.md.
+Saved audit reports must not exceed 256 MiB or 500,000 findings. Other inputs must not exceed 10 MiB.
 Real estimates require documented comparable transactions. Demo prices are invented.
 
 Exit codes: 0 complete, 1 file or data error, 2 usage error, 3 price withheld, 4 audit fails, 5 audit inconclusive.
@@ -96,7 +98,7 @@ function parseCommand(args: string[]): Command {
 
 async function readInput(input: { path: string; label: "appraisal" | "data" }): Promise<string> {
   try {
-    const file = await open(input.path, "r");
+    const file = await open(input.path, constants.O_RDONLY | constants.O_NONBLOCK);
     try {
       if (!(await file.stat()).isFile()) throw new FileError(`The ${input.label} input must be a regular file.`);
       const buffer = Buffer.alloc(MAX_FILE_BYTES + 1);
