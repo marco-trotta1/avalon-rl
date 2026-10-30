@@ -6,6 +6,7 @@ Base commit: `4f6325d27642b741e0cb3a7f779320430041ab4c`.
 This ledger records 47 constituent PRs from the authorized swarm build.
 Git ancestry checks confirm that every listed head is in the assembled release history.
 The final assembly PR adds the CLI-only scope, learning guide, strategy, and measured evidence.
+The [assembly PR #48](https://github.com/marco-trotta1/avalon-rl/pull/48) contains the complete product and all listed heads.
 The table distinguishes a merged PR from a contribution included through the assembled history.
 The HTML viewer in PR #19 is superseded. The release contains no UI or site.
 

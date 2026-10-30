@@ -1,8 +1,14 @@
 {
+  "assembly_pr": "https://github.com/marco-trotta1/avalon-rl/pull/48",
   "base_commit": "4f6325d27642b741e0cb3a7f779320430041ab4c",
   "checks": {
     "diff_check": "pass",
-    "final_assembly_hosted_ci": "pending",
+    "final_assembly_hosted_ci": {
+      "head": "8cd2e5145c4ae328ab186d6b6896bcee157848d5",
+      "run": "https://github.com/marco-trotta1/avalon-rl/actions/runs/41086488823",
+      "scope": "The implementation matches the recorded source hashes. Later receipt changes affect documentation only.",
+      "status": "success"
+    },
     "hosted_ci_fix": {
       "head": "6b5bfaa7357ac91e93f5cee59346c2a9e7c34bb7",
       "node_tests": 143,

@@ -64,7 +64,7 @@ No production detection rate or policy improvement is established.
 Independent reviews find and correct audit, witness, world, export, and CLI boundary defects.
 The hosted Python failure comes from missing local package metadata.
 The correction passes hosted run `41084218750`.
-The final assembly receives a separate hosted run after publication.
+The final assembly passes hosted run `41086488823` at commit `8cd2e5145c4ae328ab186d6b6896bcee157848d5`.
 
 The user excludes UI and site work.
 The assembly removes the HTML renderer, its export option, and its documentation.
