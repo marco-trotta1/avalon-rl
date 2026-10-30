@@ -137,3 +137,41 @@ The reduction does not reproduce group advantages or a sequence correction from 
 Use `write_sampling_json(path, value)` to create a new owner-only JSON file.
 The writer preserves existing paths and rejects non-finite JSON values.
 Its output limit is 32 MiB.
+
+## Run the synthetic census
+
+Call `run_sampling_benchmark(seed=7)` and save the result with the private JSON writer.
+The census contains 76 cases across 19 families, with four variants per family.
+It contains 36 known mismatches, 24 clean controls, and 16 cases with insufficient evidence.
+Development and reserved families have different names.
+The reserved families are authored with this implementation. They are not an independent blind evaluation.
+
+The comparison includes selected-logprob equality, a complete-support assertion, an independent dense categorical assertion, and Avalon.
+The complete-support assertion also checks token identity, group, role, and mask.
+The dense assertion additionally checks full distributions and consistency with recorded probabilities.
+The result retains every case, expected status, observed status, fixture hash, seed, implementation hash, and version.
+It records latency per method, API cost, hardware, and the Python allocation peak.
+It does not estimate local electricity cost or whole-process memory.
+
+The census establishes no detection advantage over the dense categorical assertion.
+It does not establish production error rates, interoperability with a live trainer, or policy improvement.
+The baseline misses remain in the result. No failed case is removed.
+
+The executed seed-7 census uses Python 3.13.5 on arm64 macOS.
+The fixture snapshot hash is `1473ec448493d503b7bd13c1f0da2f67fa91f25b9840467be1f3067428ee5c26`.
+The installed Avalon distribution reports version `0.1.0` during this source experiment.
+The result also records the benchmark module hash to identify the executed source.
+
+| Method | Correct statuses | Detected mismatches | False alarms | Unknowns | p50 milliseconds | p95 milliseconds |
+| --- | --- | --- | --- | --- | --- | --- |
+| Selected log probability | 40/76 | 12/36 | 0/24 | 4 | 0.003334 | 0.004000 |
+| Complete support and mask | 48/76 | 20/36 | 0/24 | 4 | 0.006834 | 0.007583 |
+| Dense categorical assertion | 76/76 | 36/36 | 0/24 | 16 | 0.025730 | 0.052000 |
+| Avalon | 76/76 | 36/36 | 0/24 | 16 | 0.088979 | 0.109875 |
+
+Each timing contains 76 heterogeneous method calls from one run with allocation tracing enabled.
+The whole benchmark reaches a traced Python allocation peak of 144563 bytes.
+All methods use zero external API calls and incur zero API cost in USD.
+Local electricity cost remains unmeasured.
+No repeated-run interval or production confidence interval is estimated from this fixed census.
+The result establishes baseline parity and a portable explanation, not a measured workflow benefit.

@@ -108,3 +108,35 @@ Same-family evaluation uses new generator seeds within a training family.
 Family evaluation uses new seeds and a separate family.
 Report these partitions separately.
 The full reachable training table does not support a mutation-family holdout claim.
+
+## Frozen experiment
+
+`run_policy_experiment` accepts keyword arguments: `train_paths`, `same_family_paths`, `family_paths`, `output`, and optional `plan`.
+Each path collection is a tuple of `Path` objects.
+Select a new output directory.
+The runner writes the plan and manifest before it updates a parameter.
+It keeps every condition, seed, update receipt, policy, episode, and control.
+A failure leaves the completed receipts and a failure record.
+
+The approved plan uses learner seeds 0 through 19 and 2,400 actions per arm and schedule.
+The horizon is 4. The learning rate is 0.3, the discount is 0.95, and epsilon is 0.2.
+The arms are `claim`, `final`, and `history`.
+The schedules are `fixed`, `random`, and `disagreement`.
+Training uses both invoice tasks at generator seeds 7 and 8.
+Same-family evaluation uses both invoice tasks at seeds 1007 through 1010.
+Family evaluation uses both ticket tasks at seeds 2007 through 2010.
+The evaluation seed is `(1000003 + learner_seed * 4099 + table_index * 131) % 2**32`.
+All conditions use the same evaluation seed rule.
+
+Paired comparisons resample whole learner seeds 2,000 times with bootstrap seed 104729.
+The interval conditions on this fixed synthetic task suite.
+Task repeats do not increase the number of seed clusters.
+Exact fixture counts carry no population interval.
+The history reward is the simplest complete assertion baseline.
+The comparison can show parity with that baseline.
+
+The report records per-run time, total time, the process memory peak, versions, hardware, and content hashes.
+The memory peak includes the interpreter and earlier imports.
+API calls and API fees are zero because this runner has no model or network client.
+Local compute costs remain unpriced.
+The report preserves intervals that include zero and every failed learning condition.

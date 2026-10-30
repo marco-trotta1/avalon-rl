@@ -57,4 +57,11 @@ describe("finite world MDP", () => {
     expect(() => makeWorldMdp({ task: { ...task, initial: { ...task.initial, claimedDone: true } } }))
       .toThrow("unchanged catalog task");
   });
+  it("changes only envelope metadata when an experiment declares an evaluation role", () => {
+    const task = worldTasks({ seed: 1007 })[0]!;
+    const training = makeWorldMdp({ task, horizon: 4 });
+    const evaluation = makeWorldMdp({ task, horizon: 4, split: "eval" });
+    expect(evaluation).toEqual({ ...training, split: "eval" });
+    expect(task.split).toBe("train");
+  });
 });
