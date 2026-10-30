@@ -5,7 +5,7 @@ import { parseSnapshot, type Snapshot } from "../src/lab/contract.js";
 export function fixture(stage: Snapshot["stage"] = "source"): Snapshot {
   return parseSnapshot({
     format: "avalon.snapshot/v1", stage, producer: { name: "fixture", version: "1" }, seed: 7, evidence: "synthetic",
-    episodes: [{ id: "private-episode", task: "counter", steps: [{ index: 0, observation: { counter: 0 }, action: "increment", reward: 1, next_observation: { counter: 1 }, terminated: true, truncated: false }] }],
+    episodes: [{ id: "private-episode", task: "counter", steps: [{ index: 0, observation: { counter: 0 }, action: "increment", reward: 1, next_observation: { counter: 1 }, terminated: true, truncated: false, ...(stage === "learner" ? { bootstrap_mask: 0 } : {}) }] }],
   });
 }
 
@@ -82,5 +82,36 @@ describe("key coverage", () => {
     const reversed = parseSnapshot({ ...twoSteps, episodes: [{ ...twoSteps.episodes[0], steps: [...twoSteps.episodes[0]!.steps].reverse() }] });
     expect(auditSnapshots({ source: twoSteps, target: reversed }).findings.map(item => item.code)).toContain("step.reordered");
     expect(auditSnapshots({ source: twoSteps, target: reversed }).summary.comparedSteps).toBe(2);
+  });
+});
+
+describe("ending and bootstrap semantics", () => {
+  it("allows a learner to derive the correct mask from independent ending signals", () => {
+    for (const terminated of [false, true]) {
+      for (const truncated of [false, true]) {
+        const source = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], steps: [{ ...fixture().episodes[0]!.steps[0], terminated, truncated }] }] });
+        const target = parseSnapshot({ ...source, stage: "learner", episodes: [{ ...source.episodes[0], steps: [{ ...source.episodes[0]!.steps[0], bootstrap_mask: terminated ? 0 : 1 }] }] });
+        expect(auditSnapshots({ source, target }).status).toBe("pass");
+        target.episodes[0]!.steps[0]!.bootstrap_mask = terminated ? 1 : 0;
+        expect(auditSnapshots({ source, target }).findings.map(item => item.code)).toContain("target.bootstrap.invalid");
+      }
+    }
+  });
+  it("distinguishes missing learner masks, removed supplied masks, and valid truncation", () => {
+    const source = fixture();
+    const learner = parseSnapshot({ ...source, stage: "learner" });
+    expect(auditSnapshots({ source, target: learner }).status).toBe("inconclusive");
+    expect(auditSnapshots({ source, target: learner }).findings.map(item => item.code)).toContain("target.bootstrap.unknown");
+    const supplied = parseSnapshot({ ...source, episodes: [{ ...source.episodes[0], steps: [{ ...source.episodes[0]!.steps[0], bootstrap_mask: 0 }] }] });
+    expect(auditSnapshots({ source: supplied, target: fixture("recorded") }).findings.map(item => item.code)).toContain("bootstrap.removed");
+    const truncated = parseSnapshot({ ...source, episodes: [{ ...source.episodes[0], steps: [{ ...source.episodes[0]!.steps[0], terminated: false, truncated: true, bootstrap_mask: 1 }] }] });
+    expect(auditSnapshots({ source: truncated, target: truncated }).status).toBe("pass");
+  });
+  it("detects conflated termination and truncation even when their union matches", () => {
+    const source = fixture();
+    const target = parseSnapshot({ ...fixture("recorded"), episodes: [{ ...source.episodes[0], steps: [{ ...source.episodes[0]!.steps[0], terminated: false, truncated: true }] }] });
+    const fields = auditSnapshots({ source, target }).findings.map(item => item.field);
+    expect(fields).toContain("terminated");
+    expect(fields).toContain("truncated");
   });
 });

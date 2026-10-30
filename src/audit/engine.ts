@@ -119,6 +119,14 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
   for (const [side, snapshot] of [["source", source], ["target", target]] as const) {
     snapshot.episodes.forEach((episode, offset) => {
       const sourceOffset = side === "source" ? offset : sourceEpisodes.get(episode.id)?.offset;
+      for (const step of episode.steps) {
+        const location = { ...(sourceOffset === undefined ? {} : { episode: sourceOffset + 1 }), step: step.index, field: "bootstrap_mask" };
+        if (step.bootstrap_mask === undefined) {
+          if (snapshot.stage === "learner") findings.push({ code: `${side}.bootstrap.unknown`, severity: "unknown", ...location, message: "The learner evidence omits the bootstrap mask." });
+        } else if (step.bootstrap_mask !== (step.terminated ? 0 : 1)) {
+          findings.push({ code: `${side}.bootstrap.invalid`, severity: "error", ...location, message: "The bootstrap mask conflicts with the termination signal." });
+        }
+      }
       uniqueByKey({ items: episode.steps, key: step => step.index, duplicate: step => {
         findings.push({ code: `${side}.step.duplicate`, severity: "error", ...(sourceOffset === undefined ? {} : { episode: sourceOffset + 1 }), step: step.index, message: "The snapshot repeats a transition index." });
       } });
@@ -143,7 +151,10 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
       const candidate = matchedStep.value;
       if (stepOffset !== matchedStep.offset) findings.push({ code: "step.reordered", severity: "error", episode: offset + 1, step: index, message: "The target changes the transition position." });
       comparedSteps += 1;
-      for (const field of ["observation", "action", "reward", "next_observation", "terminated", "truncated", "bootstrap_mask"] as const) {
+      if (step.bootstrap_mask !== undefined && candidate.bootstrap_mask === undefined) {
+        findings.push({ code: "bootstrap.removed", severity: "error", episode: offset + 1, step: index, field: "bootstrap_mask", message: "The target removes a supplied bootstrap mask.", expectedHash: contentHash({ present: true, value: step.bootstrap_mask }), actualHash: contentHash({ present: false }) });
+      }
+      for (const field of ["observation", "action", "reward", "next_observation", "terminated", "truncated"] as const) {
         const expectedHash = contentHash(step[field] ?? null);
         const actualHash = contentHash(candidate[field] ?? null);
         if (!valuesEqual({ expected: step[field] ?? null, actual: candidate[field] ?? null, policy })) findings.push({ code: "transition.changed", severity: "error", episode: offset + 1, step: index, field, message: "The target changes a transition field.", expectedHash, actualHash });
