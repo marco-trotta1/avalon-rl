@@ -5,7 +5,7 @@ import hashlib
 import json
 import math
 
-from .sampling import CapturedSupport, SamplingReceipt, Unavailable
+from .sampling import SamplingReceipt, Unavailable
 from .sampling_math import replay_sampling_sample
 
 

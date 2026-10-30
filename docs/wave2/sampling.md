@@ -119,3 +119,21 @@ An exact complete-distribution assertion identifies the same difference.
 The witness does not compute model parameter gradients, processor derivatives, an optimizer step, or policy improvement.
 Unavailable evidence, inactive tokens, and mismatched token identities cannot produce a witness.
 Keep the witness private because it contains raw model evidence.
+
+## Write reports and private evidence
+
+Call `sampling_report_dict(source=source, target=target)` for a JSON report.
+The report contains immutable group summaries, check results, correction summaries, and receipt fingerprints.
+It omits raw logits, support IDs, token IDs, and sample or group labels.
+It retains the supplied producer labels.
+Hashed labels are stable references. They do not establish anonymity.
+
+Call `sampling_witness_dict(source=source, target=target, key=(sample_id, token_position))` for private reproducing evidence.
+The witness keeps one selected row from each receipt.
+It records the original receipt fingerprints and the reduced receipt fingerprints separately.
+The selected categorical gradient can be reproduced from those reduced receipts.
+The reduction does not reproduce group advantages or a sequence correction from omitted tokens.
+
+Use `write_sampling_json(path, value)` to create a new owner-only JSON file.
+The writer preserves existing paths and rejects non-finite JSON values.
+Its output limit is 32 MiB.
