@@ -9,7 +9,7 @@ export type TraceCheck = Readonly<{
 }>;
 export type TraceAudit = Readonly<{
   format: "avalon.trace-audit/v1"; status: TraceStatus; snapshotHash: string; contractHash: string;
-  checks: readonly TraceCheck[];
+  checks: readonly TraceCheck[]; issues: readonly string[];
   summary: Readonly<{ episodes: number; matches: number; mismatches: number; unknowns: number; rewardedMismatches: number }>;
   limits: readonly string[];
 }>;
@@ -35,7 +35,7 @@ function traceIntegrity(episode: EpisodeSnapshot): "complete" | "incomplete" | "
   return incomplete ? "incomplete" : "complete";
 }
 
-function finalRule(options: { episode: EpisodeSnapshot; rule: TraceRule }): Omit<TraceCheck, "episode" | "episodeHash" | "ruleId"> {
+function checkRule(options: { episode: EpisodeSnapshot; rule: TraceRule }): Omit<TraceCheck, "episode" | "episodeHash" | "ruleId"> {
   const { episode, rule } = options;
   const final = episode.steps.at(-1)!.next_observation;
   switch (rule.kind) {
@@ -47,15 +47,35 @@ function finalRule(options: { episode: EpisodeSnapshot; rule: TraceRule }): Omit
         expectedHash: contentHash(rule.expected), actualHash: contentHash(actual.value) };
     }
     case "preserve": {
-      if (rule.scope !== "final") return { status: "unknown", code: "rule.unsupported" };
       const before = resolveTracePath({ value: episode.steps[0]!.observation, path: rule.path });
-      const after = resolveTracePath({ value: final, path: rule.path });
-      if (before.status === "missing" || after.status === "missing") return { status: "unknown", code: "evidence.missing" };
-      const matches = traceValuesEqual({ expected: before.value, actual: after.value, tolerance: rule.tolerance });
-      return { status: matches ? "match" : "mismatch", code: matches ? "frame.matched" : "frame.changed",
-        expectedHash: contentHash(before.value), actualHash: contentHash(after.value) };
+      if (before.status === "missing") return { status: "unknown", code: "evidence.missing" };
+      const steps = rule.scope === "final" ? [episode.steps.at(-1)!] : episode.steps;
+      let missing = false;
+      for (const step of steps) {
+        const after = resolveTracePath({ value: step.next_observation, path: rule.path });
+        if (after.status === "missing") { missing = true; continue; }
+        if (!traceValuesEqual({ expected: before.value, actual: after.value, tolerance: rule.tolerance })) return {
+          status: "mismatch", code: rule.scope === "final" ? "frame.changed" : "history.changed", step: step.index,
+          expectedHash: contentHash(before.value), actualHash: contentHash(after.value),
+        };
+      }
+      return missing ? { status: "unknown", code: "evidence.missing" } : { status: "match", code: "frame.matched" };
     }
-    case "action-allowlist": return { status: "unknown", code: "rule.unsupported" };
+    case "action-allowlist": {
+      let missing = false;
+      for (const step of episode.steps) {
+        const trigger = resolveTracePath({ value: step.action, path: rule.when.path });
+        if (trigger.status === "missing") { missing = true; continue; }
+        if (!traceValuesEqual({ expected: rule.when.equals, actual: trigger.value })) continue;
+        const actual = resolveTracePath({ value: step.action, path: rule.path });
+        if (actual.status === "missing") { missing = true; continue; }
+        if (!rule.allowed.some(expected => traceValuesEqual({ expected, actual: actual.value }))) return {
+          status: "mismatch", code: "authority.exceeded", step: step.index,
+          expectedHash: contentHash(rule.allowed), actualHash: contentHash(actual.value),
+        };
+      }
+      return missing ? { status: "unknown", code: "evidence.missing" } : { status: "match", code: "authority.matched" };
+    }
     default: { const exhaustive: never = rule; return exhaustive; }
   }
 }
@@ -63,6 +83,7 @@ function finalRule(options: { episode: EpisodeSnapshot; rule: TraceRule }): Omit
 export function auditTraceContract(options: { snapshot: Snapshot; contract: TraceContract }): TraceAudit {
   const { snapshot, contract } = options;
   const checks: TraceCheck[] = [];
+  const issues = [...(snapshot.episodes.length === 0 ? ["snapshot.empty"] : []), ...(contract.rules.length === 0 ? ["contract.empty"] : [])];
   const counts = new Map<string, number>();
   for (const episode of snapshot.episodes) counts.set(episode.id, (counts.get(episode.id) ?? 0) + 1);
   snapshot.episodes.forEach((episode, offset) => {
@@ -71,14 +92,14 @@ export function auditTraceContract(options: { snapshot: Snapshot; contract: Trac
       const location = { episode: offset + 1, episodeHash: contentHash({ id: episode.id, task: episode.task }), ruleId: rule.id };
       if (counts.get(episode.id) !== 1) checks.push({ ...location, status: "unknown", code: "episode.ambiguous" });
       else if (integrity !== "complete") checks.push({ ...location, status: "unknown", code: `trace.${integrity}` });
-      else checks.push({ ...location, ...finalRule({ episode, rule }) });
+      else checks.push({ ...location, ...checkRule({ episode, rule }) });
     }
   });
   const mismatches = checks.filter(check => check.status === "mismatch").length;
-  const unknowns = checks.filter(check => check.status === "unknown").length;
+  const unknowns = checks.filter(check => check.status === "unknown").length + issues.length;
   return {
     format: "avalon.trace-audit/v1", status: mismatches > 0 ? "mismatch" : unknowns > 0 ? "unknown" : "match",
-    snapshotHash: contentHash(snapshot), contractHash: contentHash(contract), checks,
+    snapshotHash: contentHash(snapshot), contractHash: contentHash(contract), checks, issues,
     summary: {
       episodes: snapshot.episodes.length, matches: checks.filter(check => check.status === "match").length, mismatches, unknowns,
       rewardedMismatches: snapshot.episodes.filter((episode, index) => episode.steps.some(step => step.reward > 0)

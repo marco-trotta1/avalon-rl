@@ -41,4 +41,9 @@ describe("final outcome contracts", () => {
     snapshot.episodes[0]!.steps.push(stepSchema.parse({ ...first, index: 1, observation: { altered: true }, terminated: true }));
     expect(auditTraceContract({ snapshot, contract }).checks.every(check => check.code === "trace.invalid")).toBe(true);
   });
+  it("keeps an absent episode unknown for typed callers", () => {
+    const snapshot = traceFixture();
+    snapshot.episodes = [];
+    expect(auditTraceContract({ snapshot, contract }).status).toBe("unknown");
+  });
 });

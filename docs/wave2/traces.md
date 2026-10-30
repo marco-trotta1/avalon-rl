@@ -29,6 +29,18 @@ These cases do not establish a correct final outcome.
 Reports retain hashes and rule identifiers. They omit raw observations, actions, and episode identifiers.
 An episode with positive reward and a mismatch counts as a rewarded disagreement.
 That count does not establish why the reward differs from the rule.
+An absent episode or empty rule set returns `unknown`, including for typed SDK callers.
+
+## History and authority
+
+The `preserve` rule with `scope: "every-step"` checks every next observation against the initial value.
+It detects a protected change even when a later action restores the final value.
+The `action-allowlist` rule selects actions through its `when` path and value.
+It compares the selected action field with the declared allowed values.
+It does not trust an action's supplied authorization label.
+Missing selected fields return `unknown` unless another action establishes a mismatch.
+An episode without a selected action matches that scoped authority rule.
+Use a separate goal rule when the task requires an action or outcome.
 
 ## Finite learning tables
 
