@@ -40,3 +40,24 @@ The final policy has immutable weights and a content hash.
 A tolerance of `1e-12` groups greedy ties caused by float64 rounding.
 The method is ordinary tabular Q-learning.
 No new learning algorithm is claimed.
+
+## Rewards and independent outcomes
+
+The same transition table supplies `claim`, `final`, and `history` reward columns.
+Each arm uses identical dynamics and the same action budget.
+`evaluate_policy` freezes the policy and uses a separate evaluation random stream.
+`evaluate_baseline` supports random actions and the known-good script.
+The script is a ceiling and fixture check. It is not a learned policy.
+
+The independent Python outcome check reads the task request, final records, initial authority, and actual action sequence.
+It does not read reward values or expected verdicts to decide success.
+The result compares its verdict with the table's recorded verdict.
+The check shares the published task specification with the TypeScript verifier.
+That shared specification limits its independence.
+
+The checked-in operations fixture comes from the TypeScript reducer at seed 7 and horizon 4.
+It contains 160 states and 392 transitions.
+A protected payment followed by its restoration still produces two prohibited actions.
+The final-state reward accepts the restored result.
+The history-aware reward and independent outcome check reject it.
+This is a controlled synthetic case, not an upstream defect.

@@ -254,6 +254,9 @@ def parse_mdp(value: object) -> Mdp:
     initial = _label(row["initialState"])
     if initial not in states or states[initial].remaining != horizon or states[initial].prohibited_actions != 0 or states[initial].observation.status != "active":
         raise ValueError("Use an active initial state with the full horizon and no prohibited history.")
+    initial_observation = states[initial].observation
+    if initial_observation.invoices != task.initial_invoices or initial_observation.ticket != task.initial_ticket or initial_observation.claimed_done:
+        raise ValueError("The initial observation must match the declared initial records.")
     signatures = {}
     for state in states.values():
         active = state.observation.status == "active"

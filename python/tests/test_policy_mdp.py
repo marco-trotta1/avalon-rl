@@ -65,3 +65,13 @@ def test_read_rejects_unwritten_pipe_without_blocking(tmp_path):
     os.mkfifo(pipe)
     with pytest.raises(ValueError, match="regular"):
         read_mdp(pipe)
+
+
+def test_initial_observation_must_match_the_declared_initial_records():
+    from avalon_lab.policy_mdp import _observation, _task, feature_key
+    value = mdp_value()
+    initial = value["states"][0]
+    initial["observation"]["invoices"][0]["paid"] = 100
+    initial["observationKey"] = feature_key(_observation(initial["observation"]), _task(value["task"]))
+    with pytest.raises(ValueError, match="initial records"):
+        parse_mdp(value)
