@@ -102,3 +102,23 @@ The maximum accepted depth is 4 and the maximum budget is 10,000 candidates.
 The report gives the evaluated count, the unexplored count, and task coverage.
 An exhaustive result applies only to the declared alphabet and depth.
 No search result establishes absence of other counterexamples.
+
+## Evidence-driven curriculum
+
+`startWorldCurriculum({seed, budget})` creates a deterministic task selection state.
+`selectWorldTask({state, split})` consumes one budget unit and returns a pending state.
+`recordWorldOutcome({state, receipt})` derives evidence from the oracle and weak verifier.
+The types prevent selecting another task from a pending or exhausted state.
+The state retains failures and verifier disagreements.
+
+The selector gives unseen tasks priority.
+It then gives failed tasks and verifier disagreements priority.
+Task identifiers break equal scores.
+Two successful training outcomes unlock difficulty 2.
+A rewarded false claim does not unlock difficulty.
+`worldCurriculumCoverage(state)` reports attempts, successes, and disagreements for each family.
+
+The default split is training.
+Evaluation requires an explicit `split: "eval"` selection.
+Evaluation outcomes do not promote difficulty or change training task scores.
+This selector does not train a policy, update weights, or establish learning progress.
