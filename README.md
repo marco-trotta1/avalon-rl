@@ -89,7 +89,7 @@ node dist/cli.js world-challenge
 node dist/cli.js world-search --budget 1000 --depth 3
 node dist/cli.js world-benchmark --repetitions 25
 node dist/cli.js world-curriculum --budget 8
-node dist/cli.js world-run --data examples/world/claim-only.json
+node dist/cli.js world-run --data examples/world/claim-plan.json
 ```
 
 World actions change synthetic local records only.

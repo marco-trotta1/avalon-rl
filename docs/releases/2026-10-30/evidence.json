@@ -10,7 +10,7 @@
       "run": "https://github.com/marco-trotta1/avalon-rl/actions/runs/41084218750",
       "status": "success"
     },
-    "node_tests": 152,
+    "node_tests": 153,
     "privacy_source_check": "pass",
     "python_skips": 0,
     "python_tests": 71,

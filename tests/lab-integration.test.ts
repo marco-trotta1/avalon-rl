@@ -25,6 +25,15 @@ beforeAll(async () => {
 });
 afterAll(async () => { await rm(directory, { recursive: true, force: true }); });
 describe("complete laboratory CLI", () => {
+  it("runs the public quickstart action plan", async () => {
+    const readme = await readFile(fileURLToPath(new URL("../README.md", import.meta.url)), "utf8");
+    const example = readme.match(/world-run --data (examples\/world\/[\w-]+\.json)/)?.[1];
+    expect(example).toBeDefined();
+    const path = fileURLToPath(new URL(`../${example}`, import.meta.url));
+    const result = run(["world-run", "--data", path]);
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout)).toMatchObject({ weak: { accepted: true }, oracle: { accepted: false } });
+  });
   it("exports a generated report above the snapshot byte and old finding limits", async () => {
     const pair = demoPair({ fault: "none" });
     const paths: Record<"source" | "target", string> = {

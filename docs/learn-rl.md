@@ -12,7 +12,7 @@ The environment then emits a new observation, a reward, and episode ending signa
 A trajectory records a sequence of these interactions.
 
 ```sh
-node dist/cli.js world-run --data examples/world/claim-only.json
+node dist/cli.js world-run --data examples/world/claim-plan.json
 ```
 
 Inspect the actions, final state, weak verdict, and oracle verdict.

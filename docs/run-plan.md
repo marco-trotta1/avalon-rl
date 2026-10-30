@@ -54,7 +54,7 @@ The run preserves the research documents without publishing them by default.
 ## Assembled result
 
 The assembled history includes all 47 constituent PR heads.
-The CLI and SDK pass 152 Node tests and 71 Python tests with no Python skips.
+The CLI and SDK pass 153 Node tests and 71 Python tests with no Python skips.
 Type checking, the source privacy check, and whitespace checks pass.
 Two complete Python runs preserve every snapshot and learned-table hash.
 The final comparison performs 12 actual CLI audits.
