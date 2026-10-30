@@ -93,3 +93,18 @@ The splitter rejects missing group values and datasets with only one independent
 The counter experiment has one family. It therefore cannot provide an independent holdout.
 The tests check episode preservation and group separation across twenty split seeds.
 The held-out fraction applies to groups. It does not promise an exact transition ratio.
+
+## Built-in Gymnasium recording
+
+```sh
+avalon-python record-gym --environment CartPole-v1 --seed 7 --episodes 2 --max-steps 100 --output /tmp/cartpole.json
+```
+
+The recorder supports CartPole, FrozenLake, Taxi, Pendulum, and MountainCar.
+It rejects arbitrary module names and changed built-in registrations.
+It seeds the environment and action space separately for every episode.
+An outer time limit bounds every episode.
+The recorder copies observations before the next step or reset.
+It converts dictionary and categorical JSON values without stringification.
+Real built-in tests execute discrete, vector, and continuous-action observations.
+The sampled policy is a simple collection baseline. It is not a trained policy.
