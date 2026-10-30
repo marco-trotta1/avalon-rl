@@ -31,8 +31,13 @@ export function buildWitness({ source, target, report, findingIndex = 0 }: {
 }): AuditWitness {
   if (contentHash(source) !== report.source.sha256 || contentHash(target) !== report.target.sha256) throw new Error("Use the exact snapshots that produced the report.");
   if (!Number.isInteger(findingIndex) || findingIndex < 0) throw new Error("Select an existing audit finding.");
-  const selected = report.findings[findingIndex];
-  if (!selected) throw new Error("Select an existing audit finding.");
+  const suppliedFinding = report.findings[findingIndex];
+  if (!suppliedFinding) throw new Error("Select an existing audit finding.");
+  let currentReport = auditSnapshots({ source, target, policy: report.policy });
+  const selected = currentReport.findings[findingIndex];
+  if (!selected || selected.code !== suppliedFinding.code || selected.severity !== suppliedFinding.severity || selected.episode !== suppliedFinding.episode || selected.step !== suppliedFinding.step || selected.field !== suppliedFinding.field || selected.expectedHash !== suppliedFinding.expectedHash || selected.actualHash !== suppliedFinding.actualHash || (suppliedFinding.targetEpisode !== undefined && selected.targetEpisode !== suppliedFinding.targetEpisode)) {
+    throw new Error("The selected finding does not reproduce from the supplied evidence.");
+  }
   let candidate: Candidate = {
     source,
     target,
@@ -41,9 +46,9 @@ export function buildWitness({ source, target, report, findingIndex = 0 }: {
   };
   const reproduces = (state: Candidate, audit: AuditReport): boolean => audit.findings.some(finding => {
     const originalEpisode = finding.episode === undefined ? undefined : state.sourceOrdinals[finding.episode - 1];
-    return finding.code === selected.code && finding.severity === selected.severity && originalEpisode === selected.episode && finding.step === selected.step && finding.field === selected.field && finding.expectedHash === selected.expectedHash && finding.actualHash === selected.actualHash;
+    const originalTargetEpisode = finding.targetEpisode === undefined ? undefined : state.targetOrdinals[finding.targetEpisode - 1];
+    return finding.code === selected.code && finding.severity === selected.severity && originalEpisode === selected.episode && originalTargetEpisode === selected.targetEpisode && finding.step === selected.step && finding.field === selected.field && finding.expectedHash === selected.expectedHash && finding.actualHash === selected.actualHash;
   });
-  let currentReport = auditSnapshots({ source, target, policy: report.policy });
   if (!reproduces(candidate, currentReport)) throw new Error("The selected finding does not reproduce from the supplied evidence.");
   let reductionChecks = 0;
   const tryCandidate = (next: Candidate): boolean => {
