@@ -37,6 +37,8 @@ jobs:
           cache-dependency-path: python/requirements-tested.txt
       - name: Install the tested Python dependencies
         run: python -m pip install -r python/requirements-tested.txt
+      - name: Install the local Python package
+        run: python -m pip install --no-deps ./python
       - name: Test the real pipeline and the Node comparison
         env:
           PYTHONPATH: ${{ github.workspace }}/python/src
