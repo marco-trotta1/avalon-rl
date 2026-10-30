@@ -72,3 +72,11 @@ Each output names the injected fault in its producer label.
 The function preserves the source and accepts synthetic evidence only.
 The tests compare the source bytes before and after each injection.
 These faults simulate integration failures. They are not observed Minari defects.
+
+## Reproducible command
+
+`avalon-python experiment --seed 7 --output /tmp/avalon-run-7` executes the complete local pipeline.
+Use a new directory. The command refuses an existing directory.
+All generated files use mode `0600` inside a directory with mode `0700`.
+The manifest identifies controlled faults separately from upstream defects.
+See [the experiment procedure](../experiments/README.md) for measurements and limits.
