@@ -104,6 +104,7 @@ def audit_status(findings: tuple[SamplingFinding, ...]) -> AuditStatus:
 def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt, tolerance: float = 1e-9) -> SamplingAudit:
     """Compare keyed evidence. Use an absolute log-probability tolerance."""
     from .sampling_math import replay_sampling_sample
+    from .sampling_processors import SUPPORTED_PROCESSORS
 
     if type(tolerance) not in (int, float) or not math.isfinite(tolerance) or tolerance < 0:
         raise ValueError("Use a finite nonnegative log-probability tolerance.")
@@ -123,6 +124,11 @@ def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt,
             continue
         group_status = "match" if before.group_id == after.group_id else "mismatch"
         findings.append(SamplingFinding("group", key, group_status, "Compare the declared group for this sample."))
+        if any(processor.name not in SUPPORTED_PROCESSORS for row in (before, after) for processor in row.processors):
+            processor_status = "unknown"
+        else:
+            processor_status = "match" if before.processors == after.processors else "mismatch"
+        findings.append(SamplingFinding("processors", key, processor_status, "Compare the declared effective transformations and their order."))
         if isinstance(before.support, CapturedSupport) and isinstance(after.support, CapturedSupport):
             support_status = "match" if set(before.support.token_ids) == set(after.support.token_ids) else "mismatch"
             findings.append(SamplingFinding("support", key, support_status, "Compare the complete captured token supports."))
@@ -231,9 +237,15 @@ def _processors(value: object, *, path: str) -> tuple[Processor, ...]:
         ids = entry["token_ids"]
         if not isinstance(ids, list):
             raise ValueError(f"{path}: Use a token ID list.")
+        name = _label(entry["name"], path=path)
+        number = _number(entry["value"], path=path)
+        if name in ("temperature", "repetition_penalty") and number <= 0:
+            raise ValueError(f"{path}: Use a positive temperature or repetition penalty.")
+        if name == "temperature" and ids:
+            raise ValueError(f"{path}: Temperature applies to the complete vocabulary.")
         result.append(Processor(
-            name=_label(entry["name"], path=path),
-            value=_number(entry["value"], path=path),
+            name=name,
+            value=number,
             token_ids=() if not ids else _ids(ids, path=path),
         ))
     return tuple(result)

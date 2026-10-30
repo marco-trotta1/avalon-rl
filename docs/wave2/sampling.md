@@ -59,3 +59,20 @@ Two receipts can agree with each other while both contradict their recorded logi
 A missing support, missing logits, unsupported processor, or unrepresentable result produces an unknown replay.
 The reference does not reconstruct omitted vocabulary values.
 The reference uses Python float64 arithmetic. It does not reproduce a GPU kernel.
+
+## Declare the logit transformations
+
+The reference supports `temperature`, `repetition_penalty`, `presence_penalty`, and `logit_bias`.
+Temperature divides every logit by its positive value.
+The repetition penalty divides nonnegative selected logits and multiplies negative selected logits by its positive value.
+The presence penalty subtracts its value from the listed token logits.
+The logit bias adds its value to the listed token logits.
+The token list records affected IDs. It does not infer prompt or completion history.
+The reference applies the list in the recorded order, then normalizes over the captured support.
+
+Record the effective settings after configuration overrides.
+A changed declaration produces a processor mismatch.
+An unsupported processor produces unknown, even when both receipts name the same processor.
+Avalon does not import a named processor or reconstruct a top-p filter.
+The captured support records filtering evidence separately.
+This reference does not establish a current TRL or vLLM defect.
