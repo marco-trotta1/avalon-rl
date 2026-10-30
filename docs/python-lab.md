@@ -116,7 +116,15 @@ avalon-python export-minari --dataset-path /tmp/my-dataset/data --task my-task -
 ```
 
 Select a local dataset directory that you own.
-The exporter reads that directory. It does not download data or recover an environment.
+The exporter reads local HDF5 datasets only.
+It requires serialized action and observation spaces before it opens the Minari dataset.
+It constructs the storage with those explicit spaces and bypasses the Minari path loader.
+Missing spaces therefore cannot trigger automatic environment recovery.
+Supported spaces are `Box`, `Discrete`, `MultiDiscrete`, `MultiBinary`, `Text`, `Dict`, and `Tuple`.
+Nested spaces use the same type list. Custom types, unknown fields, and object dtypes fail before the dataset loader.
+Space metadata has a 10 MiB limit and a nesting limit of 16.
+A `Box` shape has at most 1,000,000 elements.
+The exporter does not download data or recover an environment.
 The output evidence label is `user-supplied`.
 Existing Avalon identity attributes preserve original episode labels, indices, and metadata.
 Other datasets use `minari-<id>` episode labels and zero-based indices.
