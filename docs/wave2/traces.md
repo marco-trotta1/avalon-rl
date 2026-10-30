@@ -42,6 +42,19 @@ Missing selected fields return `unknown` unless another action establishes a mis
 An episode without a selected action matches that scoped authority rule.
 Use a separate goal rule when the task requires an action or outcome.
 
+## Paired renaming
+
+`parseTracePairContract` parses `avalon.trace-pair/v1`.
+`auditTracePair({source, target, contract})` compares complete declared episode pairs.
+Each pair binds the source and target episode identifiers and task identifiers.
+The contract declares a one-to-one string renaming.
+The transformation applies to observation, action, next-observation, and metadata keys and string values.
+All other transition fields must stay equal, including reward and both ending signals.
+The audit compares the complete transformed episode through the existing snapshot auditor.
+Missing pairs, ambiguous identities, unpaired episodes, and renaming collisions return `unknown`.
+Internally invalid or incomplete pair members also return `unknown`.
+The audit does not treat a declared renaming as proof of a new task family.
+
 ## Finite learning tables
 
 `makeWorldMdp({task, horizon})` exports `avalon.mdp/v1` through the existing world reducer.
