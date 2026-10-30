@@ -20,4 +20,9 @@ describe("trace contract boundary", () => {
       { ...contract, rules: [{ ...rule, tolerance: { absolute: -1, relative: 0 } }] },
     ]) expect(() => parseTraceContract(invalid)).toThrow("trace contract format");
   });
+  it("rejects JSON properties that the shared JSON schema cannot preserve", () => {
+    expect(() => parseTraceContract({ format: "avalon.trace-contract/v1", name: "fixture", rules: [
+      { id: "goal", kind: "final-equals", path: [], expected: JSON.parse('{"__proto__":{"hidden":true}}') },
+    ] })).toThrow("unsupported JSON property");
+  });
 });

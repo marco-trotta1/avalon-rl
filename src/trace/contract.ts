@@ -33,6 +33,15 @@ export type TraceRule = TraceContract["rules"][number];
 export type PathEvidence = Readonly<{ status: "present"; value: Json }> | Readonly<{ status: "missing" }>;
 
 export function parseTraceContract(value: unknown): TraceContract {
+  const pending: unknown[] = [value];
+  const seen = new WeakSet<object>();
+  while (pending.length > 0) {
+    const item = pending.pop();
+    if (item === null || typeof item !== "object" || seen.has(item)) continue;
+    seen.add(item);
+    if (Object.hasOwn(item, "__proto__")) throw new Error("The input contains an unsupported JSON property.");
+    pending.push(...Object.values(item));
+  }
   const result = traceContractSchema.safeParse(value);
   if (!result.success) throw new Error("Use the documented Avalon trace contract format.");
   return result.data;
