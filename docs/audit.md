@@ -46,3 +46,10 @@ Indices that decrease or repeat fail the audit.
 A missing prefix, an index gap, or an open ending makes the evidence inconclusive.
 The audit does not compare observations across a gap.
 Identical corruption at both stages still fails these sequence checks.
+
+The task label and the complete metadata object must match exactly for each episode.
+Numeric tolerance does not apply to categorical metadata.
+Missing metadata differs from an empty metadata object.
+A missing metadata member differs from a member with a null value.
+Metadata object key order does not affect the comparison.
+The report includes context hashes without task labels, metadata keys, or metadata values.

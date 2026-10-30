@@ -153,6 +153,11 @@ export function auditSnapshots({ source, target, policy: inputPolicy }: {
       continue;
     }
     const other = matched.value;
+    for (const field of ["task", "metadata"] as const) {
+      const expectedHash = contentHash({ present: episode[field] !== undefined, value: episode[field] ?? null });
+      const actualHash = contentHash({ present: other[field] !== undefined, value: other[field] ?? null });
+      if (expectedHash !== actualHash) findings.push({ code: `episode.${field}.changed`, severity: "error", episode: offset + 1, field, message: "The target changes the episode context.", expectedHash, actualHash });
+    }
     if (offset !== matched.offset) findings.push({ code: "episode.reordered", severity: "warning", episode: offset + 1, message: "The target changes the episode position." });
     const sourceSteps = uniqueByKey({ items: episode.steps, key: step => step.index, duplicate: () => {} });
     const targetSteps = uniqueByKey({ items: other.steps, key: step => step.index, duplicate: () => {} });

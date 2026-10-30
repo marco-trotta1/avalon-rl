@@ -154,3 +154,23 @@ describe("sequence invariants", () => {
     expect(report.findings.map(item => item.code)).not.toContain("source.continuity.changed");
   });
 });
+
+describe("episode context", () => {
+  it("preserves task identity and categorical metadata without exposing their values", () => {
+    const source = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], metadata: { mission: "private-mission", category: 1 } }] });
+    const target = parseSnapshot({ ...source, stage: "recorded", episodes: [{ ...source.episodes[0], task: "private-task", metadata: { mission: "other-private", category: 1.0001 } }] });
+    const report = auditSnapshots({ source, target, policy: { absoluteTolerance: 100, relativeTolerance: 100 } });
+    expect(report.findings.map(item => item.code)).toEqual(expect.arrayContaining(["episode.task.changed", "episode.metadata.changed"]));
+    expect(JSON.stringify(report)).not.toMatch(/private-mission|private-task|other-private/);
+  });
+  it("distinguishes missing metadata, empty metadata, and null metadata values", () => {
+    const source = fixture();
+    const empty = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], metadata: {} }] });
+    expect(auditSnapshots({ source, target: empty }).findings.map(item => item.code)).toContain("episode.metadata.changed");
+    const nullable = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], metadata: { mission: null } }] });
+    expect(auditSnapshots({ source: nullable, target: empty }).status).toBe("fail");
+    const ordered = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], metadata: { b: 2, a: "one" } }] });
+    const reordered = parseSnapshot({ ...fixture(), episodes: [{ ...fixture().episodes[0], metadata: { a: "one", b: 2 } }] });
+    expect(auditSnapshots({ source: ordered, target: reordered }).status).toBe("pass");
+  });
+});
