@@ -4,7 +4,14 @@ Parse unknown input with `parseSnapshot` or `parseSnapshotText` before the audit
 Call `auditSnapshots({ source, target, policy? })` with the parsed snapshots.
 The audit joins episodes by ID and transitions by index.
 It compares observations, actions, rewards, next observations, and both ending signals.
-It also compares the optional bootstrap mask.
+The bootstrap mask uses `0` when termination is true and `1` otherwise.
+Truncation does not disable bootstrapping.
+Both ending signals can be true.
+A learner can add a correctly derived mask.
+A supplied mask must satisfy this rule at each stage.
+Removing a supplied mask fails the audit.
+A missing learner mask makes its bootstrap semantics inconclusive.
+Source and recorded stages can omit the mask.
 Missing and extra episodes or transitions fail the audit.
 Duplicate episode keys and transition indices fail the audit.
 The audit skips ambiguous matches.
