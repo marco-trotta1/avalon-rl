@@ -174,3 +174,30 @@ describe("episode context", () => {
     expect(auditSnapshots({ source: ordered, target: reordered }).status).toBe("pass");
   });
 });
+
+describe("content contamination", () => {
+  it("detects copied experience across splits despite renamed episode keys and metadata", async () => {
+    const { auditContamination, episodeFingerprint } = await import("../src/audit/contamination.js");
+    const source = fixture();
+    const renamed = parseSnapshot({ ...fixture("recorded"), episodes: [{ ...source.episodes[0], id: "renamed-private", task: "renamed-task", metadata: { split: "private" } }] });
+    expect(episodeFingerprint(source.episodes[0]!)).toBe(episodeFingerprint(renamed.episodes[0]!));
+    const report = auditContamination({ splits: [{ name: "private-train", snapshot: source }, { name: "private-test", snapshot: renamed }] });
+    expect(report.status).toBe("fail");
+    expect(report.duplicates.map(item => item.kind)).toEqual(["episode", "transition"]);
+    expect(report.duplicates[0]!.occurrences).toEqual([{ split: 1, episode: 1 }, { split: 2, episode: 1 }]);
+    expect(JSON.stringify(report)).not.toMatch(/private-train|private-test|renamed-private|renamed-task/);
+  });
+  it("separates within-split repetition from cross-split overlap and detects partial overlap", async () => {
+    const { auditContamination } = await import("../src/audit/contamination.js");
+    const source = fixture();
+    const repeated = parseSnapshot({ ...source, episodes: [source.episodes[0], { ...source.episodes[0], id: "second" }] });
+    const one = auditContamination({ splits: [{ name: "train", snapshot: repeated }] });
+    expect(one.status).toBe("inconclusive");
+    expect(one.duplicates.every(item => item.severity === "warning")).toBe(true);
+    const partial = parseSnapshot({ ...source, episodes: [{ ...source.episodes[0], steps: [...source.episodes[0]!.steps, { ...source.episodes[0]!.steps[0], index: 1, action: "different" }] }] });
+    const report = auditContamination({ splits: [{ name: "train", snapshot: source }, { name: "test", snapshot: partial }] });
+    expect(report.duplicates.map(item => item.kind)).toEqual(["transition"]);
+    expect(report.status).toBe("fail");
+    expect(() => auditContamination({ splits: [{ name: "same", snapshot: source }, { name: "same", snapshot: source }] })).toThrow("unique name");
+  });
+});
