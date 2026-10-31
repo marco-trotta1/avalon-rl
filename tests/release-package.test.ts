@@ -16,6 +16,7 @@ describe("release package", () => {
     expect(files).toContain("examples/world/claim-plan.json");
     expect(files).toContain("dist/cli.js");
     expect(files.some(path => path.startsWith("research/"))).toBe(false);
+    expect(files.some(path => path.includes("__pycache__") || path.endsWith(".pyc"))).toBe(false);
   });
 
   it("binds both artifacts and rejects a substituted file link", () => {

@@ -68,7 +68,12 @@ An agency must separately establish repeatable delivery and recurring customer v
 1. Reproduce one useful boundary mismatch from an independent user's workflow with permission.
 2. Compare the diagnosis with the simplest assertion on the same evidence and interaction budget.
 3. Test a policy on independently authored task families after verifier improvements.
-4. Compare an evidence-driven curriculum with random and fixed schedules.
+4. Improve curriculum selection only when a frozen comparison beats both fixed and random schedules.
 5. Obtain a paid scoped engagement with a written outcome and a measured delivery cost.
 
 Proceed because the evidence supports a result, not because the contribution count reaches a target.
+
+The [wave 2 results](wave2/results.md) execute the finite policy and curriculum comparisons.
+History-aware rewards improve the selected invoice outcomes under the recorded budget.
+Curriculum selection shows no gain. The held-out ticket family shows no transfer advantage.
+These synthetic results leave independent workflow and adoption evidence open.

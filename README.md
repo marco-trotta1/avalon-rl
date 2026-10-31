@@ -41,9 +41,44 @@ All three examples use synthetic data.
 | Curriculum | Select tasks from recorded outcomes with a finite budget |
 | Python integration | Execute Gymnasium, a real Minari HDF5 roundtrip, and NumPy TD updates |
 | Portable reports | Write JSON, Markdown, and SARIF without uploading the inputs |
+| Sampling forensics | Compare token support, full finite distributions, masks, correction weights, and categorical gradient witnesses |
+| Trace contracts | Check final outcomes, preserved values, action authority, paired renaming, and declared holdouts |
+| Actual policy learning | Compare three reward rules and three schedules with real CPU Q updates and frozen evaluation |
 
 The [RL walkthrough](docs/learn-rl.md) explains these capabilities through runnable experiments.
 The [strategy](docs/strategy.md) connects the public laboratory to a possible specialist agency.
+
+## Run the research loop
+
+```sh
+node dist/cli.js trace-benchmark --seed 7 --repetitions 5
+avalon-python sampling-benchmark --seed 7 --output /tmp/avalon-sampling-benchmark.json
+python examples/policy/diagnose.py --avalon-cli "$PWD/dist/cli.js" --output /tmp/avalon-diagnosis
+```
+
+Install the Python package before running its commands.
+Choose new output paths for each run.
+The diagnosis example freezes a contract, trains a real policy, and explains a rewarded unauthorized action history.
+It executes an explicitly supplied trusted local CLI.
+
+The finite probability example exposes equal selected-token probabilities with different supports and different categorical gradients.
+The complete categorical assertion detects the same mismatch.
+The sampling benchmark agrees with that assertion on all 76 synthetic cases, including 16 unknown cases.
+Neither method raises a false alarm on the 24 clean controls.
+These are exact fixture counts. They do not estimate production detection rates.
+Observed sampling latency, costs, versions, and limits are in the [release evidence](docs/wave2/evidence.json).
+
+The frozen policy experiment executes 180 runs and 432,000 Q updates across 20 paired learner seeds.
+History-aware rewards achieve 160 of 160 valid completions on new invoice seeds.
+Final-state rewards achieve 140 of 160 under the same fixed schedule and interaction budget.
+The paired difference is 12.5 percentage points. The seed-cluster bootstrap interval is 5.0 to 22.5 points.
+The interval conditions on the fixed synthetic task suite.
+The final CLI run takes 21.264 seconds, measured once. API fees are 0 USD; local compute remains unpriced.
+
+Disagreement scheduling shows no gain over the fixed and random schedules under the history reward.
+Every condition matches random actions at 15 of 160 valid held-out ticket-family episodes.
+The experiment establishes no family transfer, algorithmic novelty, or production policy improvement.
+The [results](docs/wave2/results.md) preserve all baselines, negative results, and reproducibility limits.
 
 ## Audit your pipeline
 

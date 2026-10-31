@@ -2,6 +2,7 @@
 
 The Node package includes the executable examples.
 Private research, snapshots, and witnesses remain outside the package.
+Nested package rules exclude generated Python caches from the examples.
 The release workflow tests the source and installs both package formats.
 Run the workflow against the intended commit before publishing its artifacts.
 

@@ -123,3 +123,17 @@ def test_support_membership_is_not_proved_by_agreement_between_two_bad_receipts(
     report = audit_sampling_receipts(source=parsed, target=parsed)
     assert report.status == "fail"
     assert sum(finding.rule.startswith("support-membership") and finding.status == "mismatch" for finding in report.findings) == 2
+
+
+@pytest.mark.parametrize("captured_side", ["source", "target"])
+def test_a_captured_membership_violation_is_not_hidden_by_the_other_missing_support(captured_side):
+    captured = receipt_value()
+    captured["samples"][0]["sampled_token_id"] = 2
+    missing = deepcopy(captured)
+    missing["samples"][0]["support"] = {"kind": "unavailable", "reason": "The other producer omits the support."}
+    source_value, target_value = (captured, missing) if captured_side == "source" else (missing, captured)
+    report = audit_sampling_receipts(source=parse_sampling_receipt(source_value), target=parse_sampling_receipt(target_value))
+    assert report.status == "fail"
+    statuses = {finding.rule: finding.status for finding in report.findings}
+    assert statuses[f"support-membership-{captured_side}"] == "mismatch"
+    assert statuses["support"] == "unknown"

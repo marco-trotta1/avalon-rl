@@ -2,7 +2,7 @@
 
 Date: 2026-10-30.
 Research state: two workers complete four iterations each.
-Implementation state: three isolated lanes start after the research decision.
+Implementation state: three isolated lanes complete after the research decision and independent review.
 Heartbeat: `avalon-research-and-release-loop`.
 
 ## Completed decisions
@@ -19,21 +19,26 @@ Avalon makes no algorithmic novelty claim.
 
 ## Current queue
 
-1. Complete the old stack merges against their original bases.
-2. Publish and verify the existing CLI and Python release artifacts.
-3. Freeze the new receipt and finite-MDP boundaries.
-4. Implement the three lanes with separate tests and documentation.
-5. Integrate the commands and run the frozen comparisons.
-6. Review each PR, retain negative results, merge, and verify the release artifacts.
+The old stack merges complete against their original bases.
+The existing release artifacts are published as v0.3.0.
+The three implementation lanes and command integration are merged after hosted checks.
+The frozen comparisons and independent reviews complete.
+
+1. Merge the final measured release PR after its hosted check.
+2. Verify the exact merged head and both installed package artifacts.
+3. Publish v0.4.0 with its checksums, measured evidence, and verification receipt.
+4. Pause the heartbeat after release verification completes.
+
+The GitHub release receipt records publication separately from this prepublication research snapshot.
 
 ## Open evidence
 
 No actual trainer exports the proposed sampling receipt yet.
 No independent user workflow or customer value is established.
-The support assertion may match every diagnostic result.
-The disagreement schedule may tie or lose under the same budget.
-The family holdout may expose a policy transfer failure.
-These outcomes remain in the final report.
+The dense categorical assertion matches all 76 sampling case verdicts.
+The disagreement schedule shows no gain under the history reward.
+The task-family holdout exposes a transfer failure.
+The [measured results](../results.md) preserve these outcomes and their limits.
 
 ## Operating rules
 

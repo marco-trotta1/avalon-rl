@@ -94,6 +94,7 @@ export function makeWorldMdp(options: { task: WorldTask; horizon?: number; split
   if (!catalogTask || worldHash(task) !== worldHash(catalogTask)) {
     throw new Error("The MDP requires an unchanged catalog task.");
   }
+  if (horizon < task.knownGood.length) throw new Error("The horizon cannot contain the task's complete known solution.");
   const actions = actionAlphabet(task);
   const pending: { state: WorldState; actions: readonly WorldAction[] }[] = [{ state: task.initial, actions: [] }];
   const firstView = observation({ state: task.initial, horizon });
