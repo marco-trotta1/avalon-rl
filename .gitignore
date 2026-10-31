@@ -3,6 +3,8 @@ dist/
 coverage/
 *.tsbuildinfo
 .DS_Store
+__pycache__/
+*.pyc
 .playwright-mcp/
 .venv/
 *.tgz
