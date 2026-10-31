@@ -40,10 +40,10 @@ Evaluation reserves task families and seeds before training.
 1. Add ten sampling-forensics slices, including the independently reproduced membership correction.
 2. Add ten trace-contract slices, including the independently reproduced horizon and optional-field corrections.
 3. Add eight policy slices with real updates, held-out evaluation, and paired seed statistics.
-4. Add five integration slices for research, commands, experiment composition, packaging, and measured release evidence.
+4. Add six integration slices for research, commands, experiment composition, packaging, measured evidence, and public metadata protection.
 
 Each PR must expose a separate behavior and include a focused check.
-The three review corrections bring the wave to 33 focused PRs.
+The review corrections and public metadata protection bring the wave to 34 focused PRs.
 The coordinator reviews each change before merging it into main.
 The count is a target. Failed experiments remain useful results.
 No claim requires a positive outcome to remain in the report.
