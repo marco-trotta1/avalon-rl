@@ -51,7 +51,10 @@ Each pair binds the source and target episode identifiers and task identifiers.
 The contract declares a one-to-one string renaming.
 The transformation applies to observation, action, next-observation, and metadata keys and string values.
 All other transition fields must stay equal, including reward and both ending signals.
+Optional fields must also retain their presence and value.
+Adding or removing a bootstrap mask is a paired mismatch.
 The audit compares the complete transformed episode through the existing snapshot auditor.
+It also compares the complete transformed episode hash to enforce exact field presence.
 Missing pairs, ambiguous identities, unpaired episodes, and renaming collisions return `unknown`.
 Internally invalid or incomplete pair members also return `unknown`.
 The audit does not treat a declared renaming as proof of a new task family.
