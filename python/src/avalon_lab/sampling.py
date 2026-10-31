@@ -169,11 +169,14 @@ def audit_sampling_receipts(*, source: SamplingReceipt, target: SamplingReceipt,
         if isinstance(before.support, CapturedSupport) and isinstance(after.support, CapturedSupport):
             support_status = "match" if set(before.support.token_ids) == set(after.support.token_ids) else "mismatch"
             findings.append(SamplingFinding("support", key, support_status, "Compare the complete captured token supports."))
-            for label, row in (("source", before), ("target", after)):
-                membership = "match" if row.sampled_token_id in row.support.token_ids else "mismatch"
-                findings.append(SamplingFinding(f"support-membership-{label}", key, membership, "The sampled token must belong to its support."))
         elif active:
             findings.append(SamplingFinding("support", key, "unknown", "A complete captured support is unavailable."))
+        for label, row in (("source", before), ("target", after)):
+            if isinstance(row.support, CapturedSupport):
+                membership = "match" if row.sampled_token_id in row.support.token_ids else "mismatch"
+                findings.append(SamplingFinding(f"support-membership-{label}", key, membership, "The sampled token must belong to its support."))
+            elif active:
+                findings.append(SamplingFinding(f"support-membership-{label}", key, "unknown", "The captured support for this token is unavailable."))
         if isinstance(before.selected_logprob, Known) and isinstance(after.selected_logprob, Known):
             distance = abs(before.selected_logprob.value - after.selected_logprob.value)
             probability_status = "match" if distance <= tolerance else "mismatch"
