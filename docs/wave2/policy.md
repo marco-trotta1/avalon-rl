@@ -92,3 +92,19 @@ The method is a simple task-selection heuristic.
 Existing curriculum methods precede this experiment.
 A comparison can show no gain over fixed or random selection.
 Keep that result in the experiment report.
+
+## Frozen partitions
+
+`freeze_holdout` records complete task instances before training starts.
+The manifest contains each input hash, task, family, generator seed, horizon, and declared role.
+It rejects a reused instance, reused training seed, wrong role, or overlapping family holdout.
+The manifest reads inert documents for identity and hashing.
+It does not score an evaluation rollout.
+
+`load_training` returns only training tables.
+`load_evaluation` requires a frozen policy and checks each input hash before parsing evaluation tables.
+The learner and scheduler never receive evaluation records.
+Same-family evaluation uses new generator seeds within a training family.
+Family evaluation uses new seeds and a separate family.
+Report these partitions separately.
+The full reachable training table does not support a mutation-family holdout claim.
