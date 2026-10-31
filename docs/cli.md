@@ -98,3 +98,40 @@ See the [world contract](world.md) for permitted actions and task rules.
 A passing audit establishes agreement under the reported policy.
 It does not establish task success, training improvement, or market value.
 The original inspection, template, demo, and appraisal commands remain available.
+
+## Research commands
+
+```sh
+node dist/cli.js trace-audit --data snapshot.json --contract contract.json --out trace-audit.json
+node dist/cli.js trace-witness --data snapshot.json --contract contract.json --out trace-witness.json
+node dist/cli.js trace-pair --source original.json --target renamed.json --contract pair.json
+node dist/cli.js trace-holdout --data holdout.json
+node dist/cli.js trace-benchmark --seed 7 --repetitions 5
+node dist/cli.js world-mdp --task settle-a --seed 7 --horizon 4 --split train --out mdp.json
+avalon-python sampling-audit --source examples/sampling/source.json --target examples/sampling/target.json --output sampling-audit.json
+avalon-python sampling-witness --source examples/sampling/source.json --target examples/sampling/target.json --sample support-example --position 0 --output token-witness.json
+avalon-python sampling-benchmark --seed 7 --output sampling-benchmark.json
+```
+
+The trace audit returns `0` for match, `4` for mismatch, and `5` for unknown.
+The sampling audit uses the same exit codes for pass, fail, and inconclusive.
+Both commands compare supplied evidence with explicit rules.
+Neither command proves trainer execution or a correct reward specification.
+Sampling witnesses contain raw selected evidence and require a new private output file.
+Use the sample identifier and position from the input receipt.
+
+The MDP exporter uses the existing world reducer and a bounded action alphabet.
+The horizon ranges from one through six actions.
+The default task is `settle-a`, the default seed is `7`, and the default horizon is `4`.
+The optional split override changes only experiment metadata.
+Trace witnesses retain raw evidence and require a new private output file.
+Paired audits check only the declared identifier transformation and transition preservation.
+Holdout audits compare the declared groups and hashes. They do not prove when a holdout was frozen.
+The [policy experiment](wave2/policy.md) trains on the exported inert tables.
+The [sampling guide](wave2/sampling.md) defines captured and unavailable probability evidence.
+
+`avalon-python policy-experiment` accepts repeated `--train`, `--same-family`, and `--family` paths plus a new `--output` directory.
+The input inventory must match the frozen experiment plan.
+The default plan requires four training tables, eight new-seed tables, and eight held-out family tables.
+The command writes the plan and holdout hashes before training.
+Its report preserves all conditions and negative results.

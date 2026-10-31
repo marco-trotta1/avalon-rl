@@ -7,6 +7,14 @@ import { demoPair, type DemoFault } from "./demo.js";
 import { readLocalText, writeLocalText, type OutputDestination } from "./io.js";
 import { MAX_AUDIT_REPORT_BYTES, MAX_AUDIT_REPORT_FINDINGS, parseAuditReport, renderAuditMarkdown, renderAuditSarif } from "./report.js";
 import { runWorldCommand } from "./world-command.js";
+import { parseTraceContract } from "../trace/contract.js";
+import { auditTraceContract } from "../trace/audit.js";
+import { buildTraceWitness } from "../trace/witness.js";
+import { auditTracePair, parseTracePairContract } from "../trace/pair.js";
+import { auditTraceHoldout, parseTraceHoldout } from "../trace/holdout.js";
+import { runTraceBenchmark } from "../trace/benchmark.js";
+import { makeWorldMdp } from "../world/mdp.js";
+import { worldTasks } from "../world/tasks.js";
 
 const allowedOptions = {
   audit: ["source", "target", "out", "format", "absolute-tolerance", "relative-tolerance"],
@@ -17,6 +25,11 @@ const allowedOptions = {
   "world-demo": ["seed", "out"], "world-challenge": ["seed", "out"],
   "world-search": ["seed", "budget", "depth", "out"], "world-benchmark": ["seed", "repetitions", "out"],
   "world-curriculum": ["seed", "budget", "out"], "world-export": ["seed", "out"], "world-run": ["data", "out"],
+  "trace-audit": ["data", "contract", "out"],
+  "trace-witness": ["data", "contract", "finding", "out"],
+  "trace-pair": ["source", "target", "contract", "out"], "trace-holdout": ["data", "out"],
+  "trace-benchmark": ["seed", "repetitions", "out"],
+  "world-mdp": ["seed", "task", "horizon", "split", "out"],
 } as const;
 export const LAB_COMMANDS = Object.keys(allowedOptions);
 type LabCommand = keyof typeof allowedOptions;
@@ -48,6 +61,8 @@ export async function runLab(args: string[]): Promise<number> {
         out: { type: "string" }, fault: { type: "string" }, format: { type: "string" },
         recorded: { type: "string" }, lineage: { type: "string" }, finding: { type: "string" },
         seed: { type: "string" }, budget: { type: "string" }, depth: { type: "string" }, repetitions: { type: "string" },
+        contract: { type: "string" }, task: { type: "string" }, horizon: { type: "string" },
+        split: { type: "string" },
         "absolute-tolerance": { type: "string" }, "relative-tolerance": { type: "string" },
       } });
     } catch { throw new LabUsageError("Check the command options and values."); }
@@ -128,6 +143,53 @@ export async function runLab(args: string[]): Promise<number> {
         const pair = demoPair({ fault: fault as DemoFault });
         audit = auditSnapshots(pair);
         result = { ...audit, demonstration: { injectedFault: fault, seed: 7 } };
+        break;
+      }
+      case "trace-audit": case "trace-witness": {
+        if (!parsed.values.data?.trim() || !parsed.values.contract?.trim()) throw new LabUsageError("Trace auditing requires --data and --contract.");
+        const snapshot = parseSnapshotText(await readLocalText(parsed.values.data));
+        const contract = parseTraceContract(JSON.parse(await readLocalText(parsed.values.contract)) as unknown);
+        if (command === "trace-witness") {
+          if (output.type !== "file") throw new LabUsageError("Trace witnesses require a new private output path.");
+          result = buildTraceWitness({ snapshot, contract, finding: parsed.values.finding === undefined ? undefined
+            : numeric({ value: parsed.values.finding, fallback: 0, max: 2_560_000 }) });
+        } else {
+          const report = auditTraceContract({ snapshot, contract });
+          result = report;
+          exitCode = report.status === "match" ? 0 : report.status === "mismatch" ? 4 : 5;
+        }
+        break;
+      }
+      case "trace-pair": {
+        if (!parsed.values.contract?.trim()) throw new LabUsageError("Paired auditing requires --contract.");
+        const contract = parseTracePairContract(JSON.parse(await readLocalText(parsed.values.contract)) as unknown);
+        const report = auditTracePair({ ...await pair(), contract });
+        result = report;
+        exitCode = report.status === "match" ? 0 : report.status === "mismatch" ? 4 : 5;
+        break;
+      }
+      case "trace-holdout": {
+        if (!parsed.values.data?.trim()) throw new LabUsageError("Holdout auditing requires --data.");
+        const report = auditTraceHoldout({ manifest: parseTraceHoldout(JSON.parse(await readLocalText(parsed.values.data)) as unknown) });
+        result = report;
+        exitCode = report.status === "match" ? 0 : report.status === "mismatch" ? 4 : 5;
+        break;
+      }
+      case "world-mdp": {
+        const task = worldTasks({ seed: numeric({ value: parsed.values.seed, fallback: 7, max: 0xffffffff }) })
+          .find(candidate => candidate.id === (parsed.values.task ?? "settle-a"));
+        if (!task) throw new LabUsageError("Select a documented operations task.");
+        const horizon = numeric({ value: parsed.values.horizon, fallback: 4, max: 6 });
+        if (horizon < 1) throw new LabUsageError("Use a horizon from one through six actions.");
+        const split = parsed.values.split;
+        if (split !== undefined && split !== "train" && split !== "eval") throw new LabUsageError("Select train or eval for the table split.");
+        result = makeWorldMdp({ task, horizon, split });
+        break;
+      }
+      case "trace-benchmark": {
+        const repetitions = numeric({ value: parsed.values.repetitions, fallback: 5, max: 1_000 });
+        if (repetitions < 1) throw new LabUsageError("Use a positive repetition count.");
+        result = runTraceBenchmark({ seed: numeric({ value: parsed.values.seed, fallback: 7, max: 0xffffffff }), repetitions });
         break;
       }
       case "report": {

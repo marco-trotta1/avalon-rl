@@ -32,6 +32,12 @@ Usage:
   node dist/cli.js world-benchmark [--seed 7] [--repetitions 25]
   node dist/cli.js world-curriculum [--seed 7] [--budget 8]
   node dist/cli.js world-run --data action-plan.json
+  node dist/cli.js world-mdp [--task settle-a] [--seed 7] [--horizon 4] [--split train|eval] [--out mdp.json]
+  node dist/cli.js trace-audit --data snapshot.json --contract contract.json [--out report.json]
+  node dist/cli.js trace-witness --data snapshot.json --contract contract.json --out witness.json
+  node dist/cli.js trace-pair --source original.json --target renamed.json --contract pair.json
+  node dist/cli.js trace-holdout --data holdout.json
+  node dist/cli.js trace-benchmark [--seed 7] [--repetitions 5]
   node dist/cli.js snapshot --data snapshot.json [--out summary.json]
   node dist/cli.js lab-demo [--fault none|reward-shift|collapsed-ending] [--format json|markdown|sarif] [--out audit.json]
   node dist/cli.js appraise --case appraisal.json --data asset-file [--out report.json]
