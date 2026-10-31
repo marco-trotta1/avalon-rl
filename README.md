@@ -12,15 +12,18 @@ The commands use your coding agent's model and tools.
 
 ## Install the agent commands
 
-Install the Node archive from the [latest release](https://github.com/marco-trotta1/avalon-rl/releases/latest).
-Then select the project and host:
+Use Node.js 22.12 or later and npm.
+Run one command from your project directory:
 
 ```sh
-avalon agent install --host cursor --project /path/to/project
-avalon agent doctor --project /path/to/project
+npx --yes https://github.com/marco-trotta1/avalon-rl/releases/latest/download/avalon.tgz install codex
 ```
 
-Select `claude` or `codex` for another supported skill directory.
+Replace `codex` with `claude` or `cursor` for another host.
+The installer includes all 20 workflows and a private project runtime. No global npm installation is required.
+The runtime works after the original npm cache is removed.
+Use `--dry-run` to preview the installation or `--project PATH` to select another directory.
+An untouched 0.5 protocol upgrades automatically. Modified skills remain protected.
 Cursor and Claude project skills use `/rl-train`, `/rl-break`, and the other command names.
 Codex exposes the skills through `/skills` and `$rl-train`.
 Native Claude plugins use the `avalon` namespace.
@@ -33,6 +36,7 @@ Native Claude plugins use the `avalon` namespace.
 
 The [command guide](docs/agent-commands.md) describes all 20 workflows and their execution boundaries.
 Each workflow discovers project inputs and leaves private records under `.avalon`.
+Claude and Cursor also support the native marketplace catalogs described in the guide.
 The host performs code changes, execution, research, and delegation under its existing permissions and budget.
 Unsupported trainers require an implemented and tested adapter before their results can be verified.
 

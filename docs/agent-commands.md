@@ -7,30 +7,56 @@ The runtime does not call a model provider or execute the workflow by itself.
 
 ## Install
 
-Download the Node package from the [release assets](https://github.com/marco-trotta1/avalon-rl/releases).
-Install the reviewed package:
+Use Node.js 22.12 or later and npm.
+Run one command in your project directory:
 
 ```sh
-npm install --global ./avalon-rl-0.5.0.tgz
-avalon agent install --host cursor --project /path/to/project
+npx --yes https://github.com/marco-trotta1/avalon-rl/releases/latest/download/avalon.tgz install codex
 ```
 
-Select `--host claude` for Claude Code or `--host codex` for Codex.
+Replace `codex` with `claude` or `cursor` to select another host.
+The current directory is the default project. Add `--project PATH` to select another directory.
 Use `--dry-run` to inspect the target files without writing them.
-The installer copies all workflows and their shared protocol into the project.
-It preserves identical files and refuses differing existing files.
+The installer copies all workflows, their shared protocol, and a self-contained Node runtime into the project.
+It preserves identical files and refuses locally edited files.
+The exact untouched 0.5 shared protocol upgrades automatically. Other differing files require inspection.
+Stock upgrades retain the displaced file under `.avalon/install-backups` and return its backup path.
+Detected concurrent edits stop an upgrade. The displaced content and any recreated target remain available for inspection.
 It does not change user settings or install a model provider.
 
-Keep `avalon` on the agent's PATH.
+The runtime is private under `.avalon/runtime/0.6.0` and includes its production dependency and licenses.
+It works without a global `avalon` command and after the original npm cache is removed.
+The shared protocol selects its explicit Node entrypoint for the agent.
+An existing global installation can also use `avalon install codex`.
+The previous `avalon agent install --host HOST --project PATH` syntax remains supported.
+
 The workflow prepares missing Python support in a project virtual environment within the existing setup authorization.
-It uses the reviewed Python `0.3.0` wheel from release `v0.5.0` and checks its release manifest and checksum.
+It uses the reviewed Python `0.3.0` wheel from release `v0.6.0` and checks its release manifest and checksum.
 It installs declared dependencies there and uses the environment's explicit executable.
 It preserves global Python and continues independent work if setup cannot complete.
 See the [shared setup procedure](../skills/_shared/workflow.md#prepare-python-when-required) for the exact assets and verification steps.
 
-The installer does not merge local skill edits or remove an older bundle.
-Preserve custom edits before explicitly removing or relocating conflicting files.
-Then install the selected bundle again.
+The installer does not merge local skill edits or remove files that it does not own.
+Inspect and preserve custom edits before explicitly replacing a conflicting file.
+
+## Native plugin installation
+
+Claude Code can register the repository and install its native plugin:
+
+```sh
+claude plugin marketplace add marco-trotta1/avalon-rl
+claude plugin install avalon@avalon
+```
+
+These commands are verified with Claude Code 2.1.278. The resulting commands use the `avalon` namespace.
+That CLI version does not accept an install `--marketplace` flag.
+In Cursor, use Customize, From GitHub Repository, and select `marco-trotta1/avalon-rl`.
+Then install Avalon from the imported catalog. The catalog passes the official schema; this UI path remains untested.
+Use the project installer for Codex. Codex 0.133 rejects the root source used by these native catalogs.
+
+Native plugins supply the skills. On first use, the shared protocol prepares the verified project runtime when needed.
+It uses `avalon install --runtime-only` and adds no duplicate project skills.
+Python support remains optional until a selected workflow needs it.
 
 ## Invoke
 

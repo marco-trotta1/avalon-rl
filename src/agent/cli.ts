@@ -5,6 +5,7 @@ import { inspectPath, projectRoot, withStateLock } from "./io.js";
 import { discoverProject, initProjectUnlocked } from "./project.js";
 import { finishRun, recordRun, resumeRun, startRun, type FinishStatus, type RecordKind } from "./runs.js";
 import { assertNever } from "../lib/schema.js";
+import { installRuntime } from "./runtime.js";
 
 const OPERATIONS = ["commands", "doctor", "init", "install", "start", "record", "finish", "resume"] as const;
 type Operation = typeof OPERATIONS[number];
@@ -15,7 +16,9 @@ Usage:
   avalon agent commands [--json]
   avalon agent doctor [--project PATH]
   avalon agent init [--project PATH]
-  avalon agent install --host cursor|claude|codex --project PATH [--dry-run]
+  avalon install cursor|claude|codex [--project PATH] [--dry-run]
+  avalon agent install --host cursor|claude|codex [--project PATH] [--dry-run]
+  avalon install --runtime-only [--project PATH] [--dry-run]
   avalon agent start COMMAND --goal TEXT [--project PATH] [--input FILE ...]
   avalon agent record RUN_ID --kind observation|hypothesis|evidence|decision --message TEXT [--artifact FILE] [--accept-drift] [--project PATH]
   avalon agent finish RUN_ID --status complete|inconclusive|blocked|failed --summary TEXT [--project PATH]
@@ -27,6 +30,7 @@ Completion records describe host-reported execution, not verified scientific suc
 Declared input and artifact files must not exceed 256 MiB. Records must not exceed 1 MiB.
 Use --accept-drift only for an intentional decision. Fresh evidence is required after that decision.
 Existing skills, profiles, events, and terminal results are preserved.
+Installation defaults to the current directory and includes a private project runtime.
 `;
 
 class UsageError extends Error {}
@@ -42,7 +46,7 @@ export async function runAgent(args: string[]): Promise<number> {
     try {
       parsed = parseArgs({ args, allowPositionals: true, strict: true, tokens: true, options: {
         help: { type: "boolean", short: "h" }, json: { type: "boolean" }, project: { type: "string" },
-        host: { type: "string" }, "dry-run": { type: "boolean" }, goal: { type: "string" }, input: { type: "string", multiple: true },
+        host: { type: "string" }, "dry-run": { type: "boolean" }, "runtime-only": { type: "boolean" }, goal: { type: "string" }, input: { type: "string", multiple: true },
         kind: { type: "string" }, message: { type: "string" }, artifact: { type: "string" },
         "accept-drift": { type: "boolean" }, status: { type: "string" }, summary: { type: "string" },
       } });
@@ -58,30 +62,38 @@ export async function runAgent(args: string[]): Promise<number> {
     const command = OPERATIONS.find(value => value === requested);
     if (command === undefined) throw new UsageError("Select a documented agent command.");
     const allowed: Record<Operation, readonly string[]> = {
-      commands: ["json"], doctor: ["project"], init: ["project"], install: ["host", "project", "dry-run"],
+      commands: ["json"], doctor: ["project"], init: ["project"], install: ["host", "project", "dry-run", "runtime-only"],
       start: ["project", "goal", "input"], record: ["project", "kind", "message", "artifact", "accept-drift"],
       finish: ["project", "status", "summary"], resume: ["project"],
     };
     const options = allowed[command];
     if ([...seen].some(name => !options.includes(name))) throw new UsageError("The agent command does not support this option.");
     const needsId = ["start", "record", "finish", "resume"].includes(command);
-    if (extra.length || needsId !== (id !== undefined)) throw new UsageError("Check the number of agent command arguments.");
+    if (extra.length || (command !== "install" && needsId !== (id !== undefined))) throw new UsageError("Check the number of agent command arguments.");
     if (command === "commands") {
       if (parsed.values.json) process.stdout.write(JSON.stringify({ format: "avalon-agent-commands-v1", commands: AGENT_COMMANDS }, null, 2) + "\n");
       else process.stdout.write(AGENT_COMMANDS.map(value => `${value.invocation}  ${value.description}`).join("\n") + "\n");
       return 0;
     }
+    if (parsed.values.project !== undefined && !parsed.values.project.trim()) throw new UsageError("Supply a nonempty --project path.");
     const root = await projectRoot(parsed.values.project ?? process.cwd());
     let result: object;
     switch (command) {
       case "doctor": result = await discoverProject(root); break;
       case "init": result = await withStateLock(root, () => initProjectUnlocked(root)); break;
       case "install": {
-        const host = parsed.values.host;
+        if (id !== undefined && parsed.values.host !== undefined) throw new UsageError("Select the host once.");
+        const host = parsed.values.host ?? id;
+        const dryRun = parsed.values["dry-run"] ?? false;
+        if (parsed.values["runtime-only"]) {
+          if (host !== undefined) throw new UsageError("Select a host or --runtime-only.");
+          const install = () => installRuntime({ root, dryRun });
+          result = dryRun ? await install() : await withStateLock(root, install);
+          break;
+        }
         if (host !== "cursor" && host !== "claude" && host !== "codex") throw new UsageError("Select --host cursor, claude, or codex.");
-        required(parsed.values.project, "--project PATH");
-        const install = () => installSkills({ root, host: host satisfies AgentHost, dryRun: parsed.values["dry-run"] ?? false });
-        result = parsed.values["dry-run"] ? await install() : await withStateLock(root, install);
+        const install = () => installSkills({ root, host: host satisfies AgentHost, dryRun });
+        result = dryRun ? await install() : await withStateLock(root, install);
         break;
       }
       case "start": {

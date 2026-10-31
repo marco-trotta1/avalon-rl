@@ -44,15 +44,24 @@ jobs:
       - name: Install and check the packages
         run: |
           mkdir /tmp/avalon-release-smoke
-          npm install --ignore-scripts --prefix /tmp/avalon-release-smoke "$PWD"/release/*.tgz
+          AVALON_ARCHIVE="$PWD/release/avalon.tgz"
+          AVALON_VERSION=$(node -p 'require("./package.json").version')
+          npm install --ignore-scripts --prefix /tmp/avalon-release-smoke "$AVALON_ARCHIVE"
           /tmp/avalon-release-smoke/node_modules/.bin/avalon lab-demo --fault none
           /tmp/avalon-release-smoke/node_modules/.bin/avalon world-run --data /tmp/avalon-release-smoke/node_modules/avalon-rl/examples/world/claim-plan.json
-          mkdir /tmp/avalon-release-smoke/project
           for host in cursor claude codex; do
-            /tmp/avalon-release-smoke/node_modules/.bin/avalon agent install --host "$host" --project /tmp/avalon-release-smoke/project
+            mkdir "/tmp/avalon-release-smoke/project-$host"
+            (
+              cd "/tmp/avalon-release-smoke/project-$host"
+              npm exec --yes --cache /tmp/avalon-one-shot-cache --package "$AVALON_ARCHIVE" -- avalon install "$host"
+            )
           done
-          /tmp/avalon-release-smoke/node_modules/.bin/avalon agent commands --json
-          /tmp/avalon-release-smoke/node_modules/.bin/avalon agent doctor --project /tmp/avalon-release-smoke/project
+          rm -rf /tmp/avalon-one-shot-cache /tmp/avalon-release-smoke/node_modules
+          for host in cursor claude codex; do
+            AVALON_LOCAL="/tmp/avalon-release-smoke/project-$host/.avalon/runtime/$AVALON_VERSION/dist/cli.js"
+            node "$AVALON_LOCAL" agent commands --json
+            node "$AVALON_LOCAL" lab-demo --fault none
+          done
           python -m pip install --no-deps --force-reinstall release/*.whl
           cd /tmp
           avalon-python --help

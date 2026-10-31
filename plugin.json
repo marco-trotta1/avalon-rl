@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "avalon",
   "displayName": "Avalon RL",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "RL workflows for coding agents: research, environments, rewards, audits, training, evaluation, and reproducible releases.",
   "author": {
     "name": "Marco Trotta"

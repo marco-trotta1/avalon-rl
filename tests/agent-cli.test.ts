@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { spawnSync } from "node:child_process";
 import { runAgent } from "../src/agent/cli.js";
 
 let root: string;
@@ -81,5 +82,53 @@ describe("the agent CLI boundary", () => {
     const repeated = await run(["install", "--host", host, "--project", root]);
     expect(repeated.code, repeated.error).toBe(0);
     expect(repeated.output).toContain('"status": "unchanged"');
+  });
+
+  it.each(["cursor", "claude", "codex"])("installs for %s in the current project without a global runtime", async host => {
+    const result = spawnSync(process.execPath, [join(import.meta.dirname, "../dist/cli.js"), "install", host], { cwd: root, encoding: "utf8" });
+    expect(result.status, result.stderr).toBe(0);
+    const installed: unknown = JSON.parse(result.stdout);
+    if (typeof installed !== "object" || installed === null || !("runtime" in installed)) throw new Error("Missing installed runtime.");
+    const runtime = installed.runtime;
+    if (typeof runtime !== "object" || runtime === null || !("entrypoint" in runtime) || typeof runtime.entrypoint !== "string") throw new Error("Missing runtime entrypoint.");
+    const executable = join(root, runtime.entrypoint);
+    const catalog = spawnSync(process.execPath, [executable, "agent", "commands", "--json"], { cwd: dirname(root), encoding: "utf8", env: { ...process.env, PATH: "/nonexistent" } });
+    expect(catalog.status, catalog.stderr).toBe(0);
+    expect(catalog.stdout.match(/"invocation":/g)).toHaveLength(20);
+    const audit = spawnSync(process.execPath, [executable, "lab-demo", "--fault", "none"], { cwd: dirname(root), encoding: "utf8", env: { ...process.env, PATH: "/nonexistent" } });
+    expect(audit.status, audit.stderr).toBe(0);
+  });
+
+  it("installs a runtime without duplicate host skills and previews without writes", async () => {
+    const preview = await run(["install", "--runtime-only", "--project", root, "--dry-run"]);
+    expect(preview.code, preview.error).toBe(0);
+    expect(await readdir(root)).toEqual([]);
+    const result = await run(["install", "--runtime-only", "--project", root]);
+    expect(result.code, result.error).toBe(0);
+    expect(await readdir(root)).toEqual([".avalon"]);
+    expect((await run(["install", "--runtime-only", "--project", root])).output).toContain('"status": "unchanged"');
+    expect((await run(["install", "codex", "--runtime-only", "--project", root])).code).toBe(2);
+    expect((await run(["install", "codex", "--host", "claude", "--project", root])).code).toBe(2);
+  });
+
+  it("upgrades the untouched 0.5 protocol and preserves a locally edited protocol", async () => {
+    const old = await readFile(join(import.meta.dirname, "fixtures/agent-workflow-v0.5.0.md"), "utf8");
+    const args = ["install", "codex", "--project", root];
+    expect((await run(args)).code).toBe(0);
+    const protocol = join(root, ".agents/skills/_shared/workflow.md");
+    await writeFile(protocol, old);
+    const upgraded = await run(args);
+    expect(upgraded.code, upgraded.error).toBe(0);
+    expect(upgraded.output).toContain('"updatedFiles": 1');
+    expect(await readFile(protocol, "utf8")).toContain("runtime/0.6.0/dist/cli.js");
+    await writeFile(protocol, old + "Keep the local customization.\n");
+    expect((await run(args)).code).toBe(1);
+    expect(await readFile(protocol, "utf8")).toBe(old + "Keep the local customization.\n");
+  });
+
+  it.each(["", "   "])("rejects an explicit blank project before creating files", project => {
+    const result = spawnSync(process.execPath, [join(import.meta.dirname, "../dist/cli.js"), "install", "codex", "--project", project], { cwd: root, encoding: "utf8" });
+    expect(result.status, result.stderr).toBe(2);
+    return expect(readdir(root)).resolves.toEqual([]);
   });
 });

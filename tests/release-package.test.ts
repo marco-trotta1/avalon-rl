@@ -46,6 +46,8 @@ describe("release package", () => {
       const sums = readFileSync(join(directory, "SHA256SUMS"), "utf8");
       expect(sums).toContain(`${createHash("sha256").update("node archive").digest("hex")}  ${nodeName}`);
       expect(sums).toContain(`${createHash("sha256").update("python wheel").digest("hex")}  ${pythonName}`);
+      expect(readFileSync(join(directory, "avalon.tgz"), "utf8")).toBe("node archive");
+      expect(sums).toContain(`${createHash("sha256").update("node archive").digest("hex")}  avalon.tgz`);
     } finally { rmSync(directory, { recursive: true, force: true }); }
   });
 });

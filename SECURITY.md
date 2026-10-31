@@ -59,6 +59,14 @@ Host permissions and resource controls remain necessary for those actions.
 
 Agent run records contain goals, project paths, messages, hashes, and selected evidence.
 Agent operation errors can include local paths. Keep their logs private.
+Agent installation includes a private Node runtime under `.avalon/runtime/VERSION`.
+The runtime includes production JavaScript, skill source, the declared Zod dependency, and their licenses.
+Installation preflights all files and preserves differing local content.
+The installer replaces the exact known 0.5 shared protocol when its complete hash matches the shipped version.
+It rejects a locally edited protocol. Other differing files remain protected.
+Stock upgrades retain the actually displaced file in a private backup directory.
+Publication uses an exclusive link and never replaces a recreated target.
+If concurrent editing prevents restoration, the error names the retained backup for inspection.
 Keep `.avalon` private. The installer does not make these records suitable for publication.
 Review the allowed artifacts before a release.
 The built-in Gymnasium trainer uses a declared CPU budget and creates new output files.
