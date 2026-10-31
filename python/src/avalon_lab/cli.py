@@ -3,6 +3,7 @@
 import argparse
 from pathlib import Path
 
+from .agent_cli import AGENT_COMMANDS, add_agent_commands, dispatch_agent_command
 from .counter import record_counter
 from .comparison import run_comparison
 from .experiment import run_experiment
@@ -35,8 +36,9 @@ def _frontier_command(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Record a local synthetic RL snapshot.")
+    parser = argparse.ArgumentParser(description="Run local RL audits and bounded policy experiments.")
     commands = parser.add_subparsers(dest="command", required=True)
+    add_agent_commands(commands)
     record = commands.add_parser("record-counter")
     record.add_argument("--output", type=Path, required=True)
     record.add_argument("--seed", type=int, default=7)
@@ -78,6 +80,11 @@ def main() -> int:
     policy.add_argument("--family", type=Path, action="append", required=True)
     policy.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.command in AGENT_COMMANDS:
+        try:
+            return dispatch_agent_command(args)
+        except (OSError, ValueError, KeyError, RecursionError):
+            parser.exit(1, "The agent workflow cannot complete. Check the documented inputs and output paths.\n")
     if args.command in ("sampling-audit", "sampling-witness", "sampling-benchmark", "policy-experiment"):
         try:
             return _frontier_command(args)

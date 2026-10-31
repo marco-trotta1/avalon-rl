@@ -1,0 +1,27 @@
+{
+  "format": "avalon.agent-package-smoke/v1",
+  "commands": 20,
+  "host_installs": [
+    "cursor package installation and repeat installation",
+    "claude package installation and repeat installation",
+    "codex package installation and repeat installation"
+  ],
+  "completed_evidence_runs": [
+    "rl-train",
+    "rl-eval",
+    "rl-probs",
+    "rl-credit"
+  ],
+  "training_updates": 3,
+  "training_transitions": 43,
+  "evaluation_updates": 0,
+  "overlap_rejected": true,
+  "sampling_status": "pass",
+  "credit_status": "pass",
+  "known_fault_demo": "executed",
+  "python_installation": "Wheel installed in a separate target with the tested existing dependencies.",
+  "limits": [
+    "The host UI is not invoked.",
+    "These checks do not establish a learning gain."
+  ]
+}

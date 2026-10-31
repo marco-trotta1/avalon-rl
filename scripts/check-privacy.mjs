@@ -30,7 +30,7 @@ for (const name of ["next", "react", "react-dom", "@playwright/test"]) {
 }
 const tracked = execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
 for (const file of tracked) {
-  if (/(^|\/)(private-data|uploads|reports|local|\.env[^/]*)\b|\.(jsonl|ndjson|csv|parquet|arrow|h5|hdf5|pem|key|p12|sqlite|db)$/i.test(file)) {
+  if (/(^|\/)(private-data|uploads|reports|local|\.avalon|\.env[^/]*)\b|\.(jsonl|ndjson|csv|parquet|arrow|h5|hdf5|pem|key|p12|sqlite|db)$/i.test(file)) {
     failures.push(`Remove the private data path from Git: ${file}`);
   }
 }

@@ -1,13 +1,40 @@
 # Avalon RL
 
-**Build learning worlds. Challenge rewards. Keep the evidence.**
+**Build learning worlds. Challenge rewards. Run RL workflows from your agent.**
 
-Avalon is a local CLI and SDK for people who build environments and data pipelines for agents.
+Avalon supplies agent workflows, a local CLI, and an SDK for RL projects.
 It compares what an environment emits with what a learner receives.
 It also finds synthetic cases where a verifier rewards the wrong outcome.
 
 The project uses the [MIT License](LICENSE).
-It has no UI, site, server, telemetry, or model API client.
+The runtime has no UI, site, server, telemetry, or model API client.
+The commands use your coding agent's model and tools.
+
+## Install the agent commands
+
+Install the Node archive from the [latest release](https://github.com/marco-trotta1/avalon-rl/releases/latest).
+Then select the project and host:
+
+```sh
+avalon agent install --host cursor --project /path/to/project
+avalon agent doctor --project /path/to/project
+```
+
+Select `claude` or `codex` for another supported skill directory.
+Cursor and Claude project skills use `/rl-train`, `/rl-break`, and the other command names.
+Codex exposes the skills through `/skills` and `$rl-train`.
+Native Claude plugins use the `avalon` namespace.
+
+```text
+/avalon Find why reward rises while held-out task completion falls
+/rl-break Find a rewarded failure in this environment
+/rl-train Compare the current reward with the repaired reward
+```
+
+The [command guide](docs/agent-commands.md) describes all 20 workflows and their execution boundaries.
+Each workflow discovers project inputs and leaves private records under `.avalon`.
+The host performs code changes, execution, research, and delegation under its existing permissions and budget.
+Unsupported trainers require an implemented and tested adapter before their results can be verified.
 
 ## Start with a counterexample
 
@@ -31,6 +58,9 @@ All three examples use synthetic data.
 
 | Capability | Result |
 | --- | --- |
+| Agent workflows | Install 20 processes for research, environment work, reward repair, experiments, and releases |
+| Private run records | Bind inputs, retain artifact evidence, inspect drift, and preserve completed results |
+| Gymnasium learning | Train a bounded CartPole policy, evaluate frozen checkpoints, and audit actual probabilities and learning credit |
 | Experience audit | Compare observations, actions, rewards, final observations, ending signals, masks, and task context |
 | Pipeline audit | Compare adjacent stages and locate the first divergence from the source |
 | Private witness | Reduce evidence while preserving a selected finding and its episode identity |

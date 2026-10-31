@@ -15,6 +15,15 @@ describe("release package", () => {
     const files = packs.parse(JSON.parse(result.stdout) as unknown)[0]?.files.map(file => file.path) ?? [];
     expect(files).toContain("examples/world/claim-plan.json");
     expect(files).toContain("dist/cli.js");
+    expect(files).toContain(".cursor-plugin/plugin.json");
+    expect(files).toContain(".claude-plugin/plugin.json");
+    expect(files).toContain("plugin.json");
+    const names = ["avalon", "rl-research", "rl-spec", "rl-env", "rl-scenarios", "rl-reward", "rl-break", "rl-harden",
+      "rl-data", "rl-probs", "rl-credit", "rl-train", "rl-diagnose", "rl-ablate", "rl-curriculum", "rl-eval",
+      "rl-transfer", "rl-optimize", "rl-reproduce", "rl-release"];
+    for (const name of names) expect(files).toContain(`skills/${name}/SKILL.md`);
+    expect(files.filter(path => /^skills\/[^/]+\/SKILL.md$/.test(path))).toHaveLength(20);
+    expect(files.some(path => /(^|\/)\.avalon\//.test(path))).toBe(false);
     expect(files.some(path => path.startsWith("research/"))).toBe(false);
     expect(files.some(path => path.includes("__pycache__") || path.endsWith(".pyc"))).toBe(false);
   });

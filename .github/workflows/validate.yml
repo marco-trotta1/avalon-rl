@@ -26,6 +26,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Check the types
         run: npm run typecheck
+      - name: Check the agent package
+        run: npm run check:agent
       - name: Test the Node workflows
         run: npm test
       - name: Check the privacy boundary
