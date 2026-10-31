@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseSnapshot, stepSchema } from "../src/lab/contract.js";
+import { auditSnapshots } from "../src/audit/engine.js";
 import { auditTracePair, parseTracePairContract } from "../src/trace/pair.js";
 
 describe("declared trace isomorphism", () => {
@@ -40,5 +41,15 @@ describe("declared trace isomorphism", () => {
       ...snapshot.episodes[0]!.steps[0]!, index: 1,
     }));
     expect(auditTracePair({ source: left, target: right, contract }).status).toBe("unknown");
+  });
+  it("rejects added or removed optional transition fields in a declared pair", () => {
+    const withMask = structuredClone(target);
+    withMask.episodes[0]!.steps[0]!.bootstrap_mask = 0;
+    expect(auditSnapshots({ source: target, target: withMask }).status).toBe("pass");
+    expect(auditTracePair({ source, target: withMask, contract }).status).toBe("mismatch");
+    const sourceWithMask = structuredClone(source);
+    sourceWithMask.episodes[0]!.steps[0]!.bootstrap_mask = 0;
+    expect(auditTracePair({ source: sourceWithMask, target, contract }).status).toBe("mismatch");
+    expect(auditTracePair({ source: sourceWithMask, target: withMask, contract }).status).toBe("match");
   });
 });

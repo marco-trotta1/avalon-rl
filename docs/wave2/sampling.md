@@ -41,6 +41,8 @@ The audit returns `pass`, `fail`, or `inconclusive`.
 Each check returns `match`, `mismatch`, or `unknown`.
 A known mismatch determines failure even when another check lacks evidence.
 Unavailable support cannot establish a match.
+The audit checks each captured side's sampled-token membership independently.
+A known membership violation determines failure even when the other support is unavailable.
 
 The source example uses support `{0,1}` with three zero logits.
 Change the target support to `{0,2}` and keep token `0` as the sample.
