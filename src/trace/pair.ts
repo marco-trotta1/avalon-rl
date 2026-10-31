@@ -74,10 +74,13 @@ export function auditTracePair(options: { source: Snapshot; target: Snapshot; co
       return { pair: index + 1, status: "unknown" as const, code: "transform.collision", differences: 0 };
     }
     const expected = transformEpisode(episode, names);
-    const report = auditSnapshots({ source: { ...source, episodes: [{ ...expected, id: pair.targetEpisode, task: pair.targetTask }] },
+    const boundExpected = { ...expected, id: pair.targetEpisode, task: pair.targetTask };
+    const report = auditSnapshots({ source: { ...source, episodes: [boundExpected] },
       target: { ...target, episodes: right } });
-    const status: TraceStatus = report.status === "pass" ? "match" : report.status === "fail" ? "mismatch" : "unknown";
-    return { pair: index + 1, status, code: status === "match" ? "pair.matched" : "pair.changed", differences: report.findings.length };
+    const fullEpisodeMatches = contentHash(boundExpected) === contentHash(right[0]!);
+    const status: TraceStatus = report.status === "fail" || !fullEpisodeMatches ? "mismatch" : report.status === "pass" ? "match" : "unknown";
+    return { pair: index + 1, status, code: status === "match" ? "pair.matched" : "pair.changed",
+      differences: report.findings.length + (!fullEpisodeMatches && report.status !== "fail" ? 1 : 0) };
   });
   return {
     format: "avalon.trace-pair-audit/v1",

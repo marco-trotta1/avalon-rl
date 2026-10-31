@@ -45,9 +45,9 @@ describe("finite world MDP", () => {
     for (const key of ["task", "seed", "split", "rewards", "outcome", "valid"]) expect(JSON.parse(state.observationKey)).not.toHaveProperty(key);
   });
   it("is deterministic, transfers feature keys across seeds, and validates its horizon", () => {
-    expect(makeWorldMdpSuite({ seed: 7, horizon: 2 })).toEqual(makeWorldMdpSuite({ seed: 7, horizon: 2 }));
-    const first = makeWorldMdpSuite({ seed: 7, horizon: 2 });
-    const second = makeWorldMdpSuite({ seed: 101, horizon: 2 });
+    expect(makeWorldMdpSuite({ seed: 7, horizon: 3 })).toEqual(makeWorldMdpSuite({ seed: 7, horizon: 3 }));
+    const first = makeWorldMdpSuite({ seed: 7, horizon: 3 });
+    const second = makeWorldMdpSuite({ seed: 101, horizon: 3 });
     expect(first.map(table => table.states.map(state => state.observationKey)))
       .toEqual(second.map(table => table.states.map(state => state.observationKey)));
     for (const horizon of [0, 7, 1.5]) expect(() => makeWorldMdp({ task: worldTasks()[0]!, horizon })).toThrow();
@@ -63,5 +63,22 @@ describe("finite world MDP", () => {
     const evaluation = makeWorldMdp({ task, horizon: 4, split: "eval" });
     expect(evaluation).toEqual({ ...training, split: "eval" });
     expect(task.split).toBe("train");
+  });
+  it("rejects a horizon that cannot contain the emitted known solution", () => {
+    for (const task of worldTasks()) for (let horizon = 1; horizon < task.knownGood.length; horizon++) {
+      expect(() => makeWorldMdp({ task, horizon })).toThrow("known solution");
+    }
+    for (const task of worldTasks()) {
+      const table = makeWorldMdp({ task, horizon: task.knownGood.length });
+      let state = table.states.find(item => item.id === table.initialState)!;
+      let valid = false;
+      for (const action of table.knownGood) {
+        const edge = state.transitions.find(item => item.action === action)!;
+        valid = edge.outcome?.valid ?? false;
+        state = table.states.find(item => item.id === edge.nextState)!;
+      }
+      expect(valid).toBe(true);
+      expect(state.transitions).toHaveLength(0);
+    }
   });
 });

@@ -51,7 +51,10 @@ Each pair binds the source and target episode identifiers and task identifiers.
 The contract declares a one-to-one string renaming.
 The transformation applies to observation, action, next-observation, and metadata keys and string values.
 All other transition fields must stay equal, including reward and both ending signals.
+Optional fields must also retain their presence and value.
+Adding or removing a bootstrap mask is a paired mismatch.
 The audit compares the complete transformed episode through the existing snapshot auditor.
+It also compares the complete transformed episode hash to enforce exact field presence.
 Missing pairs, ambiguous identities, unpaired episodes, and renaming collisions return `unknown`.
 Internally invalid or incomplete pair members also return `unknown`.
 The audit does not treat a declared renaming as proof of a new task family.
@@ -76,7 +79,11 @@ The hashes do not authenticate the original recorder.
 
 `makeWorldMdp({task, horizon, split})` exports `avalon.mdp/v1` through the existing world reducer.
 `makeWorldMdpSuite({seed, horizon, split})` exports all existing catalog tasks.
-The default horizon is four actions. The accepted range is one to six actions.
+The default horizon is four actions. The maximum horizon is six actions.
+The horizon must contain the task's complete known solution.
+Settlement tasks and the ticket-only task require at least two actions.
+The combined settlement and ticket task requires at least three actions.
+The exporter rejects a shorter horizon before it creates a table.
 The action alphabet contains exact payments, zero payments, ticket closure, a completion claim, and finish.
 The exporter does not change the world or call its known solution during search.
 It accepts unchanged catalog tasks only.
