@@ -33,6 +33,7 @@ jobs:
           npm test
           npm run typecheck
           npm run check:privacy
+          npm run check:agent
           AVALON_CLI="$PWD/dist/cli.js" PYTHONPATH="$PWD/python/src" python -m pytest python/tests -q
       - name: Build the packages and the manifest
         run: |
@@ -46,9 +47,20 @@ jobs:
           npm install --ignore-scripts --prefix /tmp/avalon-release-smoke "$PWD"/release/*.tgz
           /tmp/avalon-release-smoke/node_modules/.bin/avalon lab-demo --fault none
           /tmp/avalon-release-smoke/node_modules/.bin/avalon world-run --data /tmp/avalon-release-smoke/node_modules/avalon-rl/examples/world/claim-plan.json
+          mkdir /tmp/avalon-release-smoke/project
+          for host in cursor claude codex; do
+            /tmp/avalon-release-smoke/node_modules/.bin/avalon agent install --host "$host" --project /tmp/avalon-release-smoke/project
+          done
+          /tmp/avalon-release-smoke/node_modules/.bin/avalon agent commands --json
+          /tmp/avalon-release-smoke/node_modules/.bin/avalon agent doctor --project /tmp/avalon-release-smoke/project
           python -m pip install --no-deps --force-reinstall release/*.whl
           cd /tmp
           avalon-python --help
+          avalon-python gym-train --episodes 2 --max-steps 20 --output /tmp/avalon-release-smoke/training
+          avalon-python gym-eval --checkpoint /tmp/avalon-release-smoke/training/checkpoint.json --seeds 1001,1002 --max-steps 20 --output /tmp/avalon-release-smoke/evaluation.json
+          avalon-python gym-probs --checkpoint /tmp/avalon-release-smoke/training/checkpoint.json --episodes 1 --max-steps 20 --output /tmp/avalon-release-smoke/probabilities
+          avalon-python sampling-audit --source /tmp/avalon-release-smoke/probabilities/source.json --target /tmp/avalon-release-smoke/probabilities/target.json --output /tmp/avalon-release-smoke/sampling.json
+          avalon-python credit-audit --source /tmp/avalon-release-smoke/training/credit.json --output /tmp/avalon-release-smoke/credit-audit.json
       - name: Preserve the verified artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

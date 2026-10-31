@@ -1,0 +1,352 @@
+{
+  "limits": [
+    "The experiment uses one fixed built-in task, not language-model RL.",
+    "The evaluation seed bootstrap conditions on each frozen checkpoint.",
+    "Three training seeds do not establish broad performance.",
+    "External API cost is zero. CPU compute and host-agent costs are unpriced."
+  ],
+  "protocol": {
+    "discount": 0.99,
+    "episodes": 30,
+    "evaluation_seeds": [
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020
+    ],
+    "host": {
+      "machine": "arm64",
+      "python": "3.13.5",
+      "system": "Darwin"
+    },
+    "learning_rate": 0.01,
+    "max_evaluation_steps": 500,
+    "max_training_steps": 200,
+    "selection": "The protocol is fixed before execution. No evaluation result selects a candidate or hyperparameter.",
+    "source_sha256": "4e600623be6a89da0e56a55c78915703c8dfd88b9b4429686edc50e552efc4bd",
+    "training_seeds": [
+      7,
+      101,
+      211
+    ]
+  },
+  "results": [
+    {
+      "comparisons": [
+        {
+          "baseline": "uniform-random",
+          "bootstrap_95_percentile": [
+            -2.8,
+            16.65
+          ],
+          "candidate": "learned-stochastic",
+          "mean_difference": 6.45,
+          "paired_differences": [
+            49.0,
+            3.0,
+            -2.0,
+            -12.0,
+            -17.0,
+            -16.0,
+            4.0,
+            1.0,
+            38.0,
+            -15.0,
+            12.0,
+            44.0,
+            57.0,
+            -9.0,
+            -14.0,
+            -17.0,
+            2.0,
+            7.0,
+            -1.0,
+            15.0
+          ],
+          "sample_count": 20,
+          "unit": "undiscounted episode return"
+        },
+        {
+          "baseline": "angle-velocity-control",
+          "bootstrap_95_percentile": [
+            -476.1,
+            -452.3
+          ],
+          "candidate": "learned-stochastic",
+          "mean_difference": -464.55,
+          "paired_differences": [
+            -436.0,
+            -443.0,
+            -486.0,
+            -487.0,
+            -486.0,
+            -489.0,
+            -480.0,
+            -490.0,
+            -430.0,
+            -485.0,
+            -473.0,
+            -403.0,
+            -405.0,
+            -479.0,
+            -481.0,
+            -448.0,
+            -476.0,
+            -481.0,
+            -486.0,
+            -447.0
+          ],
+          "sample_count": 20,
+          "unit": "undiscounted episode return"
+        }
+      ],
+      "credit_checks": {
+        "match": 6231,
+        "mismatch": 0
+      },
+      "credit_status": "pass",
+      "evaluation_seconds": 0.038909124999918276,
+      "means": {
+        "angle-velocity-control": 500.0,
+        "learned-stochastic": 35.45,
+        "uniform-random": 29.0
+      },
+      "parameter_sha256": "dcd614bb29aa5700bc9e084ca2815b5ed8ea05a723cc4263b9c040ef01356166",
+      "producer": {
+        "algorithm_revision": "numpy-linear-softmax-reinforce-v1",
+        "gymnasium": "1.2.3",
+        "numpy": "2.4.2",
+        "python": "3.13.5",
+        "source_sha256": "4e600623be6a89da0e56a55c78915703c8dfd88b9b4429686edc50e552efc4bd"
+      },
+      "training_seconds": 0.021814125000673812,
+      "training_seed": 7,
+      "transitions": 873,
+      "updates": 30
+    },
+    {
+      "comparisons": [
+        {
+          "baseline": "uniform-random",
+          "bootstrap_95_percentile": [
+            -8.85,
+            9.8
+          ],
+          "candidate": "learned-stochastic",
+          "mean_difference": 0.2,
+          "paired_differences": [
+            49.0,
+            -12.0,
+            -2.0,
+            -12.0,
+            -11.0,
+            16.0,
+            4.0,
+            1.0,
+            0.0,
+            -15.0,
+            7.0,
+            44.0,
+            -3.0,
+            -3.0,
+            -13.0,
+            -53.0,
+            -9.0,
+            7.0,
+            -4.0,
+            13.0
+          ],
+          "sample_count": 20,
+          "unit": "undiscounted episode return"
+        },
+        {
+          "baseline": "angle-velocity-control",
+          "bootstrap_95_percentile": [
+            -479.3,
+            -460.9
+          ],
+          "candidate": "learned-stochastic",
+          "mean_difference": -470.8,
+          "paired_differences": [
+            -436.0,
+            -458.0,
+            -486.0,
+            -487.0,
+            -480.0,
+            -457.0,
+            -480.0,
+            -490.0,
+            -468.0,
+            -485.0,
+            -478.0,
+            -403.0,
+            -465.0,
+            -473.0,
+            -480.0,
+            -484.0,
+            -487.0,
+            -481.0,
+            -489.0,
+            -449.0
+          ],
+          "sample_count": 20,
+          "unit": "undiscounted episode return"
+        }
+      ],
+      "credit_checks": {
+        "match": 5209,
+        "mismatch": 0
+      },
+      "credit_status": "pass",
+      "evaluation_seconds": 0.037250582998240134,
+      "means": {
+        "angle-velocity-control": 500.0,
+        "learned-stochastic": 29.2,
+        "uniform-random": 29.0
+      },
+      "parameter_sha256": "d2f81bc05844f94b50dc5e6aed9d4dbdfd54e63ebfe6c61bf5d1ff2c6063894c",
+      "producer": {
+        "algorithm_revision": "numpy-linear-softmax-reinforce-v1",
+        "gymnasium": "1.2.3",
+        "numpy": "2.4.2",
+        "python": "3.13.5",
+        "source_sha256": "4e600623be6a89da0e56a55c78915703c8dfd88b9b4429686edc50e552efc4bd"
+      },
+      "training_seconds": 0.017727875001583016,
+      "training_seed": 101,
+      "transitions": 727,
+      "updates": 30
+    },
+    {
+      "comparisons": [
+        {
+          "baseline": "uniform-random",
+          "bootstrap_95_percentile": [
+            -3.45,
+            12.25
+          ],
+          "candidate": "learned-stochastic",
+          "mean_difference": 3.95,
+          "paired_differences": [
+            50.0,
+            -6.0,
+            -2.0,
+            -10.0,
+            -8.0,
+            24.0,
+            4.0,
+            1.0,
+            3.0,
+            -15.0,
+            10.0,
+            44.0,
+            4.0,
+            -3.0,
+            -13.0,
+            -27.0,
+            2.0,
+            7.0,
+            -1.0,
+            15.0
+          ],
+          "sample_count": 20,
+          "unit": "undiscounted episode return"
+        },
+        {
+          "baseline": "angle-velocity-control",
+          "bootstrap_95_percentile": [
+            -475.65,
+            -457.3
+          ],
+          "candidate": "learned-stochastic",
+          "mean_difference": -467.05,
+          "paired_differences": [
+            -435.0,
+            -452.0,
+            -486.0,
+            -485.0,
+            -477.0,
+            -449.0,
+            -480.0,
+            -490.0,
+            -465.0,
+            -485.0,
+            -475.0,
+            -403.0,
+            -458.0,
+            -473.0,
+            -480.0,
+            -458.0,
+            -476.0,
+            -481.0,
+            -486.0,
+            -447.0
+          ],
+          "sample_count": 20,
+          "unit": "undiscounted episode return"
+        }
+      ],
+      "credit_checks": {
+        "match": 5748,
+        "mismatch": 0
+      },
+      "credit_status": "pass",
+      "evaluation_seconds": 0.03804195900011109,
+      "means": {
+        "angle-velocity-control": 500.0,
+        "learned-stochastic": 32.95,
+        "uniform-random": 29.0
+      },
+      "parameter_sha256": "5ce487f1961ee1abe3a7944c24f7d24dade47ac9f9c5bf03c040739cbaaf1741",
+      "producer": {
+        "algorithm_revision": "numpy-linear-softmax-reinforce-v1",
+        "gymnasium": "1.2.3",
+        "numpy": "2.4.2",
+        "python": "3.13.5",
+        "source_sha256": "4e600623be6a89da0e56a55c78915703c8dfd88b9b4429686edc50e552efc4bd"
+      },
+      "training_seconds": 0.019080124999163672,
+      "training_seed": 211,
+      "transitions": 804,
+      "updates": 30
+    }
+  ],
+  "sampling": {
+    "status": "pass",
+    "summary": {
+      "match": 715,
+      "mismatch": 0,
+      "unknown": 0
+    },
+    "transitions": 55
+  },
+  "format": "avalon.agent-gym-evidence/v1",
+  "cost": {
+    "external_api_usd": 0,
+    "cpu_compute_usd": null,
+    "host_agent_usd": null
+  },
+  "measurement": {
+    "latency_sample_count_per_invocation": 1,
+    "latency_uncertainty": "No latency interval is available from one invocation.",
+    "bootstrap_resamples": 2000,
+    "bootstrap_seed": 104729,
+    "uncertainty_scope": "Each interval conditions on the frozen checkpoint and this fixed CartPole task. It does not estimate training-seed variation."
+  }
+}

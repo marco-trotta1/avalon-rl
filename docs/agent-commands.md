@@ -1,0 +1,193 @@
+# Agent commands
+
+Avalon provides 20 workflows for an existing coding agent.
+The host model reasons, edits source, executes tools, and coordinates workers.
+The local runtime discovers the project and records evidence.
+The runtime does not call a model provider or execute the workflow by itself.
+
+## Install
+
+Download the Node package from the [release assets](https://github.com/marco-trotta1/avalon-rl/releases).
+Install the reviewed package:
+
+```sh
+npm install --global ./avalon-rl-0.5.0.tgz
+avalon agent install --host cursor --project /path/to/project
+```
+
+Select `--host claude` for Claude Code or `--host codex` for Codex.
+Use `--dry-run` to inspect the target files without writing them.
+The installer copies all workflows and their shared protocol into the project.
+It preserves identical files and refuses differing existing files.
+It does not change user settings or install a model provider.
+
+Keep `avalon` on the agent's PATH.
+The workflow prepares missing Python support in a project virtual environment within the existing setup authorization.
+It uses the reviewed Python `0.3.0` wheel from release `v0.5.0` and checks its release manifest and checksum.
+It installs declared dependencies there and uses the environment's explicit executable.
+It preserves global Python and continues independent work if setup cannot complete.
+See the [shared setup procedure](../skills/_shared/workflow.md#prepare-python-when-required) for the exact assets and verification steps.
+
+The installer does not merge local skill edits or remove an older bundle.
+Preserve custom edits before explicitly removing or relocating conflicting files.
+Then install the selected bundle again.
+
+## Invoke
+
+| Host | Project location | Invocation |
+| --- | --- | --- |
+| Cursor | `.cursor/skills/` | Type `/rl-data`, or select the skill from the slash menu. |
+| Claude Code | `.claude/skills/` | Type `/rl-data`. |
+| Codex | `.agents/skills/` | Use `/skills`, or mention `$rl-data`. |
+
+The same pattern applies to every command below.
+Claude plugin installation uses names such as `/avalon:rl-data` because plugins namespace their skills.
+The project installer uses the shorter project skill names.
+Do not install both forms in the same host unless that duplication is intended.
+
+The package also contains `.cursor-plugin/plugin.json`, `.claude-plugin/plugin.json`, and a root `plugin.json`.
+These manifests describe the bundled workflows.
+Marketplace listing and a live host UI session are separate from package installation checks.
+
+The host conventions follow the official [Cursor skills](https://cursor.com/docs/skills), [Claude skills](https://code.claude.com/docs/en/skills), and [Codex skills](https://developers.openai.com/codex/skills/) documentation.
+
+## Command catalog
+
+| Command | Work | Main artifact |
+| --- | --- | --- |
+| `/avalon` | Select and execute the workflows required by an RL goal. | A task graph and linked results. |
+| `/rl-research` | Investigate primary sources, competing explanations, and falsifiers. | A research queue and tested hypotheses. |
+| `/rl-spec` | Define task behavior, actions, authority, reward, and evaluation. | A task specification and experiment plan. |
+| `/rl-env` | Build and exercise an environment or adapter in the project. | Executable source and conformance results. |
+| `/rl-scenarios` | Generate valid cases, stress families, and reserved groups. | A generator, controls, and split manifest. |
+| `/rl-reward` | Implement outcome rules and test their grading behavior. | Reward source, tests, and disagreements. |
+| `/rl-break` | Search for rewarded failures and rejected valid solutions. | Replayable counterexamples and search limits. |
+| `/rl-harden` | Repair a reproduced grader failure and preserve valid controls. | A patch, failing regression, and repair comparison. |
+| `/rl-data` | Inspect experience across collection, storage, conversion, and replay. | The first changed boundary and a private witness. |
+| `/rl-probs` | Compare actual sampling and learner probability evidence. | An audit, categorical witnesses, and unknown fields. |
+| `/rl-credit` | Check returns, advantages, roles, masks, and groups. | A credit map and reproducing assignment errors. |
+| `/rl-train` | Execute bounded training through a verified adapter. | A checkpoint, actual update receipts, and resource records. |
+| `/rl-diagnose` | Test competing causes of a failing or misleading run. | A diagnosis, reproduction, and supported correction. |
+| `/rl-ablate` | Isolate a component effect with paired conditions. | Effect estimates and the complete experiment ledger. |
+| `/rl-curriculum` | Compare practice schedules under equal interaction budgets. | A scheduler and comparison against fixed and random practice. |
+| `/rl-eval` | Evaluate frozen candidates against reserved cases and baselines. | Outcome, uncertainty, latency, and cost records. |
+| `/rl-transfer` | Test frozen behavior under declared distribution shifts. | A transfer map and tested failure boundaries. |
+| `/rl-optimize` | Change a measured resource limiter under a quality constraint. | A tested patch and before/after measurements. |
+| `/rl-reproduce` | Restore and rerun the recorded method. | A reproduction receipt and result differences. |
+| `/rl-release` | Review, package, install, and deliver the selected artifact. | A tested package, task or model card, and release receipt. |
+
+The detailed procedures live in the corresponding `skills/COMMAND/SKILL.md` files.
+The installer copies the same procedures into the host's project directory.
+
+## A session
+
+Give the complete task to the coordinator:
+
+```text
+/avalon Repair this reward and compare the repaired policy within the saved budget
+```
+
+Or invoke a specific process:
+
+```text
+/rl-break Find a way to earn completion credit without settling the invoice
+/rl-harden Repair the confirmed exploit and preserve valid alternative plans
+/rl-diagnose Reward rises while held-out task completion falls
+```
+
+The host finds the relevant files and carries compatible artifacts between commands.
+It uses independent workers when the host supports them and the work can proceed separately.
+It requests missing domain intent or an uncovered spending decision when that decision blocks dependent work.
+
+## Project and run records
+
+Inspect the project and start a tracked workflow:
+
+```sh
+avalon agent doctor --project /path/to/project
+avalon agent init --project /path/to/project
+avalon agent start rl-data --goal "Check replay preservation" --input source.json --project /path/to/project
+```
+
+Use the returned run identifier and directory.
+Add repeated `--input` options for the exact artifacts that define the task.
+Project discovery binds conventional metadata. Declare other relevant source and data explicitly.
+The private files remain under `.avalon`.
+Add `.avalon/` to the project's ignore rules.
+
+The host executes the workflow and records its actual outputs:
+
+```sh
+avalon agent record RUN_ID --kind evidence --message "The pipeline comparison completes" --artifact .avalon/runs/RUN_ID/pipeline.json --project /path/to/project
+avalon agent finish RUN_ID --status complete --summary "The comparison locates the first changed boundary" --project /path/to/project
+```
+
+Complete status requires a nonempty artifact-backed evidence record.
+The artifact must be a regular file inside the project.
+Declared inputs and artifacts have a 256 MiB limit.
+Profiles and event records have a 1 MiB limit.
+Completion records describe host-reported execution. They do not independently verify the scientific conclusion.
+
+Use `inconclusive`, `blocked`, or `failed` when the process cannot establish a complete result.
+A valid negative experiment can complete successfully.
+Read the actual findings before assigning a conclusion.
+
+Resume a compatible run:
+
+```sh
+avalon agent resume RUN_ID --project /path/to/project
+```
+
+The runtime rejects changed declared inputs or bound metadata.
+After reviewing an intentional source change, acknowledge it explicitly:
+
+```sh
+avalon agent record RUN_ID --kind decision --message "The grader patch changes the declared source" --accept-drift --project /path/to/project
+```
+
+Then execute fresh checks and attach fresh evidence.
+An unexplained change requires investigation.
+Terminal runs remain immutable. Start a new run that references the previous result.
+
+## Built-in execution
+
+The Python adapter runs a linear categorical policy on the default `CartPole-v1` registration with clipped NumPy REINFORCE.
+It retains actual transitions, updates, a checkpoint, and credit receipts.
+Training permits at most 20,000 decisions.
+The evaluator compares the frozen learned policy with random and named control policies.
+It rejects evaluation seeds that overlap the checkpoint's training seeds.
+Checkpoint loading requires the exact adapter source hash and matching NumPy and Gymnasium versions.
+
+Example commands from a project with the Python package installed:
+
+```sh
+avalon-python gym-train --output .avalon/train-example --environment CartPole-v1 --seed 7 --episodes 30 --max-steps 200
+avalon-python gym-eval --checkpoint .avalon/train-example/checkpoint.json --seeds 1001,1002,1003 --output .avalon/evaluation.json
+avalon-python gym-probs --checkpoint .avalon/train-example/checkpoint.json --output .avalon/probabilities
+avalon-python credit-audit --source .avalon/train-example/credit.json --output .avalon/credit-audit.json
+```
+
+Use new output paths. Existing outputs remain intact.
+These commands exercise training, evaluation, capture, and credit checks.
+Their execution alone does not establish a training improvement.
+
+The live probability adapter records actual categorical rollout decisions and compares an independent learner replay.
+It does not capture language-model tokens from TRL or vLLM.
+The credit audit checks the declared return, advantage, role, mask, discount, and group relationships.
+It does not establish causal importance.
+
+Existing snapshot, pipeline, trace, world, Minari, and finite policy commands remain available.
+See the [laboratory CLI](cli.md), [Python laboratory](python-lab.md), and [sampling guide](wave2/sampling.md) for those interfaces.
+
+## Capability boundaries
+
+The command layer can inspect a project, author source, run tests, and add adapters through the host's tools.
+A newly authored adapter remains unverified until its declared controls execute.
+Framework detection does not establish integration support.
+The built-in trainer covers `CartPole-v1`; it does not provide a general PPO, TRL, or vLLM adapter.
+
+Every workflow retains source and data identities, seeds, versions, budgets, commands, failures, and result artifacts where applicable.
+Comparisons require a named baseline, a sampling unit, uncertainty, latency, and cost status.
+Unknown host-model and compute costs remain unknown.
+The final evaluation remains separate from training and candidate selection.
+Raw private evidence stays outside published packages unless the release policy explicitly permits it.

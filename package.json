@@ -1,15 +1,35 @@
 {
   "name": "avalon-rl",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "description": "A local laboratory for RL experience, learning worlds, and reproducible counterexamples.",
+  "description": "Agent workflows and local tools for RL environments, rewards, data, and experiments.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist", "docs", "examples", "README.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md"],
-  "bin": { "avalon": "dist/cli.js", "avalon-rl": "dist/cli.js" },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "skills",
+    ".cursor-plugin",
+    ".claude-plugin",
+    "plugin.json",
+    "docs",
+    "examples",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CONTRIBUTING.md"
+  ],
+  "bin": {
+    "avalon": "dist/cli.js",
+    "avalon-rl": "dist/cli.js"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "analyze": "node dist/cli.js",
@@ -19,7 +39,8 @@
     "test:cli": "npm run build && vitest run tests/cli.test.ts",
     "test:audit": "vitest run tests/audit-engine.test.ts",
     "test:lab": "npm run build && vitest run tests/lab*.test.ts",
-    "check:privacy": "node scripts/check-privacy.mjs"
+    "check:privacy": "node scripts/check-privacy.mjs",
+    "check:agent": "node scripts/check-agent-package.mjs"
   },
   "dependencies": {
     "zod": "4.6.7"
@@ -29,5 +50,7 @@
     "typescript": "7.0.2",
     "vitest": "5.0.5"
   },
-  "engines": { "node": ">=22.12.0" }
+  "engines": {
+    "node": ">=22.12.0"
+  }
 }

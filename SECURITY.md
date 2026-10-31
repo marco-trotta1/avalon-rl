@@ -6,7 +6,7 @@ Use synthetic fixtures for development and verification.
 
 The CLI reads local JSON and JSONL as data.
 It has no web interface, server, telemetry, external AI service, or runtime network client.
-It does not follow source references or execute user-provided programs.
+The data audits do not follow source references or execute user-provided programs.
 Its schemas reject unsupported fields.
 Snapshots and appraisal inputs have a 10 MiB limit.
 Saved audit reports have a 256 MiB limit and a 500,000-finding limit.
@@ -18,9 +18,9 @@ The CLI writes JSON, Markdown, or SARIF to stdout unless an output path is suppl
 Terminal capture and shell redirection can retain stdout.
 Use `--out` to create report files with mode `0600`.
 The output directory must exist.
-The script uses exclusive file creation and never replaces an existing output path.
+Audit outputs use exclusive file creation and never replace an existing output path.
 This also rejects an output symlink or an output path that names an input file.
-TypeScript file errors omit input paths and rejected payloads.
+Audit file errors omit input paths and rejected payloads.
 Python exceptions can include local paths and field identifiers.
 Keep terminal logs private.
 
@@ -52,6 +52,18 @@ These checks do not replace an operating system sandbox or a security audit.
 Review the exact staged files before each commit.
 
 No hosted product, experience upload, analytics, or external AI service is configured.
+Agent skills use the host model, execution tools, research tools, and permissions.
+They can instruct the host to inspect or change project code and execute tests or training.
+The local runtime does not grant additional execution or publication permissions.
+Host permissions and resource controls remain necessary for those actions.
+
+Agent run records contain goals, project paths, messages, hashes, and selected evidence.
+Agent operation errors can include local paths. Keep their logs private.
+Keep `.avalon` private. The installer does not make these records suitable for publication.
+Review the allowed artifacts before a release.
+The built-in Gymnasium trainer uses a declared CPU budget and creates new output files.
+It loads data-only checkpoints and does not load arbitrary model code.
+
 GitHub CI runs the code on synthetic fixtures and retains ordinary job logs.
 Dependency installation and GitHub synchronization use network access.
 They do not require real asset data.
