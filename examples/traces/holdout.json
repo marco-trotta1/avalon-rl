@@ -1,0 +1,26 @@
+{
+  "format": "avalon.trace-holdout/v1",
+  "name": "Illustrative mutation holdout",
+  "disjointBy": [
+    "mutationFamily",
+    "instanceGroup"
+  ],
+  "records": [
+    {
+      "id": "training-control",
+      "partition": "train",
+      "taskFamily": "invoice-settlement",
+      "mutationFamily": "known-good",
+      "instanceGroup": "training-source",
+      "sha256": "02dac20d41fc6fcdc8df9e0948fb8c24b3f2e995354389ad780bb3b6862231ec"
+    },
+    {
+      "id": "evaluation-control",
+      "partition": "eval",
+      "taskFamily": "invoice-settlement",
+      "mutationFamily": "unauthorized-restore",
+      "instanceGroup": "evaluation-source",
+      "sha256": "e2e7d7ca26e43aab8360b4658d4f4d722203858c3c4b82f1303924a70cd8631c"
+    }
+  ]
+}

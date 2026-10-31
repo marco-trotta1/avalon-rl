@@ -20,7 +20,7 @@ export function traceValuesEqual(options: { expected: Json; actual: Json; tolera
   } });
 }
 
-function traceIntegrity(episode: EpisodeSnapshot): "complete" | "incomplete" | "invalid" {
+export function traceEpisodeIntegrity(episode: EpisodeSnapshot): "complete" | "incomplete" | "invalid" {
   const first = episode.steps[0];
   const last = episode.steps.at(-1);
   if (!first || !last) return "incomplete";
@@ -87,7 +87,7 @@ export function auditTraceContract(options: { snapshot: Snapshot; contract: Trac
   const counts = new Map<string, number>();
   for (const episode of snapshot.episodes) counts.set(episode.id, (counts.get(episode.id) ?? 0) + 1);
   snapshot.episodes.forEach((episode, offset) => {
-    const integrity = traceIntegrity(episode);
+    const integrity = traceEpisodeIntegrity(episode);
     for (const rule of contract.rules) {
       const location = { episode: offset + 1, episodeHash: contentHash({ id: episode.id, task: episode.task }), ruleId: rule.id };
       if (counts.get(episode.id) !== 1) checks.push({ ...location, status: "unknown", code: "episode.ambiguous" });
