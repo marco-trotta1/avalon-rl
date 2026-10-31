@@ -7,6 +7,8 @@ The release workflow tests the source and installs both package formats.
 Run the workflow against the intended commit before publishing its artifacts.
 
 The manifest records the complete source commit and both package hashes.
+It also records `avalon.tgz`, a byte-identical alias of the versioned Node archive.
+The stable filename supports one-off agent installation through the latest release URL.
 The checksums establish byte identity. They do not establish reproducible builds or package safety.
 The Python wheel can differ between builds because its archive timestamps can differ.
 

@@ -1,0 +1,36 @@
+{
+  "format": "avalon.lean-install-check/v1",
+  "package": "0.6.0",
+  "host_checks": [
+    {
+      "host": "claude",
+      "commands": 20,
+      "runtime_files": 179,
+      "after_cache_and_archive_removal": "pass"
+    },
+    {
+      "host": "codex",
+      "commands": 20,
+      "runtime_files": 179,
+      "after_cache_and_archive_removal": "pass"
+    },
+    {
+      "host": "cursor",
+      "commands": 20,
+      "runtime_files": 179,
+      "after_cache_and_archive_removal": "pass"
+    }
+  ],
+  "real_050_upgrade": {
+    "updated_files": 1,
+    "backup_retained": true,
+    "local_customization_preserved": true
+  },
+  "original_cache_and_archives_removed": true,
+  "global_avalon_on_path": false,
+  "no_model_inference": true,
+  "limits": [
+    "The checks use local archives through npm package selection. Public0.6 HTTPS verification follows publication.",
+    "Cursor UI and native Codex marketplace installation are not tested."
+  ]
+}

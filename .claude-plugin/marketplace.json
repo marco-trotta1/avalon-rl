@@ -1,0 +1,14 @@
+{
+  "name": "avalon",
+  "description": "RL workflows for coding agents.",
+  "owner": {
+    "name": "Marco Trotta"
+  },
+  "plugins": [
+    {
+      "name": "avalon",
+      "source": "./",
+      "description": "RL workflows for research, environments, rewards, audits, training, evaluation, and reproducible releases."
+    }
+  ]
+}

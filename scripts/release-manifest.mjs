@@ -26,6 +26,12 @@ for (const name of names) {
   const content = await readFile(path);
   artifacts.push({ name, bytes: content.length, sha256: createHash("sha256").update(content).digest("hex") });
 }
+const nodeName = `avalon-rl-${nodePackage.version}.tgz`;
+const alias = "avalon.tgz";
+const nodeBytes = await readFile(join(directory, nodeName));
+await writeFile(join(directory, alias), nodeBytes, { flag: "wx" });
+artifacts.push({ name: alias, bytes: nodeBytes.length, sha256: createHash("sha256").update(nodeBytes).digest("hex") });
+artifacts.sort((left, right) => left.name.localeCompare(right.name));
 const manifest = {
   format: "avalon.release/v1", commit: values.commit,
   packages: { node: nodePackage.version, python: pythonVersion }, runtime: { node: process.versions.node }, artifacts,

@@ -8,19 +8,41 @@ Starting or finishing a run does not prove the scientific claim.
 
 1. Read the project instructions before executing code.
 2. Resolve the actual project root from the user's task and the current repository.
-3. Find `avalon` on PATH and run `avalon agent commands`. Require the complete command catalog.
-4. If that runtime is absent or incompatible, inspect the installed package or plugin root for `package.json` and `dist/cli.js`.
-5. Validate the package name as `avalon-rl` before using `node ABSOLUTE_PACKAGE_PATH/dist/cli.js`.
-6. For a source checkout, install the declared dependencies and build the package within existing authorization.
-7. Never download or execute an unverified replacement because a runtime is missing.
-8. Use `avalon agent doctor --project PROJECT` to inspect the detected project.
-9. Run `avalon agent init --project PROJECT` when the project has no profile.
+3. Prefer `PROJECT/.avalon/runtime/0.6.0/dist/cli.js`. The project installer includes this self-contained runtime.
+4. Check its package name as `avalon-rl` and version as `0.6.0` in the runtime directory's `package.json`.
+5. Use `node ABSOLUTE_ENTRYPOINT` in place of `avalon` in the commands below. Do not depend on global PATH.
+6. Run the selected runtime's `agent commands` and require all 20 command names.
+7. If the project runtime is absent, follow the Node setup procedure below.
+8. Use the selected runtime's `agent doctor --project PROJECT` to inspect the project.
+9. Run its `agent init --project PROJECT` when the project has no profile.
 10. Treat detected frameworks as inventory. Detection does not establish that an adapter works.
 
 Use the user's selected goal. State unresolved assumptions before changing behavior.
 Inspect relevant source and metadata before asking for information that the repository can provide.
 Ask for missing domain intent or an uncovered spending decision when it changes the next dependent action.
 Continue independent work while that decision remains open.
+
+## Prepare Node when required
+
+Native plugin installation supplies the skills. Prepare their project runtime once, within existing setup authorization.
+Use Node.js `22.12` or newer and npm.
+Obtain the Node archive, release manifest, and checksums from the pinned `v0.6.0` release:
+
+- [avalon-rl-0.6.0.tgz](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/avalon-rl-0.6.0.tgz)
+- [release-manifest.json](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/release-manifest.json)
+- [SHA256SUMS](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/SHA256SUMS)
+
+1. Save the files in a new private directory with the host's permitted download tools.
+2. Require manifest format `avalon.release/v1`, Node version `0.6.0`, and a complete source commit.
+3. Verify the archive's exact filename, byte count, SHA-256, and checksum entry before executing its code.
+4. Run `npm exec --yes --package LOCAL_VERIFIED_ARCHIVE -- avalon install --runtime-only --project PROJECT`.
+5. Use the returned local runtime entrypoint for subsequent commands.
+6. Inspect the complete command catalog before continuing the selected workflow.
+
+Runtime-only setup adds no duplicate host skills and changes no global npm installation.
+The copied runtime includes its production dependency and licenses. It does not rely on the original npm cache.
+Stop dependent execution if verification or setup fails. Continue independent work where possible.
+Routine setup already covered by the user's request does not require another confirmation.
 
 ## Start or resume
 
@@ -48,15 +70,15 @@ Prepare Python only when the selected workflow needs it.
 Check `avalon-python --help` and the required subcommand help before reusing an existing executable.
 Require the compatible `avalon-rl-lab` version `0.3.0`.
 
-If Python support is absent or incompatible, use the reviewed assets from release `v0.5.0`:
+If Python support is absent or incompatible, use the reviewed assets from release `v0.6.0`:
 
-- [avalon_rl_lab-0.3.0-py3-none-any.whl](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.5.0/avalon_rl_lab-0.3.0-py3-none-any.whl)
-- [release-manifest.json](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.5.0/release-manifest.json)
-- [SHA256SUMS](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.5.0/SHA256SUMS)
+- [avalon_rl_lab-0.3.0-py3-none-any.whl](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/avalon_rl_lab-0.3.0-py3-none-any.whl)
+- [release-manifest.json](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/release-manifest.json)
+- [SHA256SUMS](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/SHA256SUMS)
 
 1. Use the host's permitted download tools or an existing copy of these exact assets.
 2. Save them in a new private project directory. Do not select a latest release or a PyPI replacement.
-3. Check the manifest format as `avalon.release/v1` and package versions as Node `0.5.0` and Python `0.3.0`.
+3. Check the manifest format as `avalon.release/v1` and package versions as Node `0.6.0` and Python `0.3.0`.
 4. Require the exact wheel name, declared source commit, byte count, and SHA-256 value from the manifest.
 5. Compute the wheel's byte count and SHA-256. Require agreement with the manifest and its `SHA256SUMS` entry.
 6. Stop dependent execution if verification fails or the exact assets are unavailable.

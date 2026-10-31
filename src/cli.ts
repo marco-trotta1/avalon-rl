@@ -23,8 +23,9 @@ class FileError extends Error {}
 const help = `Avalon RL: a local laboratory for agent experience and learning worlds.
 
 Usage:
+  avalon install cursor|claude|codex [--project project-directory]
   avalon agent commands
-  avalon agent install --host cursor|claude|codex --project project-directory
+  avalon agent install --host cursor|claude|codex [--project project-directory]
   avalon agent doctor|init --project project-directory
   avalon agent start COMMAND --goal description --project project-directory
   avalon agent --help
@@ -152,6 +153,7 @@ async function writeOutput(input: { output: Output; value: object }): Promise<vo
 }
 
 async function main(args: string[]): Promise<number> {
+  if (args[0] === "install") return runAgent(args);
   if (args[0] === "agent") return runAgent(args.slice(1));
   if (LAB_COMMANDS.includes(args[0] ?? "")) return runLab(args);
   try {
