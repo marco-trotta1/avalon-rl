@@ -43,9 +43,11 @@ Codex 0.133 rejects the catalogs' root source. Use the tested project installer 
 
 ## Verification
 
-The isolated source passes 234 Node tests and 257 Python tests, with no skipped Python tests.
+The isolated source passes 235 Node tests and 257 Python tests, with no skipped Python tests.
 Type, privacy, agent package, and whitespace checks pass.
 Regressions reproduce the blank-path and concurrent-edit failures before their fixes.
+CI pins Ubuntu 24.04 after the moving image selects an unsupported Python build environment.
+The [official Python manifest](https://github.com/actions/python-versions/blob/main/versions-manifest.json) lists the tested 3.13.5 binary for Ubuntu 24.04.
 
 The [package receipt](lean-install-evidence.json) records fresh one-off setup for Claude, Codex, and Cursor.
 After cache and archive deletion, every copied runtime lists the 20 commands and executes the clean audit.

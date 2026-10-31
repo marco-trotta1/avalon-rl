@@ -25,7 +25,7 @@ const help = `Avalon RL: a local laboratory for agent experience and learning wo
 Usage:
   avalon install cursor|claude|codex [--project project-directory]
   avalon agent commands
-  avalon agent install --host cursor|claude|codex --project project-directory
+  avalon agent install --host cursor|claude|codex [--project project-directory]
   avalon agent doctor|init --project project-directory
   avalon agent start COMMAND --goal description --project project-directory
   avalon agent --help
