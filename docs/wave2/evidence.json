@@ -17902,39 +17902,39 @@
   },
   "source_artifacts": [
     {
+      "artifact_name": "report.json",
       "bytes": 3303502,
       "id": "policy-final-public-cli",
-      "local_source": "/tmp/avalon-final-policy-cli/report.json",
       "sha256": "1ab674cb9f3fa387c017711f59016171e115a2ea779e23403a6f6d2d765dd42c"
     },
     {
+      "artifact_name": "avalon-final-sampling-benchmark.json",
       "bytes": 40872,
       "id": "sampling-final-public-cli",
-      "local_source": "/tmp/avalon-final-sampling-benchmark.json",
       "sha256": "4f5ab37533c57d19686a08926378d4db34d941d4e05a819e777a05025f8cab5b"
     },
     {
+      "artifact_name": "avalon-final-trace-benchmark.json",
       "bytes": 18951,
       "id": "trace-final-public-cli",
-      "local_source": "/tmp/avalon-final-trace-benchmark.json",
       "sha256": "b74e5929c081b2bf8de8b4ddf1949b0fddbc0e33e5b8401cd3610f2488e11230"
     },
     {
+      "artifact_name": "report.json",
       "bytes": 1833,
       "id": "diagnosis-final-public-cli",
-      "local_source": "/tmp/avalon-final-diagnosis/report.json",
       "sha256": "b4b9b3a949224997d68f4b2b5e87f74792c812c1df67762dd41d3dcfb48b7334"
     },
     {
+      "artifact_name": "report.json",
       "bytes": 3303579,
       "id": "policy-pre-export-correction",
-      "local_source": "/tmp/avalon-policy-benchmark-20261030/report.json",
       "sha256": "7976f80f9bfcfb09fa76bb01e968684c7727bdb96294ae1fa18b668f8a3d6e0c"
     },
     {
+      "artifact_name": "report.json",
       "bytes": 3303595,
       "id": "policy-corrected-sdk",
-      "local_source": "/tmp/avalon-policy-benchmark-20261030-corrected/report.json",
       "sha256": "e621dd65eb70ccb1122c39948ccc6283e2205cab6c1c29cc301824415a3b9b6e"
     }
   ],

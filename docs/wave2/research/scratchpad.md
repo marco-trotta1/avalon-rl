@@ -24,7 +24,7 @@ The existing release artifacts are published as v0.3.0.
 The three implementation lanes and command integration are merged after hosted checks.
 The frozen comparisons and independent reviews complete.
 
-1. Merge the final measured release PR after its hosted check.
+1. Merge the public metadata correction after its hosted check.
 2. Verify the exact merged head and both installed package artifacts.
 3. Publish v0.4.0 with its checksums, measured evidence, and verification receipt.
 4. Pause the heartbeat after release verification completes.

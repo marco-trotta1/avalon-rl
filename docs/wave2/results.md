@@ -10,6 +10,7 @@ These are synthetic results. They establish no production benefit or broad novel
 
 [The evidence file](evidence.json) preserves all 180 seed-condition records, 18 paired comparisons, control metrics, finite cases, hashes, versions, and limits.
 It excludes raw observations, raw update records, and policy weights.
+Public artifact references contain names and hashes. They exclude local filesystem paths.
 
 ## Learned policies
 

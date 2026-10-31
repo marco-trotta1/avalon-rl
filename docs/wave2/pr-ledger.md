@@ -6,7 +6,7 @@ The previous 35 open stack PRs merge against their original bases.
 Their heads already enter main through assembly PR #48.
 Release v0.3.0 publishes that existing CLI and Python package.
 
-This table records 32 new contributions before the final measured release PR.
+This table records 33 new contributions before the public metadata correction.
 The three extra corrections follow independently reproduced review findings.
 Each linked PR records its focused behavior and validation.
 GitHub records the current merge state.
@@ -46,7 +46,9 @@ The release verification receipt records the final merged head separately.
 | [#78](https://github.com/marco-trotta1/avalon-rl/pull/78) | fix(world): require room for the complete known solution | `364a116a89fe7aa41dfcfcdb75a7ce34429bf3a0` |
 | [#79](https://github.com/marco-trotta1/avalon-rl/pull/79) | fix(trace): preserve optional fields in declared episode pairs | `5671fc024b2ccb713630c2f7d9903e6ae98a5573` |
 | [#80](https://github.com/marco-trotta1/avalon-rl/pull/80) | test(lab): diagnose learned reward failures across the runtime boundary | `f3fa9810f1eb3f41b6b986a48945eab8862d3dff` |
+| [#81](https://github.com/marco-trotta1/avalon-rl/pull/81) | chore(release): ship the measured Avalon 0.4 laboratory | `c7ea035ab53a8b05a4292f38651627aab800c41d` |
 
-The final release PR adds package versions, measured evidence, and the generated-cache exclusion.
+The measured release PR adds package versions, evidence, and the generated-cache exclusion.
 The tests first reproduce that cache inclusion before the package rules exclude it.
+The public metadata correction removes local source paths while retaining artifact names and hashes.
 No private research files enter the changes.
