@@ -47,7 +47,7 @@ The [Gymnasium guide](https://gymnasium.farama.org/tutorials/gymnasium_basics/ha
 
 ## 3. Watch experience cross a real boundary
 
-Follow the Python setup in the main README.
+Follow the [Python setup](python-lab.md).
 Run the `experiment` command and inspect its three snapshots.
 
 | Stage | Question |

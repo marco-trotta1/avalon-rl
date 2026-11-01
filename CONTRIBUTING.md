@@ -12,7 +12,7 @@ npm run build
 node dist/cli.js lab-demo --fault none
 ```
 
-Use the main README for Python installation.
+Use the [Python guide](docs/python-lab.md) for installation.
 Install the local Python package as well as its tested dependencies.
 Its distribution metadata supplies the recorded Avalon version.
 
