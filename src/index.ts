@@ -18,3 +18,4 @@ export { parseTracePairContract, auditTracePair, type TracePairContract } from "
 export { parseTraceHoldout, auditTraceHoldout, type TraceHoldout } from "./trace/holdout.js";
 export { makeWorldMdp, makeWorldMdpSuite, type WorldMdp } from "./world/mdp.js";
 export { runTraceBenchmark, makeWorldTraceContract } from "./trace/benchmark.js";
+export { parseSelectionPlan, parseSelection, selectCandidates, type SelectionPlan, type SelectionInput } from "./agent/selection.js";

@@ -1,7 +1,7 @@
 export const COMMAND_NAMES = [
   "avalon", "rl-research", "rl-spec", "rl-env", "rl-scenarios", "rl-reward", "rl-break", "rl-harden",
   "rl-data", "rl-probs", "rl-credit", "rl-train", "rl-diagnose", "rl-ablate", "rl-curriculum", "rl-eval",
-  "rl-transfer", "rl-optimize", "rl-reproduce", "rl-release",
+  "rl-transfer", "rl-optimize", "rl-reproduce", "rl-release", "rl-swarm", "rl-sweep", "rl-status",
 ] as const;
 
 export type AgentCommandName = typeof COMMAND_NAMES[number];
@@ -27,6 +27,9 @@ const descriptions: Record<AgentCommandName, string> = {
   "rl-optimize": "Improve a measured resource constraint.",
   "rl-reproduce": "Rerun a recorded result.",
   "rl-release": "Deliver a verified RL artifact.",
+  "rl-swarm": "Construct candidates and select with bounded evidence.",
+  "rl-sweep": "Run a frozen matrix of training experiments.",
+  "rl-status": "Inspect recorded runs and their next valid action.",
 };
 
 export const AGENT_COMMANDS = COMMAND_NAMES.map(name => ({ name, invocation: `/${name}`, description: descriptions[name] }));

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "avalon-rl-lab"
-version = "0.3.0"
+version = "0.4.0"
 description = "Local RL audits, Gymnasium policy training, and reproducible experiments for Avalon."
 requires-python = ">=3.13"
 dependencies = ["gymnasium==1.2.3", "numpy==2.4.2", "minari[hdf5]==0.5.3", "h5py==3.16.0", "pillow==12.1.0", "jax==0.8.2", "jaxlib==0.8.2"]

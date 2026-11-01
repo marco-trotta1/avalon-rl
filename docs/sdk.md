@@ -34,3 +34,9 @@ The package includes the built JavaScript, type declarations, license, and docum
 It exposes both `avalon` and `avalon-rl` command names.
 The repository does not publish a registry package during this build.
 The package keeps the `private` flag to prevent accidental registry publication.
+
+## Candidate selection
+
+Use `parseSelection` to validate a frozen plan and its bound scores.
+Pass the result to `selectCandidates` for a fixed-budget Hoeffding comparison.
+Read [the selection contract](selection.md) before interpreting its confidence statement.

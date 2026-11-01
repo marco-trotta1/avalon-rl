@@ -13,7 +13,7 @@ from .gym_training import (
 from .sampling_report import write_sampling_json
 
 
-AGENT_COMMANDS = ("gym-train", "gym-eval", "gym-probs", "credit-audit")
+AGENT_COMMANDS = ("gym-train", "gym-eval", "gym-probs", "credit-audit", "gym-sweep")
 
 
 def add_agent_commands(commands: argparse._SubParsersAction) -> None:
@@ -40,6 +40,9 @@ def add_agent_commands(commands: argparse._SubParsersAction) -> None:
     credit.add_argument("--source", type=Path, required=True)
     credit.add_argument("--tolerance", type=float, default=1e-9)
     credit.add_argument("--output", type=Path, required=True)
+    sweep = commands.add_parser("gym-sweep", help="Train a frozen CartPole roster and record selection evidence.")
+    sweep.add_argument("--config", type=Path, required=True)
+    sweep.add_argument("--output", type=Path, required=True)
 
 
 def _new_output(path: Path) -> None:
@@ -60,6 +63,11 @@ def _evaluation_seeds(value: str) -> tuple[int, ...]:
 
 
 def _dispatch(args: argparse.Namespace) -> int:
+    if args.command == "gym-sweep":
+        from .gym_sweep import run_sweep
+        report = run_sweep(config_path=args.config, output=args.output)
+        print(json.dumps({"status": report["status"], "latencyMs": report["latencyMs"], "artifacts": ["report.json", *report.get("selectionArtifacts", [])]}, sort_keys=True))
+        return 0 if report["status"] == "complete" else 1
     if args.command == "gym-train":
         config = TrainConfig(
             environment=args.environment, seed=args.seed, episodes=args.episodes,

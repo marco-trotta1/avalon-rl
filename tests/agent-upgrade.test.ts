@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import fs from "node:fs";
-import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { syncBuiltinESMExports } from "node:module";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { pendingBundle, writeBundle } from "../src/agent/bundle.js";
+import { COMMAND_NAMES } from "../src/agent/catalog.js";
+import { installSkills } from "../src/agent/install.js";
 import { digest, withStateLock } from "../src/agent/io.js";
 
 let root: string;
@@ -52,6 +55,50 @@ async function backups(): Promise<string[]> {
 }
 
 describe("stock protocol upgrades", () => {
+  it.each(["cursor", "claude", "codex"] as const)("upgrades the stock 0.6 protocol for %s and preserves the previous runtime", async host => {
+    const source = join(import.meta.dirname, "../skills");
+    const directory = join(root, host === "codex" ? ".agents/skills" : `.${host}/skills`);
+    await mkdir(join(directory, "_shared"), { recursive: true });
+    const added = new Set(["rl-swarm", "rl-sweep", "rl-status"]);
+    for (const name of COMMAND_NAMES.filter(name => !added.has(name))) {
+      await cp(join(source, name), join(directory, name), { recursive: true });
+    }
+    await cp(join(source, "_shared/artifacts.md"), join(directory, "_shared/artifacts.md"));
+    const protocol = join(directory, "_shared/workflow.md");
+    await cp(join(import.meta.dirname, "fixtures/agent-workflow-v0.6.0.md"), protocol);
+    const preserved = await readFile(protocol, "utf8");
+    const previous = join(root, ".avalon/runtime/0.6.0/dist/cli.js");
+    await mkdir(dirname(previous), { recursive: true });
+    await writeFile(previous, "The previous runtime remains available.\n");
+    const installed = await installSkills({ root, host, dryRun: false });
+    expect(installed.runtime.version).toBe("0.7.0");
+    expect(installed.updatedFiles).toBe(1);
+    expect(installed.backups).toHaveLength(1);
+    expect(await readFile(join(root, installed.backups[0] ?? "missing"), "utf8")).toBe(preserved);
+    expect(await readFile(protocol, "utf8")).toBe(await readFile(join(source, "_shared/workflow.md"), "utf8"));
+    expect(await readFile(protocol, "utf8")).toContain("runtime/0.7.0/dist/cli.js");
+    expect(await readFile(previous, "utf8")).toBe("The previous runtime remains available.\n");
+    for (const name of added) {
+      expect(await readFile(join(directory, name, "SKILL.md"), "utf8")).toContain(`name: ${name}`);
+    }
+    const entrypoint = join(root, installed.runtime.entrypoint);
+    const catalog = spawnSync(process.execPath, [entrypoint, "agent", "commands", "--json"], { encoding: "utf8" });
+    expect(catalog.status, catalog.stderr).toBe(0);
+    for (const name of added) expect(catalog.stdout).toContain(`"invocation": "/${name}"`);
+    const selector = spawnSync(process.execPath, [entrypoint, "select", "--help"], { encoding: "utf8" });
+    expect(selector.status, selector.stderr).toBe(0);
+    expect(selector.stdout).toContain("--plan");
+  });
+
+  it.each(["0.5.0", "0.6.0"])("preserves a customized %s protocol before installing any other files", async version => {
+    const previous = await readFile(join(import.meta.dirname, `fixtures/agent-workflow-v${version}.md`), "utf8");
+    await writeFile(join(root, target), previous + custom);
+    await expect(installSkills({ root, host: "codex", dryRun: false })).rejects.toThrow("installed skill differs");
+    expect(await readFile(join(root, target), "utf8")).toBe(previous + custom);
+    expect(await readdir(root)).toEqual([".agents"]);
+    expect(await readdir(join(root, ".agents/skills"))).toEqual(["_shared"]);
+  });
+
   it("preserves an editor change between validation and replacement", async () => {
     const files = await pending();
     const live = join(root, target);

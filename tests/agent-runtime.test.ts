@@ -129,8 +129,8 @@ describe("project skill installation", () => {
     expect(preview.status).toBe("planned");
     expect(await readdir(root)).toEqual([]);
     const result = await installSkills({ root, host, dryRun: false, sourceRoot: bundle });
-    expect(result.commands).toBe(20);
-    expect(result.newFiles).toBe(21);
+    expect(result.commands).toBe(COMMAND_NAMES.length);
+    expect(result.newFiles).toBe(COMMAND_NAMES.length + 1);
     for (const name of COMMAND_NAMES) expect(await readFile(join(root, result.directory, name, "SKILL.md"), "utf8")).toContain(`name: ${name}`);
     expect(await readFile(join(root, result.directory, "_shared", "workflow.md"), "utf8")).toContain("Execute");
     expect((await installSkills({ root, host, dryRun: false, sourceRoot: bundle })).status).toBe("unchanged");

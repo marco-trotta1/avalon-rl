@@ -13,17 +13,26 @@ The commands use your coding agent's model and tools.
 ## Install the agent commands
 
 Use Node.js 22.12 or later and npm.
-Run one command from your project directory:
+Build this source version and install its workflows into your project:
+
+```sh
+npm ci --ignore-scripts
+npm run build
+node dist/cli.js install codex --project /path/to/project
+```
+
+To install the latest published version, run this command from your project directory:
 
 ```sh
 npx --yes https://github.com/marco-trotta1/avalon-rl/releases/latest/download/avalon.tgz install codex
 ```
 
 Replace `codex` with `claude` or `cursor` for another host.
-The installer includes all 20 workflows and a private project runtime. No global npm installation is required.
+This source version includes 23 workflows and a private project runtime. No global npm installation is required.
+The public download follows the latest published release and can contain fewer workflows until this source version is released.
 The runtime works after the original npm cache is removed.
 Use `--dry-run` to preview the installation or `--project PATH` to select another directory.
-An untouched 0.5 protocol upgrades automatically. Modified skills remain protected.
+Untouched 0.5 and 0.6 protocols upgrade automatically with retained backups. Modified skills remain protected.
 Cursor and Claude project skills use `/rl-train`, `/rl-break`, and the other command names.
 Codex exposes the skills through `/skills` and `$rl-train`.
 Native Claude plugins use the `avalon` namespace.
@@ -32,13 +41,24 @@ Native Claude plugins use the `avalon` namespace.
 /avalon Find why reward rises while held-out task completion falls
 /rl-break Find a rewarded failure in this environment
 /rl-train Compare the current reward with the repaired reward
+/rl-swarm Compare frozen candidates with bounded evaluation evidence
+/rl-sweep Run the declared settings and seeds within the saved budget
+/rl-status Show recent runs and their next valid action
 ```
 
-The [command guide](docs/agent-commands.md) describes all 20 workflows and their execution boundaries.
+The [command guide](docs/agent-commands.md) describes all 23 workflows and their execution boundaries.
 Each workflow discovers project inputs and leaves private records under `.avalon`.
 Claude and Cursor also support the native marketplace catalogs described in the guide.
 The host performs code changes, execution, research, and delegation under its existing permissions and budget.
 Unsupported trainers require an implemented and tested adapter before their results can be verified.
+
+All workflows prefer the installed `0.7.0` runtime. The original workflows can use `0.6.0` when the newer runtime is absent.
+The new workflows require `0.7.0`. Existing runtime files and customized skills remain protected during installation.
+The [runtime procedure](skills/_shared/selection.md) explains local package setup and the current release boundary.
+
+Candidate selection uses declared independent bounded trials and a fixed Hoeffding comparison.
+Shared-context agent votes do not supply those trials. Overlapping intervals remain inconclusive.
+See the [selection guide](docs/selection.md) for the executable format and statistical assumptions.
 
 ## Start with a counterexample
 
@@ -62,7 +82,7 @@ All three examples use synthetic data.
 
 | Capability | Result |
 | --- | --- |
-| Agent workflows | Install 20 processes for research, environment work, reward repair, experiments, and releases |
+| Agent workflows | Install 23 processes for research, environment work, reward repair, experiments, swarms, status inspection, and releases |
 | Private run records | Bind inputs, retain artifact evidence, inspect drift, and preserve completed results |
 | Gymnasium learning | Train a bounded CartPole policy, evaluate frozen checkpoints, and audit actual probabilities and learning credit |
 | Experience audit | Compare observations, actions, rewards, final observations, ending signals, masks, and task context |

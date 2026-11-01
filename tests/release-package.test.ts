@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { z } from "zod";
 import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { COMMAND_NAMES } from "../src/agent/catalog.js";
 
 const packs = z.array(z.object({ files: z.array(z.object({ path: z.string() })) }));
 
@@ -18,11 +19,8 @@ describe("release package", () => {
     expect(files).toContain(".cursor-plugin/plugin.json");
     expect(files).toContain(".claude-plugin/plugin.json");
     expect(files).toContain("plugin.json");
-    const names = ["avalon", "rl-research", "rl-spec", "rl-env", "rl-scenarios", "rl-reward", "rl-break", "rl-harden",
-      "rl-data", "rl-probs", "rl-credit", "rl-train", "rl-diagnose", "rl-ablate", "rl-curriculum", "rl-eval",
-      "rl-transfer", "rl-optimize", "rl-reproduce", "rl-release"];
-    for (const name of names) expect(files).toContain(`skills/${name}/SKILL.md`);
-    expect(files.filter(path => /^skills\/[^/]+\/SKILL.md$/.test(path))).toHaveLength(20);
+    for (const name of COMMAND_NAMES) expect(files).toContain(`skills/${name}/SKILL.md`);
+    expect(files.filter(path => /^skills\/[^/]+\/SKILL.md$/.test(path))).toHaveLength(COMMAND_NAMES.length);
     expect(files.some(path => /(^|\/)\.avalon\//.test(path))).toBe(false);
     expect(files.some(path => path.startsWith("research/"))).toBe(false);
     expect(files.some(path => path.includes("__pycache__") || path.endsWith(".pyc"))).toBe(false);

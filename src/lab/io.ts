@@ -4,7 +4,7 @@ import { MAX_SNAPSHOT_BYTES } from "./contract.js";
 
 export type OutputDestination = { type: "stdout" } | { type: "file"; path: string };
 
-export async function readLocalText(path: string, { maxBytes = MAX_SNAPSHOT_BYTES }: { maxBytes?: number } = {}): Promise<string> {
+export async function readLocalText(path: string, { maxBytes = MAX_SNAPSHOT_BYTES, preserveBOM = false }: { maxBytes?: number; preserveBOM?: boolean } = {}): Promise<string> {
   try {
     const file = await open(path, constants.O_RDONLY | constants.O_NONBLOCK);
     try {
@@ -21,7 +21,7 @@ export async function readLocalText(path: string, { maxBytes = MAX_SNAPSHOT_BYTE
         if (length > maxBytes) throw new Error("The input exceeds the byte limit.");
         chunks.push(chunk.subarray(0, bytesRead));
       }
-      return new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks, length));
+      return new TextDecoder("utf-8", { fatal: true, ignoreBOM: preserveBOM }).decode(Buffer.concat(chunks, length));
     } finally { await file.close(); }
   } catch {
     throw new Error("Cannot read the input. Use a regular UTF-8 file within the documented byte limit.");

@@ -48,7 +48,7 @@ export async function discoverProject(root: string) {
     projectId: digest(root), metadata,
     fingerprint: digest(JSON.stringify(metadata)),
     declaredFrameworks: [...frameworks].sort(), scripts: scripts.sort(),
-    bundledCapabilities: ["snapshot-audit", "operations-world", "trace-contract", "sampling-receipts", "finite-policy-experiments", "gymnasium-reinforce"],
+    bundledCapabilities: ["snapshot-audit", "operations-world", "trace-contract", "sampling-receipts", "finite-policy-experiments", "gymnasium-reinforce", "hoeffding-selection", "saved-run-inspection"],
     runtimeVerification: "Dependency declarations do not establish an installed or working trainer. Execute the selected adapter's smoke check.",
     scope: "Discovery checks named project metadata and conventional trainer files. Declare other relevant files with start --input.",
     authorization: "inherit-host" as const,

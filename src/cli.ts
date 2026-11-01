@@ -7,6 +7,7 @@ import { blankCase, demoCase, demoData } from "./lib/demo.js";
 import { assertNever, MAX_FILE_BYTES, parseCase } from "./lib/schema.js";
 import { LAB_COMMANDS, runLab } from "./lab/cli.js";
 import { runAgent } from "./agent/cli.js";
+import { runSelection } from "./agent/selection-cli.js";
 
 type Kind = Analysis["kind"];
 type Output = { type: "stdout" } | { type: "file"; path: string };
@@ -29,6 +30,7 @@ Usage:
   avalon agent doctor|init --project project-directory
   avalon agent start COMMAND --goal description --project project-directory
   avalon agent --help
+  avalon select --plan selection-plan.json --scores selection-scores.json [--out report.json]
   node dist/cli.js audit --source source.json --target learner.json [--format json|markdown|sarif] [--out audit.json]
   node dist/cli.js report --data audit.json [--format json|markdown|sarif] [--out report.md]
   node dist/cli.js pipeline --source source.json --recorded recorded.json --target learner.json [--lineage links.json]
@@ -153,6 +155,7 @@ async function writeOutput(input: { output: Output; value: object }): Promise<vo
 }
 
 async function main(args: string[]): Promise<number> {
+  if (args[0] === "select") return runSelection(args.slice(1));
   if (args[0] === "install") return runAgent(args);
   if (args[0] === "agent") return runAgent(args.slice(1));
   if (LAB_COMMANDS.includes(args[0] ?? "")) return runLab(args);
