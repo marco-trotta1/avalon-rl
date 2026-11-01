@@ -1,6 +1,26 @@
 # Avalon RL
 
-**Build learning worlds. Challenge rewards. Run RL workflows from your agent.**
+<p align="center">
+  <a href="#choose-your-quest">
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/avalon-lab-still.png">
+      <img src="docs/assets/avalon-lab.svg" width="1040" alt="A wizard agent explores a synthetic world. A reward bug meets an independent check. Avalon keeps the evidence.">
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  <strong>Build learning worlds. Challenge rewards. Keep the evidence.</strong><br>
+  A local laboratory for curious RL agents.
+</p>
+
+<p align="center">
+  <a href="#install-the-agent-commands">Install</a> ·
+  <a href="#choose-your-quest">Choose a quest</a> ·
+  <a href="docs/learn-rl.md">Explore the lab</a> ·
+  <a href="#evidence-and-limits">Read the evidence</a> ·
+  <a href="LICENSE">MIT License</a>
+</p>
 
 Avalon supplies agent workflows, a local CLI, and an SDK for RL projects.
 It compares what an environment emits with what a learner receives.
@@ -9,6 +29,49 @@ It also finds synthetic cases where a verifier rewards the wrong outcome.
 The project uses the [MIT License](LICENSE).
 The runtime has no UI, site, server, telemetry, or model API client.
 The commands use your coding agent's model and tools.
+
+## Choose your quest
+
+| Your quest | Start here | What you get |
+| --- | --- | --- |
+| Give your coding agent an RL toolkit | [Install the agent commands](#install-the-agent-commands) | Project workflows for training, reward repair, and experiments |
+| Catch a reward loophole | [Start with a counterexample](#start-with-a-counterexample) | A synthetic completion claim that fails an independent check |
+| Inspect the learner's experience | [Audit your pipeline](#audit-your-pipeline) | A report and a reduced witness for the supplied snapshots |
+| Train a policy and compare rewards | [Run the research loop](#run-the-research-loop) | Frozen evaluation, simple baselines, and recorded limits |
+
+<details>
+<summary><strong>Open the specimen jar: a reward loophole</strong></summary>
+
+An agent claims that its task is complete.
+The weak verifier accepts the claim and gives a reward.
+The invoice remains unpaid. The independent state check rejects the attempt.
+
+```text
+agent       -> claim-done
+weak check  -> accepted
+world state -> invoice unpaid
+state check -> rejected
+Avalon      -> keep the counterexample
+```
+
+This example uses a synthetic world and an intentionally weak verifier.
+It runs without a model call.
+Inspect the [claim fixture](examples/world/claim-only.json), or [run the demonstration](#start-with-a-counterexample).
+
+</details>
+
+<details>
+<summary><strong>Open the field notebook: what counts as evidence?</strong></summary>
+
+A reward records the verifier's decision.
+Avalon checks that decision against the declared task, recorded outcomes, and action history.
+It can preserve a witness that reproduces a selected finding.
+
+Synthetic demonstrations establish results only for their declared tasks and checks.
+The current experiments do not establish production detection rates or general training improvement.
+Read the [evidence and limits](#evidence-and-limits) before you interpret a result.
+
+</details>
 
 ## Install the agent commands
 
