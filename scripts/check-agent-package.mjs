@@ -1,14 +1,11 @@
 import { lstat, readdir, readFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { COMMAND_NAMES } from "../dist/agent/catalog.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const skillRoot = resolve(root, "skills");
-const expected = new Set([
-  "avalon", "rl-research", "rl-spec", "rl-env", "rl-scenarios", "rl-reward", "rl-break", "rl-harden",
-  "rl-data", "rl-probs", "rl-credit", "rl-train", "rl-diagnose", "rl-ablate", "rl-curriculum", "rl-eval",
-  "rl-transfer", "rl-optimize", "rl-reproduce", "rl-release",
-]);
+const expected = new Set(COMMAND_NAMES);
 const failures = [];
 
 async function regular(path) {
@@ -68,5 +65,5 @@ if (failures.length) {
   process.stderr.write(failures.join("\n") + "\n");
   process.exitCode = 1;
 } else {
-  process.stdout.write("Agent package check passes: 20 workflows, local references, and matching manifests.\n");
+  process.stdout.write(`Agent package check passes: ${expected.size} workflows, local references, and matching manifests.\n`);
 }

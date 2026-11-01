@@ -1,0 +1,96 @@
+{
+  "format": "avalon-selection-scores-v1",
+  "planSha256": "9c0829c53f01eb706d4f8e2856a83ae0b4fb77009398fe853fb2f89370651396",
+  "candidates": [
+    {
+      "id": "random",
+      "artifactSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "complete",
+      "samples": [
+        {
+          "sampleId": "1",
+          "value": 0
+        },
+        {
+          "sampleId": "2",
+          "value": 0
+        },
+        {
+          "sampleId": "3",
+          "value": 0
+        },
+        {
+          "sampleId": "4",
+          "value": 0
+        },
+        {
+          "sampleId": "5",
+          "value": 0
+        },
+        {
+          "sampleId": "6",
+          "value": 0
+        },
+        {
+          "sampleId": "7",
+          "value": 0
+        },
+        {
+          "sampleId": "8",
+          "value": 0
+        }
+      ],
+      "latencyMs": 0,
+      "cost": {
+        "externalApiUsd": 0,
+        "computeUsd": null,
+        "hostAgentUsd": null
+      }
+    },
+    {
+      "id": "trained",
+      "artifactSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "status": "complete",
+      "samples": [
+        {
+          "sampleId": "1",
+          "value": 1
+        },
+        {
+          "sampleId": "2",
+          "value": 1
+        },
+        {
+          "sampleId": "3",
+          "value": 1
+        },
+        {
+          "sampleId": "4",
+          "value": 1
+        },
+        {
+          "sampleId": "5",
+          "value": 1
+        },
+        {
+          "sampleId": "6",
+          "value": 1
+        },
+        {
+          "sampleId": "7",
+          "value": 1
+        },
+        {
+          "sampleId": "8",
+          "value": 1
+        }
+      ],
+      "latencyMs": 0,
+      "cost": {
+        "externalApiUsd": 0,
+        "computeUsd": null,
+        "hostAgentUsd": null
+      }
+    }
+  ]
+}

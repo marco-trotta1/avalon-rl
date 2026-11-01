@@ -3,11 +3,11 @@ import { AGENT_COMMANDS, parseCommandName } from "./catalog.js";
 import { installSkills, type AgentHost } from "./install.js";
 import { inspectPath, projectRoot, withStateLock } from "./io.js";
 import { discoverProject, initProjectUnlocked } from "./project.js";
-import { finishRun, recordRun, resumeRun, startRun, type FinishStatus, type RecordKind } from "./runs.js";
+import { finishRun, listRuns, recordRun, resumeRun, startRun, type FinishStatus, type RecordKind } from "./runs.js";
 import { assertNever } from "../lib/schema.js";
 import { installRuntime } from "./runtime.js";
 
-const OPERATIONS = ["commands", "doctor", "init", "install", "start", "record", "finish", "resume"] as const;
+const OPERATIONS = ["commands", "doctor", "init", "install", "start", "record", "finish", "resume", "runs"] as const;
 type Operation = typeof OPERATIONS[number];
 
 const help = `Avalon agent workflows
@@ -23,6 +23,7 @@ Usage:
   avalon agent record RUN_ID --kind observation|hypothesis|evidence|decision --message TEXT [--artifact FILE] [--accept-drift] [--project PATH]
   avalon agent finish RUN_ID --status complete|inconclusive|blocked|failed --summary TEXT [--project PATH]
   avalon agent resume RUN_ID [--project PATH]
+  avalon agent runs [--project PATH] [--limit 1..100]
 
 The host executes the skill. This runtime does not invoke a model or run training.
 Private records use .avalon. Evidence records require an artifact within the project.
@@ -31,6 +32,7 @@ Declared input and artifact files must not exceed 256 MiB. Records must not exce
 Use --accept-drift only for an intentional decision. Fresh evidence is required after that decision.
 Existing skills, profiles, events, and terminal results are preserved.
 Installation defaults to the current directory and includes a private project runtime.
+Run listing is read-only. It reports record integrity and current project drift separately.
 `;
 
 class UsageError extends Error {}
@@ -48,7 +50,7 @@ export async function runAgent(args: string[]): Promise<number> {
         help: { type: "boolean", short: "h" }, json: { type: "boolean" }, project: { type: "string" },
         host: { type: "string" }, "dry-run": { type: "boolean" }, "runtime-only": { type: "boolean" }, goal: { type: "string" }, input: { type: "string", multiple: true },
         kind: { type: "string" }, message: { type: "string" }, artifact: { type: "string" },
-        "accept-drift": { type: "boolean" }, status: { type: "string" }, summary: { type: "string" },
+        "accept-drift": { type: "boolean" }, status: { type: "string" }, summary: { type: "string" }, limit: { type: "string" },
       } });
     } catch { throw new UsageError("Check the agent option names and values."); }
     const seen = new Set<string>();
@@ -64,7 +66,7 @@ export async function runAgent(args: string[]): Promise<number> {
     const allowed: Record<Operation, readonly string[]> = {
       commands: ["json"], doctor: ["project"], init: ["project"], install: ["host", "project", "dry-run", "runtime-only"],
       start: ["project", "goal", "input"], record: ["project", "kind", "message", "artifact", "accept-drift"],
-      finish: ["project", "status", "summary"], resume: ["project"],
+      finish: ["project", "status", "summary"], resume: ["project"], runs: ["project", "limit"],
     };
     const options = allowed[command];
     if ([...seen].some(name => !options.includes(name))) throw new UsageError("The agent command does not support this option.");
@@ -80,6 +82,14 @@ export async function runAgent(args: string[]): Promise<number> {
     let result: object;
     switch (command) {
       case "doctor": result = await discoverProject(root); break;
+      case "runs": {
+        const value = parsed.values.limit;
+        if (value !== undefined && (!/^[1-9][0-9]{0,2}$/.test(value) || Number(value) > 100)) {
+          throw new UsageError("Use a run limit from 1 through 100.");
+        }
+        result = await listRuns(root, { limit: value === undefined ? undefined : Number(value) });
+        break;
+      }
       case "init": result = await withStateLock(root, () => initProjectUnlocked(root)); break;
       case "install": {
         if (id !== undefined && parsed.values.host !== undefined) throw new UsageError("Select the host once.");

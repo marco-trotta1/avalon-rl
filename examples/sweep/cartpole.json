@@ -1,0 +1,28 @@
+{
+  "format": "avalon-gym-sweep-v1",
+  "evaluation": {
+    "seed": 1001,
+    "episodes": 16,
+    "maxSteps": 200
+  },
+  "delta": 0.05,
+  "minImprovement": 0,
+  "candidates": [
+    {
+      "id": "small-rate",
+      "seed": 7,
+      "episodes": 30,
+      "maxSteps": 200,
+      "learningRate": 0.005,
+      "discount": 0.99
+    },
+    {
+      "id": "large-rate",
+      "seed": 7,
+      "episodes": 30,
+      "maxSteps": 200,
+      "learningRate": 0.01,
+      "discount": 0.99
+    }
+  ]
+}

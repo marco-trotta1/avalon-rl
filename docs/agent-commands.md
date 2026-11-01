@@ -1,6 +1,6 @@
 # Agent commands
 
-Avalon provides 20 workflows for an existing coding agent.
+This source version provides 23 workflows for an existing coding agent.
 The host model reasons, edits source, executes tools, and coordinates workers.
 The local runtime discovers the project and records evidence.
 The runtime does not call a model provider or execute the workflow by itself.
@@ -8,30 +8,42 @@ The runtime does not call a model provider or execute the workflow by itself.
 ## Install
 
 Use Node.js 22.12 or later and npm.
-Run one command in your project directory:
+Build this source version, then install it into the selected project:
+
+```sh
+npm ci --ignore-scripts
+npm run build
+node dist/cli.js install codex --project /path/to/project
+```
+
+To install the latest published version, run this command in your project directory:
 
 ```sh
 npx --yes https://github.com/marco-trotta1/avalon-rl/releases/latest/download/avalon.tgz install codex
 ```
 
 Replace `codex` with `claude` or `cursor` to select another host.
+The public archive follows the latest published release. Unpublished source additions do not appear there until release.
 The current directory is the default project. Add `--project PATH` to select another directory.
 Use `--dry-run` to inspect the target files without writing them.
 The installer copies all workflows, their shared protocol, and a self-contained Node runtime into the project.
 It preserves identical files and refuses locally edited files.
-The exact untouched 0.5 shared protocol upgrades automatically. Other differing files require inspection.
+The exact untouched 0.5 and 0.6 shared protocols upgrade automatically. Other differing files require inspection.
 Stock upgrades retain the displaced file under `.avalon/install-backups` and return its backup path.
 Detected concurrent edits stop an upgrade. The displaced content and any recreated target remain available for inspection.
 It does not change user settings or install a model provider.
 
-The runtime is private under `.avalon/runtime/0.6.0` and includes its production dependency and licenses.
+This source installer places its private runtime under `.avalon/runtime/0.7.0`, with its production dependency and licenses.
 It works without a global `avalon` command and after the original npm cache is removed.
-The shared protocol selects its explicit Node entrypoint for the agent.
+All workflows prefer that explicit Node entrypoint. A fresh source installation needs no older Node runtime.
+The original workflows can select compatible `0.6.0` support when the newer runtime is absent.
+The three new workflows require `0.7.0` through their shared runtime procedure.
+Installation preserves the older runtime and retains a backup when it upgrades a reviewed stock protocol.
 An existing global installation can also use `avalon install codex`.
 The previous `avalon agent install --host HOST --project PATH` syntax remains supported.
 
 The workflow prepares missing Python support in a project virtual environment within the existing setup authorization.
-It uses the reviewed Python `0.3.0` wheel from release `v0.6.0` and checks its release manifest and checksum.
+It uses the reviewed Python `0.4.0` wheel from release `v0.7.0` and checks its release manifest and checksum.
 It installs declared dependencies there and uses the environment's explicit executable.
 It preserves global Python and continues independent work if setup cannot complete.
 See the [shared setup procedure](../skills/_shared/workflow.md#prepare-python-when-required) for the exact assets and verification steps.
@@ -57,6 +69,10 @@ Use the project installer for Codex. Codex 0.133 rejects the root source used by
 Native plugins supply the skills. On first use, the shared protocol prepares the verified project runtime when needed.
 It uses `avalon install --runtime-only` and adds no duplicate project skills.
 Python support remains optional until a selected workflow needs it.
+
+For `/rl-swarm`, `/rl-sweep`, and `/rl-status`, follow the [new runtime procedure](../skills/_shared/selection.md) after reading the original protocol.
+These workflows prepare the pinned `v0.7.0` runtime when it is absent.
+An inspected local `0.7.0` archive or built source package is also supported.
 
 ## Invoke
 
@@ -101,6 +117,9 @@ The host conventions follow the official [Cursor skills](https://cursor.com/docs
 | `/rl-optimize` | Change a measured resource limiter under a quality constraint. | A tested patch and before/after measurements. |
 | `/rl-reproduce` | Restore and rerun the recorded method. | A reproduction receipt and result differences. |
 | `/rl-release` | Review, package, install, and deliver the selected artifact. | A tested package, task or model card, and release receipt. |
+| `/rl-swarm` | Construct bounded candidates and compare independent bounded trial outcomes. | Candidate identities, ownership, scores, and a Hoeffding selection report. |
+| `/rl-sweep` | Execute a frozen experiment matrix across settings and seeds. | A complete ledger, checkpoints, development reports, and resource records. |
+| `/rl-status` | Inspect saved runs, evidence, and binding drift. | A bounded run list and the next valid action. |
 
 The detailed procedures live in the corresponding `skills/COMMAND/SKILL.md` files.
 The installer copies the same procedures into the host's project directory.
@@ -119,11 +138,36 @@ Or invoke a specific process:
 /rl-break Find a way to earn completion credit without settling the invoice
 /rl-harden Repair the confirmed exploit and preserve valid alternative plans
 /rl-diagnose Reward rises while held-out task completion falls
+/rl-swarm Compare three reward repairs against the current reward within the saved budget
+/rl-sweep Compare two learning rates across three training seeds
+/rl-status Show recent runs and identify the next valid action
 ```
 
 The host finds the relevant files and carries compatible artifacts between commands.
 It uses independent workers when the host supports them and the work can proceed separately.
 It requests missing domain intent or an uncovered spending decision when that decision blocks dependent work.
+
+## Candidate construction and selection
+
+`/rl-swarm` assigns distinct candidate directories or branches to construction workers and freezes the candidate roster before selection trials.
+The host uses its existing agent tools and budget. The local selector does not launch models.
+Shared-context worker votes do not supply independent observations.
+
+Freeze the baseline, score bounds, metric direction, improvement margin, sampling method, trial count, and error probability before collecting outcomes.
+Run `avalon select --plan PLAN --scores SCORES --out NEW_REPORT` after all declared trials complete.
+The selector combines two-sided Hoeffding intervals with a union bound over the frozen candidates.
+For maximization, one candidate's lower bound must exceed every competing upper bound.
+Minimization reverses that comparison. A candidate that replaces the baseline must also clear the frozen improvement margin.
+Overlapping intervals produce an inconclusive result with exit code `5`.
+Do not extend a fixed comparison after inspecting its result.
+Reserve final evaluation before construction and keep it separate from candidate selection.
+The [selection guide](selection.md) defines the input format, executable examples, and assumptions.
+
+`/rl-sweep` freezes settings and seeds, assigns distinct output directories, and retains failed or unexecuted conditions.
+Its published Python path uses bounded `gym-train` and `gym-eval` commands.
+The Python `0.4.0` wheel supplies `gym-sweep`; inspect that command's help before using it.
+The older released Python package does not gain new commands from the Node installation.
+Use `/rl-ablate` for a controlled component comparison rather than treating a search result as a causal effect.
 
 ## Project and run records
 
@@ -134,6 +178,15 @@ avalon agent doctor --project /path/to/project
 avalon agent init --project /path/to/project
 avalon agent start rl-data --goal "Check replay preservation" --input source.json --project /path/to/project
 ```
+
+Inspect recent saved runs with the new runtime:
+
+```sh
+avalon agent runs --limit 10 --project /path/to/project
+```
+
+`/rl-status` reads the returned records and uses `agent resume` for the relevant runs.
+It reports drift or damaged records without changing their state or rerunning training.
 
 Use the returned run identifier and directory.
 Add repeated `--input` options for the exact artifacts that define the task.

@@ -1,6 +1,6 @@
 {
   "name": "avalon-rl",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -40,7 +40,7 @@
     "test:audit": "vitest run tests/audit-engine.test.ts",
     "test:lab": "npm run build && vitest run tests/lab*.test.ts",
     "check:privacy": "node scripts/check-privacy.mjs",
-    "check:agent": "node scripts/check-agent-package.mjs"
+    "check:agent": "npm run build && node scripts/check-agent-package.mjs"
   },
   "dependencies": {
     "zod": "4.6.7"

@@ -21,3 +21,6 @@ It does not publish packages, deploy services, or upload experience.
 
 Local checks do not establish a successful hosted run.
 Inspect the current GitHub check result before claiming that hosted validation passes.
+
+The release workflow installs the packaged tools and executes a CartPole sweep through the installed Hoeffding selector.
+It preserves a selected or inconclusive result and rejects execution errors before uploading the release artifacts.

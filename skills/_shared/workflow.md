@@ -8,14 +8,16 @@ Starting or finishing a run does not prove the scientific claim.
 
 1. Read the project instructions before executing code.
 2. Resolve the actual project root from the user's task and the current repository.
-3. Prefer `PROJECT/.avalon/runtime/0.6.0/dist/cli.js`. The project installer includes this self-contained runtime.
-4. Check its package name as `avalon-rl` and version as `0.6.0` in the runtime directory's `package.json`.
-5. Use `node ABSOLUTE_ENTRYPOINT` in place of `avalon` in the commands below. Do not depend on global PATH.
-6. Run the selected runtime's `agent commands` and require all 20 command names.
-7. If the project runtime is absent, follow the Node setup procedure below.
-8. Use the selected runtime's `agent doctor --project PROJECT` to inspect the project.
-9. Run its `agent init --project PROJECT` when the project has no profile.
-10. Treat detected frameworks as inventory. Detection does not establish that an adapter works.
+3. Prefer `PROJECT/.avalon/runtime/0.7.0/dist/cli.js`.
+4. If it is absent, use `PROJECT/.avalon/runtime/0.6.0/dist/cli.js` for the original workflows.
+5. If neither runtime exists, follow the Node setup procedure below. Then repeat runtime selection.
+6. Check its package name as `avalon-rl`. Require the version to match the selected runtime directory.
+7. Use `node ABSOLUTE_ENTRYPOINT` in place of `avalon` in the commands below. Do not depend on global PATH.
+8. Run its `agent commands`. Require all 23 names for `0.7.0`, or the original 20 names for `0.6.0`.
+9. Require `0.7.0` for `/rl-swarm`, `/rl-sweep`, and `/rl-status`. Follow their shared runtime procedure before setup.
+10. Use the selected runtime's `agent doctor --project PROJECT` to inspect the project.
+11. Run its `agent init --project PROJECT` when the project has no profile.
+12. Treat detected frameworks as inventory. Detection does not establish that an adapter works.
 
 Use the user's selected goal. State unresolved assumptions before changing behavior.
 Inspect relevant source and metadata before asking for information that the repository can provide.
@@ -26,14 +28,16 @@ Continue independent work while that decision remains open.
 
 Native plugin installation supplies the skills. Prepare their project runtime once, within existing setup authorization.
 Use Node.js `22.12` or newer and npm.
-Obtain the Node archive, release manifest, and checksums from the pinned `v0.6.0` release:
+An installed `0.7.0` runtime needs no older bootstrap runtime.
+The pinned bootstrap below supplies all workflows when the project runtime is absent.
+Obtain the Node archive, release manifest, and checksums from the pinned `v0.7.0` release:
 
-- [avalon-rl-0.6.0.tgz](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/avalon-rl-0.6.0.tgz)
-- [release-manifest.json](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/release-manifest.json)
-- [SHA256SUMS](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/SHA256SUMS)
+- [avalon-rl-0.7.0.tgz](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.7.0/avalon-rl-0.7.0.tgz)
+- [release-manifest.json](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.7.0/release-manifest.json)
+- [SHA256SUMS](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.7.0/SHA256SUMS)
 
 1. Save the files in a new private directory with the host's permitted download tools.
-2. Require manifest format `avalon.release/v1`, Node version `0.6.0`, and a complete source commit.
+2. Require manifest format `avalon.release/v1`, Node version `0.7.0`, and a complete source commit.
 3. Verify the archive's exact filename, byte count, SHA-256, and checksum entry before executing its code.
 4. Run `npm exec --yes --package LOCAL_VERIFIED_ARCHIVE -- avalon install --runtime-only --project PROJECT`.
 5. Use the returned local runtime entrypoint for subsequent commands.
@@ -68,27 +72,27 @@ Use an argument array when the host provides one.
 Continue independent Node and research steps without Python.
 Prepare Python only when the selected workflow needs it.
 Check `avalon-python --help` and the required subcommand help before reusing an existing executable.
-Require the compatible `avalon-rl-lab` version `0.3.0`.
+Require the compatible `avalon-rl-lab` version `0.4.0`.
 
-If Python support is absent or incompatible, use the reviewed assets from release `v0.6.0`:
+If Python support is absent or incompatible, use the reviewed assets from release `v0.7.0`:
 
-- [avalon_rl_lab-0.3.0-py3-none-any.whl](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/avalon_rl_lab-0.3.0-py3-none-any.whl)
-- [release-manifest.json](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/release-manifest.json)
-- [SHA256SUMS](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.6.0/SHA256SUMS)
+- [avalon_rl_lab-0.4.0-py3-none-any.whl](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.7.0/avalon_rl_lab-0.4.0-py3-none-any.whl)
+- [release-manifest.json](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.7.0/release-manifest.json)
+- [SHA256SUMS](https://github.com/marco-trotta1/avalon-rl/releases/download/v0.7.0/SHA256SUMS)
 
 1. Use the host's permitted download tools or an existing copy of these exact assets.
 2. Save them in a new private project directory. Do not select a latest release or a PyPI replacement.
-3. Check the manifest format as `avalon.release/v1` and package versions as Node `0.6.0` and Python `0.3.0`.
+3. Check the manifest format as `avalon.release/v1` and package versions as Node `0.7.0` and Python `0.4.0`.
 4. Require the exact wheel name, declared source commit, byte count, and SHA-256 value from the manifest.
 5. Compute the wheel's byte count and SHA-256. Require agreement with the manifest and its `SHA256SUMS` entry.
 6. Stop dependent execution if verification fails or the exact assets are unavailable.
-7. Find Python `3.13` or newer. Create a project virtual environment at `.avalon/python-0.3.0` within existing setup authorization.
+7. Find Python `3.13` or newer. Create a project virtual environment at `.avalon/python-0.4.0` within existing setup authorization.
 8. Preserve an existing environment. Validate it or select a new private directory instead of replacing it.
 9. Install the verified wheel and its declared dependencies with that environment's `python -m pip install WHEEL_PATH`.
 10. Run the environment's explicit `avalon-python` executable and inspect its required command help.
 11. Record the release, commit, wheel hash, interpreter, dependency versions, and executable path in the run.
 
-On POSIX hosts, use `PROJECT/.avalon/python-0.3.0/bin/avalon-python` for subsequent Python commands.
+On POSIX hosts, use `PROJECT/.avalon/python-0.4.0/bin/avalon-python` for subsequent Python commands.
 Use the environment's actual executable path on other hosts.
 Do not modify global Python or substitute an invented package name.
 Routine setup covered by existing authorization does not require another confirmation.

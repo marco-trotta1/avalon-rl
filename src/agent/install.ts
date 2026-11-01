@@ -1,13 +1,14 @@
 import { fileURLToPath } from "node:url";
 import { COMMAND_NAMES } from "./catalog.js";
 import { collectBundle, pendingBundle, writeBundle, type BundleFile } from "./bundle.js";
-import { digest } from "./io.js";
+import { digest, inspectPath, readBytes } from "./io.js";
 import { prepareRuntime } from "./runtime.js";
 
 export type AgentHost = "cursor" | "claude" | "codex";
 const hostDirectories: Record<AgentHost, string> = { cursor: ".cursor/skills", claude: ".claude/skills", codex: ".agents/skills" };
 const packageRoot = fileURLToPath(new URL("../../", import.meta.url));
 const stock050Protocol = "20dd82a534c7fcfea8c9a6e0a87b69c4d8129f6ee488e449fdf13d58a435359b";
+const stock060Protocol = "8d971c5d16683dd1fedd9641c81ad254be0eeef4b23b6aa6fbceadb5e4301b9a";
 
 export async function installSkills(input: { root: string; host: AgentHost; dryRun: boolean; sourceRoot?: string }) {
   const sourceRoot = input.sourceRoot ?? packageRoot;
@@ -20,7 +21,12 @@ export async function installSkills(input: { root: string; host: AgentHost; dryR
   }
   files.sort((left, right) => left.target.localeCompare(right.target));
   const runtime = await prepareRuntime();
-  const replace = new Map([[`${hostDirectories[input.host]}/_shared/workflow.md`, stock050Protocol]]);
+  const protocol = `${hostDirectories[input.host]}/_shared/workflow.md`;
+  const replace = new Map<string, string>();
+  if ((await inspectPath(input.root, protocol)).exists) {
+    const previousSha256 = digest(await readBytes(input.root, protocol));
+    if (previousSha256 === stock050Protocol || previousSha256 === stock060Protocol) replace.set(protocol, previousSha256);
+  }
   const pending = await pendingBundle({ root: input.root, files: [...files, ...runtime.files], replace });
   const backups = input.dryRun ? [] : await writeBundle({ root: input.root, files: pending });
   const skillTargets = new Set(files.map(file => file.target));
