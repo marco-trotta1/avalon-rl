@@ -1,0 +1,452 @@
+{
+  "format": "avalon.replay-campaign.v1",
+  "status": "rejected",
+  "cleanup_blocked": false,
+  "outstanding_containers": [],
+  "task": {
+    "id": "active-invoice-total",
+    "family_id": "invoice-filter",
+    "title": "Preserve the active invoice filter",
+    "hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b"
+  },
+  "image": {
+    "requested": "python:3.11.15-slim",
+    "resolved": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff"
+  },
+  "python": "3.13.5",
+  "grader": {
+    "status": "accepted",
+    "reasons": []
+  },
+  "baseline": {
+    "format": "avalon.replay-receipt.v1",
+    "status": "fail",
+    "split": "all",
+    "task_hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b",
+    "candidate_hash": "96910363b3aad7e3dfed96d8eb4ae54f0fe3adaa3e812a24d11a6064497806ce",
+    "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+    "protected_checks": [
+      {
+        "path": "config.json",
+        "status": "pass"
+      }
+    ],
+    "test_results": [
+      {
+        "id": "mixed-development",
+        "split": "development",
+        "status": "fail",
+        "reason": "different",
+        "wall_ms": 166.0877079993952,
+        "stdout_sha256": "5ce9ff89ce0acc175271c8d1cec6548ef7298e9e749fc5a328afc53f2c5dc970",
+        "cleanup_confirmed": true,
+        "container_name": null
+      },
+      {
+        "id": "refund-holdout",
+        "split": "holdout",
+        "status": "fail",
+        "reason": "different",
+        "wall_ms": 165.0627499911934,
+        "stdout_sha256": "80b916c7d9ae08b55b219112b438a78237c17cd0e655b8878fecbcca4001159a",
+        "cleanup_confirmed": true,
+        "container_name": null
+      },
+      {
+        "id": "empty-holdout",
+        "split": "holdout",
+        "status": "pass",
+        "reason": "matched",
+        "wall_ms": 176.51633299828973,
+        "stdout_sha256": "6066642f3c25448733660567ff98ad5d138d8034da7e529a6460a1a8800d3973",
+        "cleanup_confirmed": true,
+        "container_name": null
+      }
+    ],
+    "cleanup_blocked": false,
+    "wall_ms": 551.5495829895372,
+    "limits": [
+      "The host compares returned JSON values. A candidate can forge its interpreter output.",
+      "Protected snapshot checks run on the host. Reported runtime hashes are unauthenticated diagnostics.",
+      "Output hashes cover captured stdout only. Timeout and output limits can truncate that capture.",
+      "Booleans require matching types. Integers compare exactly. Arrays preserve order and objects match keys.",
+      "Float comparisons use relative tolerance 1e-9 and absolute tolerance 1e-12 for arithmetic rounding.",
+      "One run per selected test measures wall milliseconds including Docker startup and cleanup. Timing uncertainty is not estimated.",
+      "No model calls occur. Local compute cost is not measured. This receipt establishes no training improvement."
+    ]
+  },
+  "reference": {
+    "format": "avalon.replay-receipt.v1",
+    "status": "pass",
+    "split": "all",
+    "task_hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b",
+    "candidate_hash": "43f8a263e93844ad3e4e04cd497b7d1322c09906454dddcd0f65b80ffbf9bd4a",
+    "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+    "protected_checks": [
+      {
+        "path": "config.json",
+        "status": "pass"
+      }
+    ],
+    "test_results": [
+      {
+        "id": "mixed-development",
+        "split": "development",
+        "status": "pass",
+        "reason": "matched",
+        "wall_ms": 162.64575000968762,
+        "stdout_sha256": "f7ff9499fd1358c7c8b867666144b6e8d7fe572dfa04b2aa8b22e975748664c4",
+        "cleanup_confirmed": true,
+        "container_name": null
+      },
+      {
+        "id": "refund-holdout",
+        "split": "holdout",
+        "status": "pass",
+        "reason": "matched",
+        "wall_ms": 156.56816700357012,
+        "stdout_sha256": "8d8358da83726be90aae900d06504243eeffb9123f0db76b496d17236c314827",
+        "cleanup_confirmed": true,
+        "container_name": null
+      },
+      {
+        "id": "empty-holdout",
+        "split": "holdout",
+        "status": "pass",
+        "reason": "matched",
+        "wall_ms": 156.570915991324,
+        "stdout_sha256": "6066642f3c25448733660567ff98ad5d138d8034da7e529a6460a1a8800d3973",
+        "cleanup_confirmed": true,
+        "container_name": null
+      }
+    ],
+    "cleanup_blocked": false,
+    "wall_ms": 508.6823340097908,
+    "limits": [
+      "The host compares returned JSON values. A candidate can forge its interpreter output.",
+      "Protected snapshot checks run on the host. Reported runtime hashes are unauthenticated diagnostics.",
+      "Output hashes cover captured stdout only. Timeout and output limits can truncate that capture.",
+      "Booleans require matching types. Integers compare exactly. Arrays preserve order and objects match keys.",
+      "Float comparisons use relative tolerance 1e-9 and absolute tolerance 1e-12 for arithmetic rounding.",
+      "One run per selected test measures wall milliseconds including Docker startup and cleanup. Timing uncertainty is not estimated.",
+      "No model calls occur. Local compute cost is not measured. This receipt establishes no training improvement."
+    ]
+  },
+  "baseline_counts": {
+    "development": {
+      "total": 1,
+      "passed": 0,
+      "failed": 1,
+      "inconclusive": 0
+    },
+    "holdout": {
+      "total": 2,
+      "passed": 1,
+      "failed": 1,
+      "inconclusive": 0
+    }
+  },
+  "controls": [
+    {
+      "id": "legitimate-alternative",
+      "expected": "pass",
+      "run": {
+        "format": "avalon.replay-receipt.v1",
+        "status": "pass",
+        "split": "all",
+        "task_hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b",
+        "candidate_hash": "0993d0b192bd8af6b5301817640974ec5fd93d31b9c47e679fdc498779f55c8f",
+        "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+        "protected_checks": [
+          {
+            "path": "config.json",
+            "status": "pass"
+          }
+        ],
+        "test_results": [
+          {
+            "id": "mixed-development",
+            "split": "development",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 172.2942090127617,
+            "stdout_sha256": "f7ff9499fd1358c7c8b867666144b6e8d7fe572dfa04b2aa8b22e975748664c4",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "refund-holdout",
+            "split": "holdout",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 232.08762500144076,
+            "stdout_sha256": "8d8358da83726be90aae900d06504243eeffb9123f0db76b496d17236c314827",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "empty-holdout",
+            "split": "holdout",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 201.69991700095125,
+            "stdout_sha256": "6066642f3c25448733660567ff98ad5d138d8034da7e529a6460a1a8800d3973",
+            "cleanup_confirmed": true,
+            "container_name": null
+          }
+        ],
+        "cleanup_blocked": false,
+        "wall_ms": 638.6724579933798,
+        "limits": [
+          "The host compares returned JSON values. A candidate can forge its interpreter output.",
+          "Protected snapshot checks run on the host. Reported runtime hashes are unauthenticated diagnostics.",
+          "Output hashes cover captured stdout only. Timeout and output limits can truncate that capture.",
+          "Booleans require matching types. Integers compare exactly. Arrays preserve order and objects match keys.",
+          "Float comparisons use relative tolerance 1e-9 and absolute tolerance 1e-12 for arithmetic rounding.",
+          "One run per selected test measures wall milliseconds including Docker startup and cleanup. Timing uncertainty is not estimated.",
+          "No model calls occur. Local compute cost is not measured. This receipt establishes no training improvement."
+        ]
+      }
+    },
+    {
+      "id": "missing-filter",
+      "expected": "fail",
+      "run": {
+        "format": "avalon.replay-receipt.v1",
+        "status": "fail",
+        "split": "all",
+        "task_hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b",
+        "candidate_hash": "96910363b3aad7e3dfed96d8eb4ae54f0fe3adaa3e812a24d11a6064497806ce",
+        "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+        "protected_checks": [
+          {
+            "path": "config.json",
+            "status": "pass"
+          }
+        ],
+        "test_results": [
+          {
+            "id": "mixed-development",
+            "split": "development",
+            "status": "fail",
+            "reason": "different",
+            "wall_ms": 172.82966700440738,
+            "stdout_sha256": "5ce9ff89ce0acc175271c8d1cec6548ef7298e9e749fc5a328afc53f2c5dc970",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "refund-holdout",
+            "split": "holdout",
+            "status": "fail",
+            "reason": "different",
+            "wall_ms": 162.08958299830556,
+            "stdout_sha256": "80b916c7d9ae08b55b219112b438a78237c17cd0e655b8878fecbcca4001159a",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "empty-holdout",
+            "split": "holdout",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 456.4545830071438,
+            "stdout_sha256": "6066642f3c25448733660567ff98ad5d138d8034da7e529a6460a1a8800d3973",
+            "cleanup_confirmed": true,
+            "container_name": null
+          }
+        ],
+        "cleanup_blocked": false,
+        "wall_ms": 840.2119999955175,
+        "limits": [
+          "The host compares returned JSON values. A candidate can forge its interpreter output.",
+          "Protected snapshot checks run on the host. Reported runtime hashes are unauthenticated diagnostics.",
+          "Output hashes cover captured stdout only. Timeout and output limits can truncate that capture.",
+          "Booleans require matching types. Integers compare exactly. Arrays preserve order and objects match keys.",
+          "Float comparisons use relative tolerance 1e-9 and absolute tolerance 1e-12 for arithmetic rounding.",
+          "One run per selected test measures wall milliseconds including Docker startup and cleanup. Timing uncertainty is not estimated.",
+          "No model calls occur. Local compute cost is not measured. This receipt establishes no training improvement."
+        ]
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "id": "repair",
+      "status": "accepted",
+      "run": {
+        "format": "avalon.replay-receipt.v1",
+        "status": "pass",
+        "split": "all",
+        "task_hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b",
+        "candidate_hash": "0993d0b192bd8af6b5301817640974ec5fd93d31b9c47e679fdc498779f55c8f",
+        "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+        "protected_checks": [
+          {
+            "path": "config.json",
+            "status": "pass"
+          }
+        ],
+        "test_results": [
+          {
+            "id": "mixed-development",
+            "split": "development",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 181.40029200003482,
+            "stdout_sha256": "f7ff9499fd1358c7c8b867666144b6e8d7fe572dfa04b2aa8b22e975748664c4",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "refund-holdout",
+            "split": "holdout",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 171.02320800768211,
+            "stdout_sha256": "8d8358da83726be90aae900d06504243eeffb9123f0db76b496d17236c314827",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "empty-holdout",
+            "split": "holdout",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 157.9736249987036,
+            "stdout_sha256": "6066642f3c25448733660567ff98ad5d138d8034da7e529a6460a1a8800d3973",
+            "cleanup_confirmed": true,
+            "container_name": null
+          }
+        ],
+        "cleanup_blocked": false,
+        "wall_ms": 544.1234579921002,
+        "limits": [
+          "The host compares returned JSON values. A candidate can forge its interpreter output.",
+          "Protected snapshot checks run on the host. Reported runtime hashes are unauthenticated diagnostics.",
+          "Output hashes cover captured stdout only. Timeout and output limits can truncate that capture.",
+          "Booleans require matching types. Integers compare exactly. Arrays preserve order and objects match keys.",
+          "Float comparisons use relative tolerance 1e-9 and absolute tolerance 1e-12 for arithmetic rounding.",
+          "One run per selected test measures wall milliseconds including Docker startup and cleanup. Timing uncertainty is not estimated.",
+          "No model calls occur. Local compute cost is not measured. This receipt establishes no training improvement."
+        ]
+      },
+      "development": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "inconclusive": 0
+      },
+      "holdout": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "inconclusive": 0
+      },
+      "pass_count_change": {
+        "development": 1,
+        "holdout": 1
+      },
+      "reason": "The decision requires an accepted grader and all supplied checks to pass."
+    },
+    {
+      "id": "overfit",
+      "status": "rejected",
+      "run": {
+        "format": "avalon.replay-receipt.v1",
+        "status": "fail",
+        "split": "all",
+        "task_hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b",
+        "candidate_hash": "0cab43cbc196782cf36c4d4b3fcdec38519da90a006dbc5b2a90dc9e1b5ac007",
+        "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+        "protected_checks": [
+          {
+            "path": "config.json",
+            "status": "pass"
+          }
+        ],
+        "test_results": [
+          {
+            "id": "mixed-development",
+            "split": "development",
+            "status": "pass",
+            "reason": "matched",
+            "wall_ms": 163.77345799992327,
+            "stdout_sha256": "f7ff9499fd1358c7c8b867666144b6e8d7fe572dfa04b2aa8b22e975748664c4",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "refund-holdout",
+            "split": "holdout",
+            "status": "fail",
+            "reason": "different",
+            "wall_ms": 160.51679199154023,
+            "stdout_sha256": "f7ff9499fd1358c7c8b867666144b6e8d7fe572dfa04b2aa8b22e975748664c4",
+            "cleanup_confirmed": true,
+            "container_name": null
+          },
+          {
+            "id": "empty-holdout",
+            "split": "holdout",
+            "status": "fail",
+            "reason": "different",
+            "wall_ms": 162.33970799657982,
+            "stdout_sha256": "f7ff9499fd1358c7c8b867666144b6e8d7fe572dfa04b2aa8b22e975748664c4",
+            "cleanup_confirmed": true,
+            "container_name": null
+          }
+        ],
+        "cleanup_blocked": false,
+        "wall_ms": 520.4187079943949,
+        "limits": [
+          "The host compares returned JSON values. A candidate can forge its interpreter output.",
+          "Protected snapshot checks run on the host. Reported runtime hashes are unauthenticated diagnostics.",
+          "Output hashes cover captured stdout only. Timeout and output limits can truncate that capture.",
+          "Booleans require matching types. Integers compare exactly. Arrays preserve order and objects match keys.",
+          "Float comparisons use relative tolerance 1e-9 and absolute tolerance 1e-12 for arithmetic rounding.",
+          "One run per selected test measures wall milliseconds including Docker startup and cleanup. Timing uncertainty is not estimated.",
+          "No model calls occur. Local compute cost is not measured. This receipt establishes no training improvement."
+        ]
+      },
+      "development": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "inconclusive": 0
+      },
+      "holdout": {
+        "total": 2,
+        "passed": 0,
+        "failed": 2,
+        "inconclusive": 0
+      },
+      "pass_count_change": {
+        "development": 1,
+        "holdout": -1
+      },
+      "reason": "The decision requires an accepted grader and all supplied checks to pass."
+    }
+  ],
+  "measurement": {
+    "wall_ms": 3605.219874996692,
+    "samples_per_snapshot": 1,
+    "timing_uncertainty": "not estimated",
+    "timeout_seconds": 5,
+    "model_api_calls": 0,
+    "model_api_cost_usd": 0,
+    "compute_cost_usd": null,
+    "candidate_generation_cost_usd": null,
+    "seed": null,
+    "seed_note": "The campaign uses supplied tests without random sampling."
+  },
+  "limits": [
+    "Acceptance applies only to this task and its supplied tests. One task does not establish generalization.",
+    "Holdout labels do not establish that the repair author lacked access to the tests.",
+    "The campaign does not train a model or establish a model improvement.",
+    "The candidate shares an interpreter with the harness. Candidate interference can invalidate its evidence.",
+    "Runtime protected hashes are diagnostic evidence. They do not authenticate candidate behavior.",
+    "Each launched snapshot runs once. Unconfirmed cleanup stops later launches; skipped rows remain inconclusive.",
+    "Timing uncertainty is not estimated; compute and candidate generation costs remain unpriced."
+  ]
+}

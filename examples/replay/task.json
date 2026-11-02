@@ -1,0 +1,105 @@
+{
+  "format": "avalon.replay.v1",
+  "id": "active-invoice-total",
+  "family_id": "invoice-filter",
+  "title": "Preserve the active invoice filter",
+  "description": "Implement total_active(rows). Sum integer cents for active rows only. Preserve config.json.",
+  "provenance": {
+    "source": "synthetic",
+    "model": "authored-control",
+    "captured_at": "2026-11-01T00:00:00Z"
+  },
+  "rights": {
+    "status": "private"
+  },
+  "entrypoint": {
+    "file": "solution.py",
+    "function": "total_active"
+  },
+  "snapshots": {
+    "initial": {
+      "solution.py": "def total_active(rows):\n    return 0\n",
+      "config.json": "{\"currency\":\"USD\",\"strict\":true}\n"
+    },
+    "observed": {
+      "solution.py": "def total_active(rows):\n    return sum(row['cents'] for row in rows)\n",
+      "config.json": "{\"currency\":\"USD\",\"strict\":true}\n"
+    },
+    "reference": {
+      "solution.py": "def total_active(rows):\n    return sum(row['cents'] for row in rows if row['active'])\n",
+      "config.json": "{\"currency\":\"USD\",\"strict\":true}\n"
+    }
+  },
+  "tests": [
+    {
+      "id": "mixed-development",
+      "split": "development",
+      "args": [
+        [
+          {
+            "cents": 125,
+            "active": true
+          },
+          {
+            "cents": 75,
+            "active": false
+          }
+        ]
+      ],
+      "kwargs": {},
+      "expected": 125
+    },
+    {
+      "id": "refund-holdout",
+      "split": "holdout",
+      "args": [
+        [
+          {
+            "cents": -30,
+            "active": true
+          },
+          {
+            "cents": 400,
+            "active": false
+          },
+          {
+            "cents": 90,
+            "active": true
+          }
+        ]
+      ],
+      "kwargs": {},
+      "expected": 60
+    },
+    {
+      "id": "empty-holdout",
+      "split": "holdout",
+      "args": [
+        []
+      ],
+      "kwargs": {},
+      "expected": 0
+    }
+  ],
+  "protected_paths": [
+    "config.json"
+  ],
+  "controls": [
+    {
+      "id": "legitimate-alternative",
+      "expect": "pass",
+      "files": {
+        "solution.py": "def total_active(rows):\n    total = 0\n    for row in rows:\n        if row['active']:\n            total += row['cents']\n    return total\n",
+        "config.json": "{\"currency\":\"USD\",\"strict\":true}\n"
+      }
+    },
+    {
+      "id": "missing-filter",
+      "expect": "fail",
+      "files": {
+        "solution.py": "def total_active(rows):\n    return sum(row['cents'] for row in rows)\n",
+        "config.json": "{\"currency\":\"USD\",\"strict\":true}\n"
+      }
+    }
+  ]
+}
