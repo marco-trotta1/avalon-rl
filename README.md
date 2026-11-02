@@ -87,6 +87,18 @@ It makes no model calls.
 
 ## Guides
 
+To start a trial with an external team, use the [team trial guide](docs/team-trial.md).
+It includes a SQLite execution adapter, agent interface, fresh-reset replay, task export, and private intake worksheet.
+
+```sh
+node dist/cli.js trial init --out /tmp/avalon-team-workspace
+node dist/cli.js trial run --data /tmp/avalon-team-workspace/session.json --out /tmp/avalon-team-run
+```
+
+Build the CLI first. The reference requires Python 3.11 or later.
+The run returns code 5 because its missing-evidence control remains unknown.
+The default agent is deterministic. An optional wrapper supports pinned local Ollama weights.
+
 | Task | Guide |
 | --- | --- |
 | Evaluate games and simulated control | [Environment adapters](docs/replay/general-environments.md) |

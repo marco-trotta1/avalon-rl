@@ -7,11 +7,11 @@ Its Python setup provides the training, evaluation, and sweep commands.
 
 ## Select the runtime
 
-1. Prefer `PROJECT/.avalon/runtime/0.7.0/dist/cli.js`. Check `PROJECT/.avalon/runtime/0.7.0/package.json` as `avalon-rl` version `0.7.0`.
+1. Prefer `PROJECT/.avalon/runtime/0.8.0/dist/cli.js`. Check `PROJECT/.avalon/runtime/0.8.0/package.json` as `avalon-rl` version `0.8.0`.
 2. Run its `agent commands --json`. Require `rl-swarm`, `rl-sweep`, and `rl-status` in the catalog.
 3. Use `node ABSOLUTE_ENTRYPOINT` in place of `avalon` throughout these workflows.
-4. If the runtime is absent, follow the workflow protocol's pinned `v0.7.0` Node setup procedure.
-5. An inspected local `0.7.0` archive or built source package is also supported.
+4. If the runtime is absent, follow the workflow protocol's pinned `v0.8.0` Node setup procedure.
+5. An inspected local `0.8.0` archive or built source package is also supported.
 6. Record its source revision, package version, and archive hash when an archive is used.
 7. Verify the release manifest and checksum before executing a downloaded archive.
 8. Check the returned entrypoint and catalog before starting a run.
@@ -20,7 +20,7 @@ Its Python setup provides the training, evaluation, and sweep commands.
 Do not silently substitute the older pinned bootstrap package for these workflows.
 Existing `0.6.0` runtimes remain preserved during installation.
 Reviewed stock protocols upgrade with retained backups. Customized skills remain protected.
-All workflows prefer an installed `0.7.0` runtime. The original workflows can use the older runtime when the newer one is absent.
+All workflows prefer an installed `0.8.0` runtime. The original workflows can use the older runtime when the newer one is absent.
 The pinned Python `0.4.0` wheel includes `gym-sweep`.
 The existing `gym-train` and `gym-eval` commands also support a bounded sweep.
 

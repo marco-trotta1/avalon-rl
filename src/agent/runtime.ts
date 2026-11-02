@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { collectBundle, pendingBundle, writeBundle, type BundleFile } from "./bundle.js";
 import { readBytes, readJson } from "./io.js";
+import { TRIAL_TEMPLATE_FILES } from "../trial/init.js";
 
 const packageRoot = fileURLToPath(new URL("../../", import.meta.url));
 const metadataSchema = z.object({
@@ -24,6 +25,10 @@ export async function prepareRuntime() {
   files.push(...await collectBundle({ root: packageRoot, source: "dist", target: `${directory}/dist`, accept: name => name.endsWith(".js") }));
   if (!files.some(file => file.target === `${directory}/dist/cli.js`)) throw new Error("Build the Avalon runtime before installation.");
   files.push(...await collectBundle({ root: packageRoot, source: "skills", target: `${directory}/skills`, accept: () => true }));
+  for (const name of TRIAL_TEMPLATE_FILES) {
+    const source = `examples/team-trial/${name}`;
+    files.push({ source, target: `${directory}/${source}`, bytes: await readBytes(packageRoot, source) });
+  }
   const dependencyRoot = await realpath(dirname(createRequire(import.meta.url).resolve("zod/package.json")));
   z.object({ name: z.literal("zod"), version: z.literal(metadata.dependencies.zod) }).parse(await readJson(dependencyRoot, "package.json"));
   files.push(...await collectBundle({

@@ -71,12 +71,12 @@ describe("stock protocol upgrades", () => {
     await mkdir(dirname(previous), { recursive: true });
     await writeFile(previous, "The previous runtime remains available.\n");
     const installed = await installSkills({ root, host, dryRun: false });
-    expect(installed.runtime.version).toBe("0.7.0");
+    expect(installed.runtime.version).toBe("0.8.0");
     expect(installed.updatedFiles).toBe(1);
     expect(installed.backups).toHaveLength(1);
     expect(await readFile(join(root, installed.backups[0] ?? "missing"), "utf8")).toBe(preserved);
     expect(await readFile(protocol, "utf8")).toBe(await readFile(join(source, "_shared/workflow.md"), "utf8"));
-    expect(await readFile(protocol, "utf8")).toContain("runtime/0.7.0/dist/cli.js");
+    expect(await readFile(protocol, "utf8")).toContain("runtime/0.8.0/dist/cli.js");
     expect(await readFile(previous, "utf8")).toBe("The previous runtime remains available.\n");
     for (const name of added) {
       expect(await readFile(join(directory, name, "SKILL.md"), "utf8")).toContain(`name: ${name}`);
@@ -90,7 +90,21 @@ describe("stock protocol upgrades", () => {
     expect(selector.stdout).toContain("--plan");
   });
 
-  it.each(["0.5.0", "0.6.0"])("preserves a customized %s protocol before installing any other files", async version => {
+  it.each(["cursor", "claude", "codex"] as const)("upgrades stock 0.7 files for %s", async host => {
+    const source = join(import.meta.dirname, "../skills");
+    const directory = join(root, host === "codex" ? ".agents/skills" : `.${host}/skills`);
+    await cp(source, directory, { recursive: true });
+    for (const [name, location] of [["workflow", "_shared/workflow.md"], ["selection", "_shared/selection.md"], ["avalon", "avalon/SKILL.md"]]) {
+      await cp(join(import.meta.dirname, `fixtures/agent-${name}-v0.7.0.md`), join(directory, location!));
+    }
+    const installed = await installSkills({ root, host, dryRun: false });
+    expect(installed.runtime.version).toBe("0.8.0");
+    expect(installed.updatedFiles).toBe(3);
+    expect(installed.backups).toHaveLength(3);
+    expect(await readFile(join(directory, "_shared/workflow.md"), "utf8")).toContain(installed.runtime.entrypoint);
+  });
+
+  it.each(["0.5.0", "0.6.0", "0.7.0"])("preserves a customized %s protocol before installing any other files", async version => {
     const previous = await readFile(join(import.meta.dirname, `fixtures/agent-workflow-v${version}.md`), "utf8");
     await writeFile(join(root, target), previous + custom);
     await expect(installSkills({ root, host: "codex", dryRun: false })).rejects.toThrow("installed skill differs");

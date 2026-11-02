@@ -4,8 +4,8 @@ Keep real data, deal ledgers, reports, and source contracts outside the reposito
 Do not include private payloads in issues, commit messages, screenshots, or test fixtures.
 Use synthetic fixtures for development and verification.
 
-The CLI reads local JSON and JSONL as data.
-It has no web interface, server, telemetry, external AI service, or runtime network client.
+The audit commands read local JSON and JSONL as data.
+They do not contact external AI services or run a network client.
 The data audits do not follow source references or execute user-provided programs.
 Its schemas reject unsupported fields.
 Snapshots and appraisal inputs have a 10 MiB limit.
@@ -90,3 +90,15 @@ It loads data-only checkpoints and does not load arbitrary model code.
 GitHub CI runs the code on synthetic fixtures and retains ordinary job logs.
 Dependency installation and GitHub synchronization use network access.
 They do not require real asset data.
+
+## Executable team trials
+
+Trial run and replay execute configured local adapter and agent scripts without a shell.
+These scripts inherit the user environment and permissions. They are trusted code, not sandboxed code.
+The reference adapter changes only a disposable SQLite database with fictional records.
+The optional Ollama wrapper uses loopback access and pinned local weights. It does not download models.
+Request deadlines, action limits, and reported spending limits do not enforce operating system isolation or provider billing limits.
+Request records, errors, observations, and witnesses can contain private data. Keep the output directory private.
+The session creates directories with mode `0700` and files with mode `0600`.
+The manifest seals the listed artifacts. It does not authenticate the recorder or cover imported dependencies.
+See [the adapter guide](docs/trial-adapter.md) for process, replay, and cost boundaries.

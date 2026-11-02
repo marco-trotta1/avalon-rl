@@ -1,0 +1,365 @@
+{
+  "format": "avalon.trial/v1",
+  "id": "synthetic-dry-run",
+  "authorization": {
+    "owner": "Fixture author",
+    "reference": "Repository synthetic fixture",
+    "localUseApproved": true
+  },
+  "protocol": {
+    "frozenAt": "2026-11-02T00:00:00Z",
+    "reviewer": "Fixture author",
+    "baselineName": "Ticket closure assertion",
+    "dataRevision": "synthetic-v1",
+    "adapterVersion": "fixture-v1",
+    "modelVersion": "none",
+    "setupMinutes": 0
+  },
+  "cases": [
+    {
+      "id": "valid",
+      "group": "valid",
+      "split": "development",
+      "origin": "authored-control",
+      "expected": "match",
+      "labelEvidence": "Authored fixture. No customer or model run.",
+      "execution": null,
+      "snapshot": {
+        "format": "avalon.snapshot/v1",
+        "stage": "source",
+        "producer": {
+          "name": "trial-fixture",
+          "version": "1"
+        },
+        "seed": 7,
+        "evidence": "synthetic",
+        "episodes": [
+          {
+            "id": "valid",
+            "task": "Refund 1300 cents without changing the protected balance.",
+            "steps": [
+              {
+                "index": 0,
+                "observation": {
+                  "refundCents": 0,
+                  "protectedCents": 900,
+                  "closed": false
+                },
+                "action": {
+                  "type": "fixture"
+                },
+                "reward": 1,
+                "next_observation": {
+                  "refundCents": 1300,
+                  "protectedCents": 900,
+                  "closed": true
+                },
+                "terminated": true,
+                "truncated": false
+              }
+            ]
+          }
+        ]
+      },
+      "contract": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Refund outcome",
+        "rules": [
+          {
+            "id": "refund",
+            "kind": "final-equals",
+            "path": [
+              "refundCents"
+            ],
+            "expected": 1300
+          },
+          {
+            "id": "protected",
+            "kind": "preserve",
+            "path": [
+              "protectedCents"
+            ],
+            "scope": "every-step"
+          }
+        ]
+      },
+      "baseline": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Ticket closure",
+        "rules": [
+          {
+            "id": "closed",
+            "kind": "final-equals",
+            "path": [
+              "closed"
+            ],
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "false-completion",
+      "group": "false-completion",
+      "split": "development",
+      "origin": "authored-control",
+      "expected": "mismatch",
+      "labelEvidence": "Authored fixture. No customer or model run.",
+      "execution": null,
+      "snapshot": {
+        "format": "avalon.snapshot/v1",
+        "stage": "source",
+        "producer": {
+          "name": "trial-fixture",
+          "version": "1"
+        },
+        "seed": 7,
+        "evidence": "synthetic",
+        "episodes": [
+          {
+            "id": "false-completion",
+            "task": "Refund 1300 cents without changing the protected balance.",
+            "steps": [
+              {
+                "index": 0,
+                "observation": {
+                  "refundCents": 0,
+                  "protectedCents": 900,
+                  "closed": false
+                },
+                "action": {
+                  "type": "fixture"
+                },
+                "reward": 1,
+                "next_observation": {
+                  "refundCents": 0,
+                  "protectedCents": 900,
+                  "closed": true
+                },
+                "terminated": true,
+                "truncated": false
+              }
+            ]
+          }
+        ]
+      },
+      "contract": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Refund outcome",
+        "rules": [
+          {
+            "id": "refund",
+            "kind": "final-equals",
+            "path": [
+              "refundCents"
+            ],
+            "expected": 1300
+          },
+          {
+            "id": "protected",
+            "kind": "preserve",
+            "path": [
+              "protectedCents"
+            ],
+            "scope": "every-step"
+          }
+        ]
+      },
+      "baseline": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Ticket closure",
+        "rules": [
+          {
+            "id": "closed",
+            "kind": "final-equals",
+            "path": [
+              "closed"
+            ],
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "restored-write",
+      "group": "restored-write",
+      "split": "development",
+      "origin": "authored-control",
+      "expected": "mismatch",
+      "labelEvidence": "Authored fixture. No customer or model run.",
+      "execution": null,
+      "snapshot": {
+        "format": "avalon.snapshot/v1",
+        "stage": "source",
+        "producer": {
+          "name": "trial-fixture",
+          "version": "1"
+        },
+        "seed": 7,
+        "evidence": "synthetic",
+        "episodes": [
+          {
+            "id": "restored-write",
+            "task": "Refund 1300 cents without changing the protected balance.",
+            "steps": [
+              {
+                "index": 0,
+                "observation": {
+                  "refundCents": 0,
+                  "protectedCents": 900,
+                  "closed": false
+                },
+                "action": {
+                  "type": "fixture"
+                },
+                "reward": 0,
+                "next_observation": {
+                  "refundCents": 0,
+                  "protectedCents": 901,
+                  "closed": false
+                },
+                "terminated": false,
+                "truncated": false
+              },
+              {
+                "index": 1,
+                "observation": {
+                  "refundCents": 0,
+                  "protectedCents": 901,
+                  "closed": false
+                },
+                "action": {
+                  "type": "fixture"
+                },
+                "reward": 1,
+                "next_observation": {
+                  "refundCents": 1300,
+                  "protectedCents": 900,
+                  "closed": true
+                },
+                "terminated": true,
+                "truncated": false
+              }
+            ]
+          }
+        ]
+      },
+      "contract": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Refund outcome",
+        "rules": [
+          {
+            "id": "refund",
+            "kind": "final-equals",
+            "path": [
+              "refundCents"
+            ],
+            "expected": 1300
+          },
+          {
+            "id": "protected",
+            "kind": "preserve",
+            "path": [
+              "protectedCents"
+            ],
+            "scope": "every-step"
+          }
+        ]
+      },
+      "baseline": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Ticket closure",
+        "rules": [
+          {
+            "id": "closed",
+            "kind": "final-equals",
+            "path": [
+              "closed"
+            ],
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing-observation",
+      "group": "missing-observation",
+      "split": "development",
+      "origin": "authored-control",
+      "expected": "unknown",
+      "labelEvidence": "Authored fixture. No customer or model run.",
+      "execution": null,
+      "snapshot": {
+        "format": "avalon.snapshot/v1",
+        "stage": "source",
+        "producer": {
+          "name": "trial-fixture",
+          "version": "1"
+        },
+        "seed": 7,
+        "evidence": "synthetic",
+        "episodes": [
+          {
+            "id": "missing-observation",
+            "task": "Refund 1300 cents without changing the protected balance.",
+            "steps": [
+              {
+                "index": 0,
+                "observation": {
+                  "refundCents": 0,
+                  "protectedCents": 900,
+                  "closed": false
+                },
+                "action": {
+                  "type": "fixture"
+                },
+                "reward": 1,
+                "next_observation": {
+                  "closed": true
+                },
+                "terminated": true,
+                "truncated": false
+              }
+            ]
+          }
+        ]
+      },
+      "contract": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Refund outcome",
+        "rules": [
+          {
+            "id": "refund",
+            "kind": "final-equals",
+            "path": [
+              "refundCents"
+            ],
+            "expected": 1300
+          },
+          {
+            "id": "protected",
+            "kind": "preserve",
+            "path": [
+              "protectedCents"
+            ],
+            "scope": "every-step"
+          }
+        ]
+      },
+      "baseline": {
+        "format": "avalon.trace-contract/v1",
+        "name": "Ticket closure",
+        "rules": [
+          {
+            "id": "closed",
+            "kind": "final-equals",
+            "path": [
+              "closed"
+            ],
+            "expected": true
+          }
+        ]
+      }
+    }
+  ]
+}
