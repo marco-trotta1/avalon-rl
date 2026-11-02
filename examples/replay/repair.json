@@ -1,0 +1,4 @@
+{
+  "solution.py": "def total_active(rows):\n    total = 0\n    for row in rows:\n        if row['active']:\n            total += row['cents']\n    return total\n",
+  "config.json": "{\"currency\":\"USD\",\"strict\":true}\n"
+}

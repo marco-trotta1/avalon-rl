@@ -1,0 +1,46 @@
+{
+  "seed": 7,
+  "reward": 1.0,
+  "terminated": true,
+  "truncated": false,
+  "receipt": {
+    "format": "avalon.replay-receipt.v1",
+    "status": "pass",
+    "split": "development",
+    "task_hash": "90a63bb586afb4c526cdc8e9daee0225eabd6a877c627d3e6dd614a10a5ed17b",
+    "candidate_hash": "0993d0b192bd8af6b5301817640974ec5fd93d31b9c47e679fdc498779f55c8f",
+    "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+    "protected_checks": [
+      {
+        "path": "config.json",
+        "status": "pass"
+      }
+    ],
+    "test_results": [
+      {
+        "id": "mixed-development",
+        "split": "development",
+        "status": "pass",
+        "reason": "matched",
+        "wall_ms": 301.92529200576246,
+        "stdout_sha256": "f7ff9499fd1358c7c8b867666144b6e8d7fe572dfa04b2aa8b22e975748664c4",
+        "cleanup_confirmed": true,
+        "container_name": null
+      }
+    ],
+    "cleanup_blocked": false,
+    "wall_ms": 359.2242499871645,
+    "limits": [
+      "The host compares returned JSON values. A candidate can forge its interpreter output.",
+      "Protected snapshot checks run on the host. Reported runtime hashes are unauthenticated diagnostics.",
+      "Output hashes cover captured stdout only. Timeout and output limits can truncate that capture.",
+      "Booleans require matching types. Integers compare exactly. Arrays preserve order and objects match keys.",
+      "Float comparisons use relative tolerance 1e-9 and absolute tolerance 1e-12 for arithmetic rounding.",
+      "One run per selected test measures wall milliseconds including Docker startup and cleanup. Timing uncertainty is not estimated.",
+      "No model calls occur. Local compute cost is not measured. This receipt establishes no training improvement."
+    ]
+  },
+  "limits": [
+    "One authored environment step. No learner updates occur."
+  ]
+}

@@ -18,6 +18,23 @@ Complete the user's RL goal through a bounded sequence of verified workflows.
 2. Identify the requested outcome, current bottleneck, permitted execution scope, and saved resource budget.
 3. Write a task graph with concrete artifacts and a stopping rule. Separate known facts from assumptions.
 
+## Execute a coding failure with Avalon Replay
+
+Prefer Replay when the failure can be expressed as a Python function with JSON inputs and outputs.
+Use `avalon-replay --help` or the current source module `avalon_lab.replay_cli`.
+The standalone command requires Python and Docker. Do not silently run candidate code on the host.
+
+1. Preserve the failure, a reference solution, and the owner's expected behavior.
+2. Declare development and holdout inputs before constructing the repair.
+3. Include a legitimate alternative and a negative control. Keep expected values outside candidate access.
+4. Validate the task, then run the observed code, reference, controls, and repair in the same campaign.
+5. Review the private HTML and JSON reports. Keep failed, skipped, and inconclusive cases visible.
+6. Use the Gymnasium adapter only for development rewards. Evaluate the frozen candidate in a separate campaign.
+7. State the supported task class, container boundary, grader limitations, and unmeasured costs.
+
+Do not claim a model was trained when only supplied code was evaluated.
+Do not publish task data, infer licensing rights, or promise contributor earnings from a passing report.
+
 ## Capture a user failure
 
 Use the local `failure` workflow when the user supplies an agent failure with relevant files.

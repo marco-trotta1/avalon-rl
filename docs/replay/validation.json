@@ -1,0 +1,40 @@
+{
+  "format": "avalon.replay-validation.v1",
+  "date": "2026-11-01",
+  "parent_commit": "536136f5dbf0fc812adda5d5eecdd3d0894d6d62",
+  "files": {
+    "python/src/avalon_lab/replay_campaign.py": "9d9ccf98ead24377232c93bc38435bc450a1132c83a5d09a6e5d496ae081e89d",
+    "python/src/avalon_lab/replay_cli.py": "678ef0f45a12d5cae1a95651ddc99b8123b74e71f6bd61dee67832a8cd72ea5e",
+    "python/src/avalon_lab/replay_contract.py": "1227079a4dcfc9e9aac40330a160d23b9e7dfc42353ccd4e53e33b8d3e1d9b83",
+    "python/src/avalon_lab/replay_demo.py": "a5dca82aeb2bcd04555eb1b63743e15b9aacbd249181069b311e52b399388d36",
+    "python/src/avalon_lab/replay_env.py": "8ece94418ddaeff430e2a2cbde609bfdaecce7fa8821ff4474f5a26e8262d815",
+    "python/src/avalon_lab/replay_runner.py": "1f2d117ce9d5ed2c60cf7d89284d7c9658edd995fb56bd81fe53266942f8522e",
+    "examples/replay/overfit.json": "acf957f74af0cd2ef9ccc4ea12500b9f771dac354d0ab67f255afb0c99e84181",
+    "examples/replay/repair.json": "632cb02a1c93c16ca6f336697ee0141322294f884acc8913df8e9337217b5565",
+    "examples/replay/task.json": "cf6b011cfaea299200a35f9c754f3347f9fa94f33b4551435eea05df6216466a"
+  },
+  "node_tests": 346,
+  "python_tests": {
+    "passed": 354,
+    "skipped": 3,
+    "warnings": 78
+  },
+  "runner_docker_tests": {
+    "passed": 23,
+    "skipped": 0
+  },
+  "html_visual_review": "blocked by browser file URL policy; escaping and report content tested programmatically",
+  "limits": [
+    "Authored fixtures only. No model inference or learner updates.",
+    "No buyer, revenue, generalization, or scientific novelty established."
+  ],
+  "simple_baseline": {
+    "name": "exact-reference-file-equality",
+    "cases": 1,
+    "candidate_decisions": {
+      "repair": false,
+      "overfit": false
+    },
+    "uncertainty": "Exact authored fixture comparisons; no population estimate."
+  }
+}
