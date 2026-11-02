@@ -1,0 +1,94 @@
+{
+  "provenance": "authored-two-step-allocation-real-docker",
+  "benchmark_hash": "76cff0b22398310cb77d0b6b92b55ba23f1c57aeb238f32eb603d080359b5fad",
+  "evaluator_hash": "9a55cd0352121c7da53e08558852cb045a4b07e02a750bf2f4075d200a816d00",
+  "image_id": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff",
+  "frozen_at": "2026-11-02T03:10:44.528697+00:00",
+  "baseline_measurement": {
+    "action_timeout_seconds": 5,
+    "actor_lifetime_seconds": 60,
+    "baseline": "recorded-observed-policy",
+    "candidate_generation_cost_usd": null,
+    "compute_cost_usd": null,
+    "max_steps": 2,
+    "min_return": 2.0,
+    "model_api_calls": null,
+    "model_api_cost_usd": null,
+    "python": "3.13.5",
+    "return_absolute_tolerance": 1e-09,
+    "samples_per_policy": 4,
+    "seeds": [
+      7,
+      8,
+      19,
+      20
+    ],
+    "uncertainty": "not estimated",
+    "unit": "undiscounted episode return",
+    "wall_ms": 17009.570249996614
+  },
+  "comparison_measurement": {
+    "wall_ms": 7068.275249999715,
+    "unit": "undiscounted episode return",
+    "baseline": "recorded-observed-policy",
+    "samples_per_policy": 2,
+    "seeds": [
+      19,
+      20
+    ],
+    "uncertainty": "not estimated",
+    "model_api_calls": null,
+    "model_api_cost_usd": null,
+    "compute_cost_usd": null,
+    "candidate_generation_cost_usd": null,
+    "python": "3.13.5",
+    "action_timeout_seconds": 5,
+    "actor_lifetime_seconds": 60,
+    "min_return": 2.0,
+    "return_absolute_tolerance": 1e-09,
+    "max_steps": 2
+  },
+  "paired_deltas": [
+    {
+      "id": "follow-request",
+      "status": "accepted",
+      "pairs": [
+        {
+          "id": "holdout-19",
+          "split": "holdout",
+          "seed": 19,
+          "baseline_status": "fail",
+          "candidate_status": "pass",
+          "baseline_return": 1.0,
+          "candidate_return": 2.0,
+          "return_delta": 1.0,
+          "delta_reason": "computed"
+        },
+        {
+          "id": "holdout-20",
+          "split": "holdout",
+          "seed": 20,
+          "baseline_status": "fail",
+          "candidate_status": "pass",
+          "baseline_return": 1.0,
+          "candidate_return": 2.0,
+          "return_delta": 1.0,
+          "delta_reason": "computed"
+        }
+      ],
+      "relative_outcome": "higher-return",
+      "relative_absolute_tolerance": 1e-09,
+      "sample_count": 2,
+      "complete_pairs": 2,
+      "computed_deltas": 2,
+      "mean_return_delta": 1.0,
+      "mean_reason": "computed",
+      "uncertainty": "not estimated"
+    }
+  ],
+  "limits": [
+    "The two possible target orders repeat across splits. This is a workflow test, not a generalization test.",
+    "The policies are authored. No weights are trained and no production process is evaluated.",
+    "Uncertainty is not estimated. Compute and candidate generation costs remain unpriced."
+  ]
+}

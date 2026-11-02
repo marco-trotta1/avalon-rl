@@ -2,7 +2,7 @@
   <img src="docs/assets/avalon-manga.png" width="1040" alt="Avalon RL. A human and an android face each other across glass.">
 </p>
 
-<h1 align="center">Avalon Replay: turn agent failures into executable tests.</h1>
+<h1 align="center">Avalon Replay: build project environments and verify improvements.</h1>
 
 <p align="center">
   <a href="#install">Install</a> ·
@@ -10,35 +10,57 @@
   <a href="#evidence-and-limits">Evidence</a>
 </p>
 
-Avalon Replay turns agent failures into executable tests for code, games, and simulated control.
-Evaluate policy changes through frozen episodes with observations, actions, and host-computed rewards.
-Keep the baseline, controls, separate evaluation inputs, and execution evidence together.
-Use the open source core locally. No hosted account is required.
+Avalon Replay turns a project goal and its authorized context into a frozen benchmark through your coding agent.
+Preserve the current policy, capture its baseline, and evaluate changes against the same world and checks.
+The agent authors the project. The runtime executes the explicit manifest and keeps the evidence local.
 
-## Run Avalon Replay
+## Freeze a project benchmark
+
+Ask your coding agent:
+
+```text
+Use Avalon Replay to build an environment from this goal and the authorized project context.
+State assumptions, define observable success, preserve the current policy, and explain the evaluation split.
+Create avalon-project.json, freeze its benchmark and baseline, then iterate on development cases.
+```
+
+Once the agent creates `avalon-project.json`, run:
+
+```sh
+avalon-replay freeze
+avalon-replay develop --candidate repair=policy.py
+avalon-replay compare --candidate selected=policy.py
+```
+
+The default benchmark directory is `.avalon/benchmark`.
+`freeze` captures the baseline in one command and reuses the saved receipt when the project is unchanged.
+Development uses development cases. Final comparison uses the frozen holdout cases.
+The [project workflow](docs/replay/project-workflow.md) explains authoring, permissions, identities, and evaluation limits.
+
+## Run the authored demonstration
 
 Use Python 3.13 or later, the [Python dependencies](docs/python-lab.md), and Docker from a source checkout:
 
 ```sh
 docker pull python:3.11.15-slim
-PYTHONPATH=python/src python3 -m avalon_lab.replay_cli demo \
-  --environment FrozenLake-v1 --output /tmp/replay-demo
-PYTHONPATH=python/src python3 -m avalon_lab.replay_cli run \
-  --task /tmp/replay-demo/task.json \
-  --candidate repair=/tmp/replay-demo/repair.json \
-  --output /tmp/replay-result
+PYTHONPATH=python/src python3 -m avalon_lab.replay_cli project-demo --output /tmp/replay-project
+PYTHONPATH=python/src python3 -m avalon_lab.replay_cli freeze \
+  --project /tmp/replay-project/avalon-project.json --output /tmp/replay-benchmark
+PYTHONPATH=python/src python3 -m avalon_lab.replay_cli develop \
+  --benchmark /tmp/replay-benchmark --candidate repair=/tmp/replay-project/candidate.py
+PYTHONPATH=python/src python3 -m avalon_lab.replay_cli compare \
+  --benchmark /tmp/replay-benchmark --candidate selected=/tmp/replay-project/candidate.py
 ```
 
-Open `/tmp/replay-result/report.html` to inspect the behavioral results and execution evidence.
-The [environment guide](docs/replay/general-environments.md) covers games, simulated control, and trusted custom adapters.
-The built-in adapter supports CartPole, FrozenLake, Taxi, Pendulum, and MountainCar.
-The [Replay guide](docs/replay/README.md) also covers Python function tasks with JSON inputs and outputs.
-Replay provides a CLI and Python API. Standard RL training remains available through the existing workflows.
-Replay does not automatically train a model or establish a production improvement.
+This authored resource allocation task demonstrates the workflow. It does not train a model or establish production improvement.
+The current project interface requires an executable Python policy and world with JSON observations and actions.
+Recorded traces alone cannot supply missing world transitions or evaluate new decisions.
+External service connectors are not implemented by the generic project format.
 
-Avalon also supplies agent workflows, snapshot audits, and reviewed licensing packages.
-The open source runtime remains local and usable without a hosted account.
-Private domain tasks and managed services are possible commercial offerings. Participation and data licensing require explicit permission.
+Replay also supports [games and simulated control](docs/replay/general-environments.md) and [Python function tasks](docs/replay/README.md).
+It provides a CLI and Python API. Standard RL training remains available through the existing workflows.
+The local open source runtime requires no hosted account.
+Private domain tasks and managed services are possible offerings with explicit permissions and separate agreements.
 These options do not establish buyer demand, contributor earnings, or Avalon revenue.
 
 ## Install
@@ -58,7 +80,7 @@ The installer uses a project runtime and preserves customized skills.
 Claude Code and Cursor use slash commands. In Codex, open `/skills` or use names such as `$rl-break`.
 
 ```text
-/avalon Diagnose why reward rises while task completion falls
+/avalon Build and freeze a benchmark from this project goal and authorized context
 /rl-env Build an environment for this task
 /rl-break Find a rewarded failure in this environment
 /rl-train Compare the original and revised rewards
@@ -89,6 +111,7 @@ It makes no model calls.
 
 | Task | Guide |
 | --- | --- |
+| Build and freeze a project benchmark | [Project workflow](docs/replay/project-workflow.md) |
 | Evaluate games and simulated control | [Environment adapters](docs/replay/general-environments.md) |
 | Execute coding failures and evaluate repairs | [Avalon Replay](docs/replay/README.md) |
 | Compare exact file snapshots | [Failure workflow](docs/failures.md) |

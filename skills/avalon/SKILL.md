@@ -18,11 +18,41 @@ Complete the user's RL goal through a bounded sequence of verified workflows.
 2. Identify the requested outcome, current bottleneck, permitted execution scope, and saved resource budget.
 3. Write a task graph with concrete artifacts and a stopping rule. Separate known facts from assumptions.
 
+## Build and freeze the project benchmark
+
+Prefer this workflow when the user describes a goal and supplies project context.
+The coding agent authors the project. The Replay runtime executes explicit manifests and does not infer goals from traces.
+Read `docs/replay/project-workflow.md` and `docs/replay/project-format.md`.
+
+1. Read only the authorized project context needed to understand the requested goal.
+2. State the goal, observations, available actions, transitions, independent checks, and assumptions.
+3. Explain development and holdout separation using relevant groups and time boundaries. Distinct seeds alone are insufficient.
+4. Implement the world request function and current policy. Preserve the original policy as the baseline.
+5. Add a legitimate passing control and a known failing control. Review the world reward against the original goal.
+6. Assemble `avalon-project.json` with explicit bounded source snapshots and approved context assets.
+7. Run `avalon-replay freeze`. This freezes the benchmark and captures its baseline in one command.
+8. Run `avalon-replay develop --candidate NAME=FILE` for development-only iteration against the frozen benchmark.
+9. Freeze the chosen candidate, then run `avalon-replay compare --candidate NAME=FILE` for holdout evaluation.
+10. Report the original goal, benchmark identity, baseline comparison, failed controls, latency, costs, and evaluation limits.
+
+The default project is `avalon-project.json`. The default benchmark directory is `.avalon/benchmark`.
+An unchanged project reuses its saved freeze receipt. A changed project requires a new benchmark directory.
+Do not rewrite the world, grader, or case roster to make an unsuccessful candidate pass the frozen benchmark.
+If the user's goal changes, author a new project and retain the old benchmark and its negative results.
+A benchmark score does not replace the user's intended outcome.
+
+Do not scan all project data automatically or infer permission to share it.
+World source and policy source run in separate Docker sessions. Do not silently execute supplied world code on the host.
+Training can use separate environment workflows. Final comparisons still use the frozen world, reward logic, and cases.
+This workflow does not automatically update model weights or guarantee protection against reward hacking.
+Hashes detect content changes under the documented checks. They are not authentication or tamper-proof storage.
+Authored fixtures do not establish commercial demand or production outcomes.
+
 ## Execute a failure with Avalon Replay
 
 Use episode tasks for games and simulated control with host-owned observations, actions, rewards, and episode boundaries.
 Use function tasks for Python functions with JSON inputs and outputs.
-The CLI supports the installed built-in worlds. Other worlds require a trusted adapter through the Python API.
+The CLI supports built-in worlds and explicit Python world projects. Other integrations require a trusted adapter through the Python API.
 Use `avalon-replay --help` or the current source module `avalon_lab.replay_cli`.
 The standalone command requires Python and Docker. Do not silently run candidate code on the host.
 
@@ -35,7 +65,7 @@ The standalone command requires Python and Docker. Do not silently run candidate
 7. State the supported task class, container boundary, grader limitations, and unmeasured costs.
 
 Read `docs/replay/general-environments.md` before using episode tasks or adding a trusted environment adapter.
-The policy returns actions. Keep reward calculation and termination in the trusted host environment.
+The policy returns actions. Keep reward calculation and termination outside the policy process.
 Preserve standard RL training workflows. Replay evaluates supplied policies and does not replace a learning algorithm.
 Do not claim universal environment integration from the generic adapter interface.
 Do not claim a model was trained when only supplied code was evaluated.
