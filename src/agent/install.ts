@@ -27,6 +27,17 @@ export async function installSkills(input: { root: string; host: AgentHost; dryR
     const previousSha256 = digest(await readBytes(input.root, protocol));
     if (previousSha256 === stock050Protocol || previousSha256 === stock060Protocol) replace.set(protocol, previousSha256);
   }
+  const stock070 = [
+    ["_shared/workflow.md", "054db586725541e1d8469b39165dfe25f0c031d750e5ab8aa35c772556341ec2"],
+    ["_shared/selection.md", "757cc8ee6ff5c2399a5e0b1d25498d45cec378bd4c43978f91592ec9841ebc80"],
+    ["avalon/SKILL.md", "96bcda7e2870f4b6418ddd9df2233a069dfeb8bb7af350735196ab9208a0f86e"],
+  ] as const;
+  for (const [relativePath, reviewedHash] of stock070) {
+    const target = `${hostDirectories[input.host]}/${relativePath}`;
+    if ((await inspectPath(input.root, target)).exists && digest(await readBytes(input.root, target)) === reviewedHash) {
+      replace.set(target, reviewedHash);
+    }
+  }
   const pending = await pendingBundle({ root: input.root, files: [...files, ...runtime.files], replace });
   const backups = input.dryRun ? [] : await writeBundle({ root: input.root, files: pending });
   const skillTargets = new Set(files.map(file => file.target));

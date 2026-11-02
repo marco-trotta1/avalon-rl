@@ -63,6 +63,13 @@ jobs:
             node "$AVALON_LOCAL" agent commands --json
             node "$AVALON_LOCAL" lab-demo --fault none
           done
+          AVALON_LOCAL="/tmp/avalon-release-smoke/project-codex/.avalon/runtime/$AVALON_VERSION/dist/cli.js"
+          node "$AVALON_LOCAL" trial init --out /tmp/avalon-release-smoke/trial-workspace
+          TRIAL_EXIT=0
+          node "$AVALON_LOCAL" trial run --data /tmp/avalon-release-smoke/trial-workspace/session.json --out /tmp/avalon-release-smoke/trial-run || TRIAL_EXIT=$?
+          test "$TRIAL_EXIT" -eq 5
+          node "$AVALON_LOCAL" trial replay --bundle /tmp/avalon-release-smoke/trial-run --out /tmp/avalon-release-smoke/trial-replay
+          node "$AVALON_LOCAL" trial export --bundle /tmp/avalon-release-smoke/trial-run --case restored-write --out /tmp/avalon-release-smoke/trial-task
           python -m pip install --no-deps --force-reinstall release/*.whl
           cd /tmp
           avalon-python --help

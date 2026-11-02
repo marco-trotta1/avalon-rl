@@ -24,3 +24,6 @@ export * from "./failure/case.js";
 export * from "./failure/replay.js";
 export * from "./failure/package.js";
 export * from "./failure/environment.js";
+export { parseTrial, runTrial, type Trial } from "./trial/run.js";
+export { parseSession, type Session, type SessionCase, type ProcessSpec } from "./trial/session-contract.js";
+export { runSession, replaySession, exportTrialTask } from "./trial/session.js";

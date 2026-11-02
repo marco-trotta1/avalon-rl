@@ -13,7 +13,9 @@ async function inspect(directory) {
       if (/\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|localStorage|sessionStorage|indexedDB)\b/.test(content)) {
         failures.push(`${relative(root, path)} contains a network or browser API.`);
       }
-      if (/["'](?:node:)?(?:http|https|http2|net|tls|dgram|dns|child_process|worker_threads)(?:\/[^"']*)?["']/.test(content)) {
+      const imports = relative(root, path) === "src/trial/process.ts"
+        ? content.replace('import { spawn } from "node:child_process";', "") : content;
+      if (/["'](?:node:)?(?:http|https|http2|net|tls|dgram|dns|child_process|worker_threads)(?:\/[^"']*)?["']/.test(imports)) {
         failures.push(`${relative(root, path)} imports a network or process execution module.`);
       }
       if (/https?:\/\//.test(content)) {
@@ -38,5 +40,5 @@ if (failures.length) {
   process.stderr.write(failures.join("\n") + "\n");
   process.exitCode = 1;
 } else {
-  process.stdout.write("Privacy source check passes. No network, process execution, or browser APIs in source. No tracked private data files.\n");
+  process.stdout.write("Privacy source check passes. No network or browser APIs. Process execution is restricted to the declared trial adapter. No tracked private data files.\n");
 }

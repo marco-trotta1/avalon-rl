@@ -1,7 +1,7 @@
 {
   "name": "avalon",
   "displayName": "Avalon RL",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "RL workflows for coding agents: research, environments, rewards, audits, training, evaluation, and reproducible releases.",
   "author": {
     "name": "Marco Trotta"

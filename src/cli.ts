@@ -9,6 +9,7 @@ import { LAB_COMMANDS, runLab } from "./lab/cli.js";
 import { runAgent } from "./agent/cli.js";
 import { runFailure } from "./failure/cli.js";
 import { runSelection } from "./agent/selection-cli.js";
+import { runTrialCli } from "./trial/cli.js";
 
 type Kind = Analysis["kind"];
 type Output = { type: "stdout" } | { type: "file"; path: string };
@@ -27,6 +28,7 @@ const help = `Avalon RL: a local laboratory for agent experience and learning wo
 Usage:
   avalon failure demo|capture|replay|environment|grade|compare|package [options]
   avalon failure --help
+  avalon trial --data trial.json --out private-report.json
   avalon install cursor|claude|codex [--project project-directory]
   avalon agent commands
   avalon agent install --host cursor|claude|codex [--project project-directory]
@@ -158,6 +160,7 @@ async function writeOutput(input: { output: Output; value: object }): Promise<vo
 }
 
 async function main(args: string[]): Promise<number> {
+  if (args[0] === "trial") return runTrialCli(args.slice(1));
   if (args[0] === "select") return runSelection(args.slice(1));
   if (args[0] === "failure") return runFailure(args.slice(1));
   if (args[0] === "install") return runAgent(args);
