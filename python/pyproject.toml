@@ -13,6 +13,7 @@ dependencies = ["gymnasium==1.2.3", "numpy==2.4.2", "minari[hdf5]==0.5.3", "h5py
 test = ["pytest==9.0.2"]
 
 [project.scripts]
+avalon-replay = "avalon_lab.replay_cli:main"
 avalon-python = "avalon_lab.cli:main"
 
 [tool.pytest.ini_options]
