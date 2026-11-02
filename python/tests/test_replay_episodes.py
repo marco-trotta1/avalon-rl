@@ -220,3 +220,42 @@ def test_custom_factories_do_not_claim_zero_external_costs(task):
     assert report["measurement"]["model_api_calls"] is None
     assert report["measurement"]["model_api_cost_usd"] is None
     assert report["execution"]["actor"] == "trusted-custom"
+
+
+def test_world_startup_cleanup_failure_blocks_all_later_worlds(task):
+    created = []
+
+    class CleanupError(RuntimeError):
+        cleanup_blocked = True
+        container_name = "world-startup-test"
+
+    def broken_factory(spec, *, max_steps):
+        created.append(spec)
+        raise CleanupError()
+
+    report = run(task, adapter_factory=broken_factory)
+    assert len(created) == 1
+    assert report["cleanup_blocked"]
+    assert report["outstanding_containers"] == ["world-startup-test"]
+
+
+def test_development_campaign_never_executes_holdout(task):
+    seeds = []
+
+    class TrackingWorld(TestWorld):
+        def reset(self, *, seed):
+            seeds.append(seed)
+            return super().reset(seed=seed)
+
+    report = run(task, adapter_factory=TrackingWorld, split="development")
+    assert set(seeds) == {7}
+    assert report["evaluated_split"] == "development"
+    assert report["measurement"]["samples_per_policy"] == 1
+    assert report["candidates"][0]["holdout"]["total"] == 0
+
+
+def test_current_process_can_already_pass_the_benchmark(task):
+    task = replace(task, snapshots=replace(task.snapshots, observed=task.snapshots.reference))
+    report = run(task, require_observed_failure=False)
+    assert report["grader"]["status"] == "accepted"
+    assert report["baseline"]["status"] == "pass"
