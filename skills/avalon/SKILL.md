@@ -18,6 +18,25 @@ Complete the user's RL goal through a bounded sequence of verified workflows.
 2. Identify the requested outcome, current bottleneck, permitted execution scope, and saved resource budget.
 3. Write a task graph with concrete artifacts and a stopping rule. Separate known facts from assumptions.
 
+## Capture a user failure
+
+Use the local `failure` workflow when the user supplies an agent failure with relevant files.
+Check `avalon failure --help` first. Older runtimes can lack this command.
+Build the current Avalon source when the installed runtime does not support the command.
+
+1. Preserve the initial files, observed files, expected behavior, model identity, and capture time.
+2. Keep the case private. Never infer permission to share it from possession of the files.
+3. Propose a reference result and explicit checks. Ask the owner to review their intended meaning.
+4. Run `failure capture`, then `failure replay`. Keep unresolved results visible.
+5. Create a fresh directory with `failure environment`. Keep the case and reference outside candidate access.
+6. Use the host's authorized tools to repair the task. Stop the candidate before grading.
+7. Run `failure grade`. Retain failed checks and evaluate separate families before claiming broader improvement.
+8. Use `failure package` only with explicit permitted uses and a completed review bound to the case hash.
+
+Exact file checks can reject equivalent solutions. Do not claim behavioral equivalence from these checks.
+The task directory is not a security sandbox. Use an isolated container for untrusted execution.
+Package preparation does not publish data, execute payments, or establish model improvement.
+
 ## Execute
 
 1. Select the smallest sequence of command workflows that can settle the goal.

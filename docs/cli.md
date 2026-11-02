@@ -1,5 +1,7 @@
 # Laboratory commands
 
+For failure capture, task creation, repair grading, and licensing packages, use the [failure workflow](failures.md).
+
 Build the CLI with `npm run build`.
 Run `node dist/cli.js lab-demo` for a synthetic reward mismatch.
 Run `node dist/cli.js lab-demo --fault none` for the clean control.
