@@ -5,6 +5,7 @@ import json
 import math
 import os
 import stat
+import sys
 from pathlib import Path
 
 from .replay_contract import parse_files, parse_replay_task, task_to_dict
@@ -56,8 +57,15 @@ def write_json(path: Path, value: object) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    project_commands = ("project-demo", "freeze", "develop", "compare")
+    if arguments and arguments[0] in project_commands:
+        from .replay_project_cli import main as project_main
+        return project_main(arguments)
     parser = argparse.ArgumentParser(description="Avalon Replay: execute failures and evaluate repairs locally.")
     commands = parser.add_subparsers(dest="command", required=True)
+    for command in project_commands:
+        commands.add_parser(command, help="Use the project benchmark workflow.")
     demo = commands.add_parser("demo", help="Write an authored task and repair candidates.")
     demo.add_argument("--output", type=Path, required=True)
     demo.add_argument("--environment", choices=("CartPole-v1", "FrozenLake-v1"), help="Write a multi-step episode task.")
