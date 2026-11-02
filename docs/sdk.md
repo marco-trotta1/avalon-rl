@@ -40,3 +40,10 @@ The package keeps the `private` flag to prevent accidental registry publication.
 Use `parseSelection` to validate a frozen plan and its bound scores.
 Pass the result to `selectCandidates` for a fixed-budget Hoeffding comparison.
 Read [the selection contract](selection.md) before interpreting its confidence statement.
+
+## Failure tasks
+
+The SDK exports `parseFailureCase`, `failureCaseHash`, `replayFailureCase`, and `compareFailureCases`.
+Use `createFailureEnvironment` and `readFailureEnvironment` for declared local task files.
+Use `prepareFailurePackage` after the owner and reviewer authorize the specified content and use.
+Read the [failure guide](failures.md) for the evidence and execution boundaries.

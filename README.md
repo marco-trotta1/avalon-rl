@@ -12,7 +12,23 @@
 
 Avalon adds reinforcement learning workflows to Codex, Claude Code, and Cursor.
 Use your agent to build environments and run training experiments within a declared budget.
-The local CLI and TypeScript SDK audit recorded experience and save counterexamples.
+Turn agent failures into private tasks, test repairs, and prepare reviewed packages for permitted uses.
+The local CLI and TypeScript SDK also audit recorded experience and save counterexamples.
+
+## Turn a failure into a task
+
+Build the source, then capture and test a failure locally:
+
+```sh
+npm run build
+node dist/cli.js failure demo --out failure.json
+node dist/cli.js failure replay --data failure.json
+node dist/cli.js failure environment --data failure.json --directory task-attempt-1
+```
+
+Give your agent the task directory and expected behavior. Grade its changes with `avalon failure grade`.
+The [failure guide](docs/failures.md) covers capture, comparison, and reviewed licensing packages.
+This source feature does not upload data, make payments, or train a model.
 
 ## Install
 
@@ -62,6 +78,7 @@ It makes no model calls.
 
 | Task | Guide |
 | --- | --- |
+| Capture failures and test repairs | [Failure workflow](docs/failures.md) |
 | Build tasks and test rewards | [World rules](docs/world.md) |
 | Audit a data pipeline | [CLI reference](docs/cli.md) · [Snapshot format](docs/snapshots.md) |
 | Train with Gymnasium or use Minari | [Python setup](docs/python-lab.md) |
