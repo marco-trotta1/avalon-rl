@@ -1,6 +1,7 @@
 """The local experiment command."""
 
 import argparse
+import sys
 from pathlib import Path
 
 from .agent_cli import AGENT_COMMANDS, add_agent_commands, dispatch_agent_command
@@ -36,6 +37,9 @@ def _frontier_command(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "replay":
+        from .replay_cli import main as replay_main
+        return replay_main(sys.argv[2:])
     parser = argparse.ArgumentParser(description="Run local RL audits and bounded policy experiments.")
     commands = parser.add_subparsers(dest="command", required=True)
     add_agent_commands(commands)
