@@ -1,7 +1,8 @@
-# Avalon Replay
+# Avalon Replay function tasks
 
 Turn a coding failure into an executable task. Test repairs against behavioral checks and retain the evidence.
-Replay is a primary Avalon workflow for Python functions with JSON inputs and outputs.
+This guide covers Python function tasks with JSON inputs and outputs.
+For games, simulated control, and trusted custom worlds, read the [environment guide](general-environments.md).
 It runs locally and makes no model calls.
 
 ## Run the demonstration

@@ -1,0 +1,790 @@
+{
+  "provenance": "authored-policies-real-simulators",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "results": [
+    {
+      "environment": "CartPole-v1",
+      "task": {
+        "id": "cartpole-balance",
+        "title": "Keep the pole upright",
+        "hash": "de4ef6067cb6523ade3cc5b29b2a02fc6e30398df12fff0e4922a5bea8e67820"
+      },
+      "image": {
+        "requested": "python:3.11.15-slim",
+        "resolved": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff"
+      },
+      "measurement": {
+        "wall_ms": 9545.813749995432,
+        "unit": "undiscounted episode return",
+        "baseline": "recorded-observed-policy",
+        "samples_per_policy": 4,
+        "seeds": [
+          7,
+          19,
+          41,
+          53
+        ],
+        "uncertainty": "not estimated",
+        "model_api_calls": 0,
+        "model_api_cost_usd": 0,
+        "compute_cost_usd": null,
+        "candidate_generation_cost_usd": null,
+        "python": "3.13.5",
+        "action_timeout_seconds": 5,
+        "actor_lifetime_seconds": 60,
+        "min_return": 80.0,
+        "return_absolute_tolerance": 1e-09,
+        "max_steps": 100
+      },
+      "grader": {
+        "status": "accepted",
+        "reasons": []
+      },
+      "policies": [
+        {
+          "name": "observed",
+          "hash": "3d56510ecf47276133466020fbfa2f200450c18a62fdf4697e62db28d3489124",
+          "status": "fail",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 9.0,
+              "steps": 9,
+              "status": "fail",
+              "wall_ms": 395.3776249982184,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 10.0,
+              "steps": 10,
+              "status": "fail",
+              "wall_ms": 403.9705420000246,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 10.0,
+              "steps": 10,
+              "status": "fail",
+              "wall_ms": 420.6080000003567,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 10.0,
+              "steps": 10,
+              "status": "fail",
+              "wall_ms": 398.7199170078384,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        },
+        {
+          "name": "reference",
+          "hash": "9a84d8aabce56c9ce4f13d9b26c3350f3c3803765532fd926f3d8099a9f851c6",
+          "status": "pass",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 488.8087080034893,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 455.087583992281,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 472.8639579989249,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 426.5517500025453,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        },
+        {
+          "name": "repair",
+          "hash": "9a84d8aabce56c9ce4f13d9b26c3350f3c3803765532fd926f3d8099a9f851c6",
+          "status": "pass",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 390.08170799934305,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 385.0079999974696,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 391.51708300050814,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 100.0,
+              "steps": 100,
+              "status": "pass",
+              "wall_ms": 392.2729580081068,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        },
+        {
+          "name": "always-left",
+          "hash": "3d56510ecf47276133466020fbfa2f200450c18a62fdf4697e62db28d3489124",
+          "status": "fail",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 9.0,
+              "steps": 9,
+              "status": "fail",
+              "wall_ms": 357.4548750038957,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 10.0,
+              "steps": 10,
+              "status": "fail",
+              "wall_ms": 352.9809579922585,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 10.0,
+              "steps": 10,
+              "status": "fail",
+              "wall_ms": 347.9543330031447,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 10.0,
+              "steps": 10,
+              "status": "fail",
+              "wall_ms": 351.34312500304077,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "CartPole-v1",
+                "kwargs": {},
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "b758e3286711a2c44b0817265412c9fab1dce8b1b385e2126bc710ceedd47378",
+                "max_steps": 100,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "environment": "FrozenLake-v1",
+      "task": {
+        "id": "frozenlake-route",
+        "title": "Reach the grid goal",
+        "hash": "6a7da840e895ef1341e2e4807b2983b710e97a60c0d41bdea8f7a8e628ee5cc5"
+      },
+      "image": {
+        "requested": "python:3.11.15-slim",
+        "resolved": "sha256:90744cff8f32887f075c47d747a173ff333e9e98801667af93c357fa9f5e28ff"
+      },
+      "measurement": {
+        "wall_ms": 8582.915790990228,
+        "unit": "undiscounted episode return",
+        "baseline": "recorded-observed-policy",
+        "samples_per_policy": 4,
+        "seeds": [
+          7,
+          19,
+          41,
+          53
+        ],
+        "uncertainty": "not estimated",
+        "model_api_calls": 0,
+        "model_api_cost_usd": 0,
+        "compute_cost_usd": null,
+        "candidate_generation_cost_usd": null,
+        "python": "3.13.5",
+        "action_timeout_seconds": 5,
+        "actor_lifetime_seconds": 60,
+        "min_return": 1.0,
+        "return_absolute_tolerance": 1e-09,
+        "max_steps": 20
+      },
+      "grader": {
+        "status": "accepted",
+        "reasons": []
+      },
+      "policies": [
+        {
+          "name": "observed",
+          "hash": "3d56510ecf47276133466020fbfa2f200450c18a62fdf4697e62db28d3489124",
+          "status": "fail",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 367.2403340024175,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 355.83145898999646,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 379.92954200308304,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 357.96183299680706,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        },
+        {
+          "name": "reference",
+          "hash": "f227e53b6d539acaf5efc3feff616d0878a01ea710b6058777eeab7b6f6b7ea3",
+          "status": "pass",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 350.28566599066835,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 342.9017919988837,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 365.37650000536814,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 351.61808400880545,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        },
+        {
+          "name": "repair",
+          "hash": "f227e53b6d539acaf5efc3feff616d0878a01ea710b6058777eeab7b6f6b7ea3",
+          "status": "pass",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 345.3195420006523,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 364.2106670013163,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 365.7251250115223,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 1.0,
+              "steps": 6,
+              "status": "pass",
+              "wall_ms": 364.24845800502226,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        },
+        {
+          "name": "always-left",
+          "hash": "3d56510ecf47276133466020fbfa2f200450c18a62fdf4697e62db28d3489124",
+          "status": "fail",
+          "episodes": [
+            {
+              "id": "development-7",
+              "seed": 7,
+              "split": "development",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 357.99166599463206,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "development-19",
+              "seed": 19,
+              "split": "development",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 379.9579580081627,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-41",
+              "seed": 41,
+              "split": "holdout",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 366.6701249894686,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            },
+            {
+              "id": "holdout-53",
+              "seed": 53,
+              "split": "holdout",
+              "return": 0.0,
+              "steps": 20,
+              "status": "fail",
+              "wall_ms": 363.3055419923039,
+              "environment": {
+                "adapter": "gymnasium",
+                "environment": "FrozenLake-v1",
+                "kwargs": {
+                  "is_slippery": false
+                },
+                "gymnasium": "1.2.3",
+                "numpy": "2.4.2",
+                "source_sha256": "994cb58dffeeb55cf07d97d673fa69ff03d1a52e2b5120decc287dfa9b58e294",
+                "max_steps": 20,
+                "reward_authority": "trusted-host-world"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Four fixed seeds per policy; one run per seed. Uncertainty is not estimated.",
+    "FrozenLake uses one deterministic map. Its different seeds do not produce different initial conditions.",
+    "These checks do not train weights or establish generalization, production performance, or revenue.",
+    "Local compute and candidate generation costs are unpriced. Full temporary traces are not retained here."
+  ]
+}

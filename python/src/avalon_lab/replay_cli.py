@@ -60,6 +60,7 @@ def main(argv: list[str] | None = None) -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     demo = commands.add_parser("demo", help="Write an authored task and repair candidates.")
     demo.add_argument("--output", type=Path, required=True)
+    demo.add_argument("--environment", choices=("CartPole-v1", "FrozenLake-v1"), help="Write a multi-step episode task.")
     validate = commands.add_parser("validate", help="Validate a task without running code.")
     validate.add_argument("--task", type=Path, required=True)
     run = commands.add_parser("run", help="Execute a campaign in restricted Docker containers.")
@@ -71,6 +72,16 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "demo":
+            if args.environment:
+                from .replay_episode_demo import BAD_POLICY, episode_demo
+                from .replay_episode_contract import episode_task_to_dict
+                task = episode_demo(args.environment)
+                args.output.mkdir(mode=0o700)
+                write_json(args.output / "task.json", episode_task_to_dict(task))
+                write_json(args.output / "repair.json", dict(task.snapshots.reference))
+                write_json(args.output / "baseline.json", {"policy.py": BAD_POLICY})
+                print("The private episode demo contains a task, a controller, and an always-left baseline.")
+                return 0
             task = demo_task()
             args.output.mkdir(mode=0o700)
             write_json(args.output / "task.json", task_to_dict(task))
@@ -78,10 +89,18 @@ def main(argv: list[str] | None = None) -> int:
             write_json(args.output / "overfit.json", files(OVERFIT))
             print("The private demo contains a task, a valid repair, and an overfit candidate.")
             return 0
-        task = parse_replay_task(read_json(args.task))
-        if args.command == "validate":
+        raw = read_json(args.task)
+        episode = isinstance(raw, dict) and raw.get("format") == "avalon.replay-episode.v1"
+        if episode:
+            from .replay_episode_contract import parse_episode_task, episode_task_hash
+            task = parse_episode_task(raw)
+            digest = episode_task_hash(task)
+        else:
             from .replay_contract import task_hash
-            print(json.dumps({"format": "avalon.replay-validation.v1", "task_hash": task_hash(task), "status": "valid"}))
+            task = parse_replay_task(raw)
+            digest = task_hash(task)
+        if args.command == "validate":
+            print(json.dumps({"format": "avalon.replay-validation.v1", "task_hash": digest, "status": "valid"}))
             return 0
         from .replay_campaign import render_campaign_html, run_campaign
         if not args.candidate or len(args.candidate) > 10:
@@ -98,9 +117,15 @@ def main(argv: list[str] | None = None) -> int:
         if not 1 <= args.timeout <= 60:
             raise ValueError("Set the timeout between one and sixty seconds.")
         args.output.mkdir(mode=0o700)
-        report = run_campaign(task=task, candidates=candidates, image=args.image, timeout_seconds=args.timeout)
+        if episode:
+            from .replay_episodes import render_episode_html, run_episode_campaign
+            report = run_episode_campaign(task=task, candidates=candidates, image=args.image, timeout_seconds=args.timeout)
+            rendered = render_episode_html(report)
+        else:
+            report = run_campaign(task=task, candidates=candidates, image=args.image, timeout_seconds=args.timeout)
+            rendered = render_campaign_html(report)
         write_json(args.output / "report.json", report)
-        write_text(args.output / "report.html", render_campaign_html(report))
+        write_text(args.output / "report.html", rendered)
         print("The private campaign report is written as JSON and HTML.")
         return {"accepted": 0, "rejected": 4, "inconclusive": 5}[report["status"]]
     except (OSError, ValueError, RuntimeError, RecursionError):
