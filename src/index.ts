@@ -19,3 +19,8 @@ export { parseTraceHoldout, auditTraceHoldout, type TraceHoldout } from "./trace
 export { makeWorldMdp, makeWorldMdpSuite, type WorldMdp } from "./world/mdp.js";
 export { runTraceBenchmark, makeWorldTraceContract } from "./trace/benchmark.js";
 export { parseSelectionPlan, parseSelection, selectCandidates, type SelectionPlan, type SelectionInput } from "./agent/selection.js";
+
+export * from "./failure/case.js";
+export * from "./failure/replay.js";
+export * from "./failure/package.js";
+export * from "./failure/environment.js";

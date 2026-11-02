@@ -7,6 +7,7 @@ import { blankCase, demoCase, demoData } from "./lib/demo.js";
 import { assertNever, MAX_FILE_BYTES, parseCase } from "./lib/schema.js";
 import { LAB_COMMANDS, runLab } from "./lab/cli.js";
 import { runAgent } from "./agent/cli.js";
+import { runFailure } from "./failure/cli.js";
 import { runSelection } from "./agent/selection-cli.js";
 
 type Kind = Analysis["kind"];
@@ -24,6 +25,8 @@ class FileError extends Error {}
 const help = `Avalon RL: a local laboratory for agent experience and learning worlds.
 
 Usage:
+  avalon failure demo|capture|replay|environment|grade|compare|package [options]
+  avalon failure --help
   avalon install cursor|claude|codex [--project project-directory]
   avalon agent commands
   avalon agent install --host cursor|claude|codex [--project project-directory]
@@ -156,6 +159,7 @@ async function writeOutput(input: { output: Output; value: object }): Promise<vo
 
 async function main(args: string[]): Promise<number> {
   if (args[0] === "select") return runSelection(args.slice(1));
+  if (args[0] === "failure") return runFailure(args.slice(1));
   if (args[0] === "install") return runAgent(args);
   if (args[0] === "agent") return runAgent(args.slice(1));
   if (LAB_COMMANDS.includes(args[0] ?? "")) return runLab(args);
