@@ -38,6 +38,21 @@ Never upload a private witness as a public reproducer.
 The Python recorder supports a documented list of built-in Gymnasium environments.
 Local Minari export requires HDF5 and supported serialized built-in spaces.
 It bypasses automatic environment recovery and the extensible space deserializer.
+Avalon Replay is a separate Python command that executes supplied candidate code in Docker containers.
+It requires a locally available image and records its immutable image ID.
+It rejects remote Docker endpoints and pins a local Unix socket for each run.
+Each test uses a non-root container with network access disabled, a read-only root, and bounded resources.
+Replay mounts no host directories and passes no model credentials to the container.
+The host keeps expected results and reference code outside candidate containers.
+Runtime file hashes come from the candidate interpreter and are not authenticated evidence.
+A candidate can interfere with that interpreter and its output protocol.
+Container restrictions do not establish grader integrity or protect against a compromised Docker runtime.
+Replay attempts container removal after each test. Unconfirmed removal makes the result inconclusive and records the container name.
+No subsequent test or campaign snapshot starts while cleanup remains unconfirmed.
+Use a dedicated execution host for hostile inputs. Review the image and task before execution.
+The standalone HTML report uses escaped text and no remote assets or scripts.
+Reports remain private and include task identifiers, hashes, and test metadata.
+
 The Python comparison starts only the Node CLI path that the user explicitly supplies.
 It passes arguments directly and uses no shell command interpolation.
 
