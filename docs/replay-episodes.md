@@ -57,3 +57,11 @@ The built-in world and Docker actor make zero model API calls. Their model API c
 Custom factories can call external services. Their external calls and costs remain unknown.
 Compute, engineering, and candidate generation costs remain unpriced.
 Retain failed and inconclusive episodes when reporting results.
+
+## Frozen benchmark execution
+
+The Python API accepts `split="development"` or `split="holdout"` to execute only that split.
+The default remains `all`. Reports identify the executed split and count only executed cases.
+Set `require_observed_failure=False` when measuring an existing process that can already satisfy the goal.
+Reference checks and positive and negative controls still apply.
+World startup or cleanup failures that leave a container unconfirmed stop the whole campaign.

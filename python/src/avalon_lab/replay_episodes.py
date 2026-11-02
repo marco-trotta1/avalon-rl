@@ -7,6 +7,7 @@ import json
 import math
 import platform
 from time import perf_counter
+from typing import Literal
 
 from .replay_actor import ActorError, DockerPolicySession
 from .replay_adapters import create_adapter
@@ -41,8 +42,12 @@ def _decision(statuses: list[str]) -> str:
 
 def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str, str]], image: str,
                          timeout_seconds: int = 5, *, adapter_factory: Callable = create_adapter,
-                         actor_factory: Callable = DockerPolicySession) -> dict:
+                         actor_factory: Callable = DockerPolicySession,
+                         split: Literal["all", "development", "holdout"] = "all",
+                         require_observed_failure: bool = True) -> dict:
     """Run paired episodes without accepting rewards from the policy process."""
+    if split not in ("all", "development", "holdout") or type(require_observed_failure) is not bool:
+        raise ValueError("Select a supported split and a boolean baseline requirement.")
     if not candidates or len(candidates) > 10:
         raise ValueError("Supply between one and 10 candidates.")
     if type(timeout_seconds) is not int or not 1 <= timeout_seconds <= 60:
@@ -53,6 +58,7 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
     frozen_candidates = {name: parse_files(dict(files)) for name, files in candidates.items()}
     builtin_execution = adapter_factory is create_adapter and actor_factory is DockerPolicySession
     task_digest = episode_task_hash(task)
+    episodes = tuple(episode for episode in task.episodes if split == "all" or episode.split == split)
     pinned_image = None
     cleanup_blocked = False
     outstanding: set[str] = set()
@@ -62,7 +68,7 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
         nonlocal pinned_image, cleanup_blocked
         snapshot_hash = _hash(dict(files))
         rows = []
-        for episode in task.episodes:
+        for episode in episodes:
             started = perf_counter()
             row = {"id": episode.id, "split": episode.split, "seed": episode.seed,
                    "task_hash": task_digest, "candidate_hash": snapshot_hash, "image_id": pinned_image,
@@ -114,8 +120,14 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
                         break
             except ActorError as error:
                 row.update(status="inconclusive", reason=error.reason)
-            except Exception:
+            except Exception as error:
                 row.update(status="inconclusive", reason="world-or-policy-error")
+                if getattr(error, "cleanup_blocked", False):
+                    cleanup_blocked = True
+                    row["reason"] = "world-cleanup-error"
+                    name = getattr(error, "container_name", None)
+                    if isinstance(name, str):
+                        outstanding.add(name)
             finally:
                 if actor is not None:
                     try:
@@ -132,9 +144,12 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
                 if adapter is not None:
                     try:
                         adapter.close()
-                    except Exception:
+                    except Exception as error:
                         cleanup_blocked = True
                         row.update(status="inconclusive", reason="world-cleanup-error")
+                        name = getattr(error, "container_name", None)
+                        if isinstance(name, str):
+                            outstanding.add(name)
                 row["wall_ms"] = (perf_counter() - started) * 1000
             rows.append(row)
         status = "inconclusive" if any(row["status"] == "inconclusive" for row in rows) else "fail" if any(row["status"] == "fail" for row in rows) else "pass"
@@ -143,8 +158,10 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
     baseline = evaluate(task.snapshots.observed)
     reference = evaluate(task.snapshots.reference)
     controls = [{"id": control.id, "expected": control.expect, "run": evaluate(control.files)} for control in task.controls]
-    requirements = [("observed", "fail", baseline), ("reference", "pass", reference),
+    requirements = [("reference", "pass", reference),
                     *[(control["id"], control["expected"], control["run"]) for control in controls]]
+    if require_observed_failure:
+        requirements.insert(0, ("observed", "fail", baseline))
     grader_decisions = []
     reasons = []
     for label, expected, run in requirements:
@@ -160,7 +177,7 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
         assessed.append({"id": name, "status": "inconclusive" if cleanup_blocked else _decision([grader_status, outcome]),
                          "run": run, "development": _summary(run, "development"), "holdout": _summary(run, "holdout")})
     return {
-        "format": "avalon.replay-episode-campaign.v1", "task": {"id": task.id, "title": task.title, "hash": task_digest},
+        "format": "avalon.replay-episode-campaign.v1", "evaluated_split": split, "task": {"id": task.id, "title": task.title, "hash": task_digest},
         "status": "inconclusive" if cleanup_blocked else _decision([grader_status, *[row["status"] for row in assessed]]),
         "grader": {"status": grader_status, "reasons": reasons}, "baseline": baseline, "reference": reference,
         "controls": controls, "candidates": assessed, "image": {"requested": image, "resolved": pinned_image},
@@ -168,8 +185,8 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
                       "world": "builtin" if adapter_factory is create_adapter else "trusted-custom"},
         "cleanup_blocked": cleanup_blocked, "outstanding_containers": sorted(outstanding),
         "measurement": {"wall_ms": (perf_counter() - campaign_started) * 1000, "unit": "undiscounted episode return",
-                        "baseline": "recorded-observed-policy", "samples_per_policy": len(task.episodes),
-                        "seeds": [episode.seed for episode in task.episodes], "uncertainty": "not estimated",
+                        "baseline": "recorded-observed-policy", "samples_per_policy": len(episodes),
+                        "seeds": [episode.seed for episode in episodes], "uncertainty": "not estimated",
                         "model_api_calls": 0 if builtin_execution else None,
                         "model_api_cost_usd": 0 if builtin_execution else None, "compute_cost_usd": None,
                         "candidate_generation_cost_usd": None, "python": platform.python_version(),
@@ -177,7 +194,7 @@ def run_episode_campaign(task: EpisodeTask, candidates: Mapping[str, Mapping[str
                         "actor_lifetime_seconds": 60 if actor_factory is DockerPolicySession else None,
                         "min_return": task.min_return, "return_absolute_tolerance": 1e-9, "max_steps": task.max_steps},
         "limits": [
-            "The trusted host adapter computes rewards and ending flags. The policy supplies actions only.",
+            "The trusted world computes rewards and ending flags. The policy supplies actions only.",
             "Acceptance applies to the supplied paired seeds. It does not establish generalization or model improvement.",
             "The return threshold uses absolute tolerance 1e-9 for floating-point accumulation.",
             "Invalid actions, protocol errors, and timeouts remain inconclusive. They cannot satisfy negative controls.",
@@ -207,5 +224,5 @@ def render_episode_html(report: dict) -> str:
     return """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>Avalon episode report</title>
 <style>body{margin:0;background:#f7f3ea;color:#182b47;font:16px/1.5 system-ui,sans-serif}header{background:#152742;color:#fff;padding:2rem}main{padding:2rem;max-width:1300px;margin:auto}section{background:#fffdf7;padding:1.5rem;margin-bottom:1.5rem;border:1px solid #d7dce4;border-radius:10px}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:.85rem}td,th{padding:.6rem;border-bottom:1px solid #d7dce4}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem}summary{cursor:pointer}</style>
-</head><body><header><p>Avalon Replay · Host-owned rewards</p><h1>""" + text(report["task"]["title"]) + "</h1><p>" + text(report["status"]) + """</p></header><main>
+</head><body><header><p>Avalon Replay · World-owned rewards</p><h1>""" + text(report["task"]["title"]) + "</h1><p>" + text(report["status"]) + """</p></header><main>
 <section><h2>Paired episode evidence</h2><p>Each policy uses the same seeds. Incomplete episodes remain in the report.</p><div class="scroll"><table><thead><tr><th>Policy</th><th>Episode</th><th>Split</th><th>Seed</th><th>Status</th><th>Return</th><th>Steps</th><th>Terminated</th><th>Truncated</th></tr></thead><tbody>""" + rows + """</tbody></table></div></section><section><h2>Limits</h2><ul>""" + limits + """</ul></section><section><details><summary>Complete traces and receipts</summary><pre>""" + details + "</pre></details></section></main></body></html>"
