@@ -53,6 +53,6 @@ jobs:
         run: |
           avalon-replay --help
           docker pull python:3.11.15-slim
-          python -m pytest python/tests/test_replay_runner.py -q -k real_docker
+          python -m pytest python/tests/test_replay_runner.py python/tests/test_replay_actor.py python/tests/test_replay_episode_integration.py -q -k real_docker
       - name: Build the local package
         run: npm pack --dry-run
