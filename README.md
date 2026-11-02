@@ -10,17 +10,19 @@
   <a href="#evidence-and-limits">Evidence</a>
 </p>
 
-Avalon Replay turns coding failures into executable tasks and tests proposed repairs against behavioral checks.
+Avalon Replay turns agent failures into executable tests for code, games, and simulated control.
+Evaluate policy changes through frozen episodes with observations, actions, and host-computed rewards.
 Keep the baseline, controls, separate evaluation inputs, and execution evidence together.
 Use the open source core locally. No hosted account is required.
 
 ## Run Avalon Replay
 
-Use Python 3.13 or later and Docker from a source checkout:
+Use Python 3.13 or later, the [Python dependencies](docs/python-lab.md), and Docker from a source checkout:
 
 ```sh
 docker pull python:3.11.15-slim
-PYTHONPATH=python/src python3 -m avalon_lab.replay_cli demo --output /tmp/replay-demo
+PYTHONPATH=python/src python3 -m avalon_lab.replay_cli demo \
+  --environment FrozenLake-v1 --output /tmp/replay-demo
 PYTHONPATH=python/src python3 -m avalon_lab.replay_cli run \
   --task /tmp/replay-demo/task.json \
   --candidate repair=/tmp/replay-demo/repair.json \
@@ -28,11 +30,16 @@ PYTHONPATH=python/src python3 -m avalon_lab.replay_cli run \
 ```
 
 Open `/tmp/replay-result/report.html` to inspect the behavioral results and execution evidence.
-The [Replay guide](docs/replay/README.md) covers capture, controls, candidate comparison, and the Gymnasium adapter.
-The current task class is Python functions with JSON inputs and outputs.
+The [environment guide](docs/replay/general-environments.md) covers games, simulated control, and trusted custom adapters.
+The built-in adapter supports CartPole, FrozenLake, Taxi, Pendulum, and MountainCar.
+The [Replay guide](docs/replay/README.md) also covers Python function tasks with JSON inputs and outputs.
+Replay provides a CLI and Python API. Standard RL training remains available through the existing workflows.
 Replay does not automatically train a model or establish a production improvement.
 
 Avalon also supplies agent workflows, snapshot audits, and reviewed licensing packages.
+The open source runtime remains local and usable without a hosted account.
+Private domain tasks and managed services are possible commercial offerings. Participation and data licensing require explicit permission.
+These options do not establish buyer demand, contributor earnings, or Avalon revenue.
 
 ## Install
 
@@ -82,7 +89,8 @@ It makes no model calls.
 
 | Task | Guide |
 | --- | --- |
-| Execute failures and evaluate repairs | [Avalon Replay](docs/replay/README.md) |
+| Evaluate games and simulated control | [Environment adapters](docs/replay/general-environments.md) |
+| Execute coding failures and evaluate repairs | [Avalon Replay](docs/replay/README.md) |
 | Compare exact file snapshots | [Failure workflow](docs/failures.md) |
 | Build tasks and test rewards | [World rules](docs/world.md) |
 | Audit a data pipeline | [CLI reference](docs/cli.md) · [Snapshot format](docs/snapshots.md) |
