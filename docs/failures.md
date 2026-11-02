@@ -1,5 +1,8 @@
 # Turn an agent failure into a task
 
+For executable Python behavior and the training adapter, use [Avalon Replay](replay/README.md).
+This guide covers the exact file snapshot workflow.
+
 Avalon captures declared file snapshots, creates a fresh task directory, and grades a candidate against explicit checks.
 The workflow runs locally without an account, model client, or upload.
 This source feature requires a build that includes the `failure` command.

@@ -2,7 +2,7 @@
   <img src="docs/assets/avalon-manga.png" width="1040" alt="Avalon RL. A human and an android face each other across glass.">
 </p>
 
-<h1 align="center">Build the worlds that shape machine intelligence.</h1>
+<h1 align="center">Avalon Replay: turn agent failures into executable tests.</h1>
 
 <p align="center">
   <a href="#install">Install</a> ·
@@ -10,25 +10,29 @@
   <a href="#evidence-and-limits">Evidence</a>
 </p>
 
-Avalon adds reinforcement learning workflows to Codex, Claude Code, and Cursor.
-Use your agent to build environments and run training experiments within a declared budget.
-Turn agent failures into private tasks, test repairs, and prepare reviewed packages for permitted uses.
-The local CLI and TypeScript SDK also audit recorded experience and save counterexamples.
+Avalon Replay turns coding failures into executable tasks and tests proposed repairs against behavioral checks.
+Keep the baseline, controls, separate evaluation inputs, and execution evidence together.
+Use the open source core locally. No hosted account is required.
 
-## Turn a failure into a task
+## Run Avalon Replay
 
-Build the source, then capture and test a failure locally:
+Use Python 3.13 or later and Docker from a source checkout:
 
 ```sh
-npm run build
-node dist/cli.js failure demo --out failure.json
-node dist/cli.js failure replay --data failure.json
-node dist/cli.js failure environment --data failure.json --directory task-attempt-1
+docker pull python:3.11.15-slim
+PYTHONPATH=python/src python3 -m avalon_lab.replay_cli demo --output /tmp/replay-demo
+PYTHONPATH=python/src python3 -m avalon_lab.replay_cli run \
+  --task /tmp/replay-demo/task.json \
+  --candidate repair=/tmp/replay-demo/repair.json \
+  --output /tmp/replay-result
 ```
 
-Give your agent the task directory and expected behavior. Grade its changes with `avalon failure grade`.
-The [failure guide](docs/failures.md) covers capture, comparison, and reviewed licensing packages.
-This source feature does not upload data, make payments, or train a model.
+Open `/tmp/replay-result/report.html` to inspect the behavioral results and execution evidence.
+The [Replay guide](docs/replay/README.md) covers capture, controls, candidate comparison, and the Gymnasium adapter.
+The current task class is Python functions with JSON inputs and outputs.
+Replay does not automatically train a model or establish a production improvement.
+
+Avalon also supplies agent workflows, snapshot audits, and reviewed licensing packages.
 
 ## Install
 
@@ -78,7 +82,8 @@ It makes no model calls.
 
 | Task | Guide |
 | --- | --- |
-| Capture failures and test repairs | [Failure workflow](docs/failures.md) |
+| Execute failures and evaluate repairs | [Avalon Replay](docs/replay/README.md) |
+| Compare exact file snapshots | [Failure workflow](docs/failures.md) |
 | Build tasks and test rewards | [World rules](docs/world.md) |
 | Audit a data pipeline | [CLI reference](docs/cli.md) · [Snapshot format](docs/snapshots.md) |
 | Train with Gymnasium or use Minari | [Python setup](docs/python-lab.md) |

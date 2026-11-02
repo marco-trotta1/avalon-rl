@@ -46,5 +46,13 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/python/src
           AVALON_CLI: ${{ github.workspace }}/dist/cli.js
         run: python -m pytest python/tests -q
+      - name: Test Replay with real Docker execution
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src
+          AVALON_REPLAY_DOCKER: "1"
+        run: |
+          avalon-replay --help
+          docker pull python:3.11.15-slim
+          python -m pytest python/tests/test_replay_runner.py -q -k real_docker
       - name: Build the local package
         run: npm pack --dry-run
